@@ -4,45 +4,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>دخول من الهاتف — إنـقـاذ حــيـاة</title>
+    <title>تثبيت التطبيق — إنقاذ حياة</title>
     <meta name="theme-color" content="#dc3545">
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .qr-page { max-width: 480px; margin: 2rem auto; padding: 1rem; text-align: center; }
-        .qr-page h1 { color: var(--primary-red, #dc3545); margin-bottom: 0.5rem; font-size: 1.35rem; }
-        .qr-page .lead { color: #555; margin-bottom: 1.25rem; font-size: 0.95rem; line-height: 1.6; }
-        #qrcode { display: inline-block; padding: 12px; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.08); margin: 1rem 0; }
-        .qr-url-box { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; margin: 0.5rem 0; direction: ltr; text-align: left; }
-        .qr-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 1rem; }
-        .qr-hint { font-size: 0.85rem; color: #666; margin-top: 1.5rem; text-align: right; line-height: 1.7; }
-        .qr-hint strong { color: #333; }
-        .back-link { display: inline-block; margin-top: 1.5rem; color: var(--primary-red, #dc3545); text-decoration: none; font-weight: 600; }
-        .back-link:hover { text-decoration: underline; }
+        .qr-page {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem 2.5rem;
+        }
+
+        .qr-brand {
+            text-align: center;
+            padding: 1.5rem 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #fff5f6 0%, #fff 100%);
+            border: 1px solid rgba(220, 53, 69, 0.12);
+            box-shadow: 0 8px 28px rgba(60, 20, 30, 0.06);
+        }
+
+        .qr-brand-icon {
+            font-size: 2rem;
+            color: var(--primary-red, #dc3545);
+            margin-bottom: 0.35rem;
+        }
+
+        .qr-brand-name {
+            margin: 0;
+            font-size: clamp(1.45rem, 4vw, 1.75rem);
+            font-weight: 800;
+            color: #1a1d28;
+            letter-spacing: 0.02em;
+        }
+
+        .qr-brand-tag {
+            margin: 0.4rem 0 0;
+            font-size: 0.95rem;
+            color: #5c5f6c;
+            font-weight: 600;
+        }
+
+        .qr-steps {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 14px;
+            padding: 1rem 1.15rem;
+            margin-bottom: 1.35rem;
+            text-align: right;
+        }
+
+        .qr-steps h2 {
+            margin: 0 0 0.85rem;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #2c2e38;
+        }
+
+        .qr-steps ol {
+            margin: 0;
+            padding: 0 1.15rem 0 0;
+            line-height: 1.75;
+            font-size: 0.92rem;
+            color: #3d404f;
+        }
+
+        .qr-steps li {
+            margin-bottom: 0.45rem;
+        }
+
+        .qr-steps li:last-child {
+            margin-bottom: 0;
+        }
+
+        .qr-block-title {
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #2c2e38;
+            margin: 0 0 0.75rem;
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            padding: 14px;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.07);
+            margin-bottom: 1.25rem;
+        }
+
+        .qr-url-section {
+            margin-top: 0.5rem;
+        }
+
+        .qr-url-section label {
+            display: block;
+            font-size: 0.8rem;
+            color: #777;
+            margin-bottom: 0.35rem;
+            text-align: right;
+        }
+
+        .qr-url-box {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .qr-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .qr-platforms {
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid #eee;
+        }
+
+        .qr-platforms h3 {
+            margin: 0 0 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #2c2e38;
+            text-align: right;
+        }
+
+        .qr-platform {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.65rem;
+            text-align: right;
+            font-size: 0.86rem;
+            line-height: 1.65;
+            color: #454854;
+        }
+
+        .qr-platform:last-child {
+            margin-bottom: 0;
+        }
+
+        .qr-platform strong {
+            color: #1a1d28;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 1.75rem;
+            color: var(--primary-red, #dc3545);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 
 <body>
     <div class="qr-page">
-        <h1><i class="fas fa-qrcode" aria-hidden="true"></i> افتح التطبيق من هاتفك</h1>
-        <p class="lead">امسح <strong>رمز QR</strong> بكاميرا هاتفك لفتح الموقع. بعد الفتح يمكنك <strong>تثبيته كتطبيق</strong> من قائمة المتصفح.</p>
+        <header class="qr-brand">
+            <div class="qr-brand-icon" aria-hidden="true"><i class="fas fa-heartbeat"></i></div>
+            <p class="qr-brand-name">إنقاذ حياة</p>
+            <p class="qr-brand-tag">منصة التبرع بالدم — ثبّت التطبيق على هاتفك للوصول السريع</p>
+        </header>
 
-        <div id="qrcode" role="img" aria-label="رمز QR لرابط التطبيق"></div>
+        <section class="qr-steps" aria-labelledby="qr-steps-title">
+            <h2 id="qr-steps-title">خطوات التثبيت</h2>
+            <ol>
+                <li>وجّه كاميرا هاتفك إلى <strong>رمز QR</strong> أدناه حتى يفتح الرابط.</li>
+                <li>بعد فتح الموقع في المتصفح، اختر <strong>تثبيت التطبيق</strong> (أو إضافة إلى الشاشة الرئيسية) ليصبح بإمكانك فتح «إنقاذ حياة» مثل أي تطبيق.</li>
+            </ol>
+        </section>
 
-        <label for="appUrl">رابط الموقع (عدّله إذا كان النشر على نطاق آخر):</label>
-        <input type="url" id="appUrl" class="qr-url-box" placeholder="https://example.com/" autocomplete="off">
+        <p class="qr-block-title">امسح الرمز للوصول إلى التطبيق</p>
+        <div id="qrcode" role="img" aria-label="رمز QR لتطبيق إنقاذ حياة"></div>
+
+        <div class="qr-url-section">
+            <label for="appUrl">رابط الموقع (للتعديل عند النشر على نطاق آخر)</label>
+            <input type="url" id="appUrl" class="qr-url-box" placeholder="https://example.com/" autocomplete="off">
+        </div>
 
         <div class="qr-actions">
             <button type="button" class="btn btn-primary" id="btnRegen"><i class="fas fa-sync-alt"></i> تحديث الرمز</button>
             <button type="button" class="btn btn-secondary" id="btnCopy"><i class="fas fa-copy"></i> نسخ الرابط</button>
         </div>
 
-        <div class="qr-hint">
-            <strong>أندرويد (Chrome):</strong> القائمة ⋮ ← <em>تثبيت التطبيق</em> أو <em>إضافة إلى الشاشة الرئيسية</em>.<br>
-            <strong>آيفون (Safari):</strong> زر المشاركة ← <em>إضافة إلى شاشة الإصل</em>.
-        </div>
+        <section class="qr-platforms" aria-labelledby="qr-platforms-title">
+            <h3 id="qr-platforms-title">أين تجد خيار التثبيت؟</h3>
+            <div class="qr-platform">
+                <strong>أندرويد (Chrome)</strong><br>
+                القائمة ⋮ ← <em>تثبيت التطبيق</em> أو <em>إضافة إلى الشاشة الرئيسية</em>.
+            </div>
+            <div class="qr-platform">
+                <strong>آيفون (Safari)</strong><br>
+                اضغط زر <em>المشاركة</em> في شريط المتصفح السفلي ← ثم <em>إضافة إلى الشاشة الرئيسية</em>.
+            </div>
+        </section>
 
-        <a href="/" class="back-link">← العودة للرئيسية</a>
+        <div style="text-align:center;">
+            <a href="/" class="back-link">← العودة للصفحة الرئيسية</a>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" crossorigin="anonymous"></script>
