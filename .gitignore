@@ -1,0 +1,44 @@
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Production builds
+dist/
+build/
+
+# Database
+*.db
+*.sqlite
+data/app-data.json
+
+# Logs
+logs
+*.log
+debug.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+
+# ملفات محلية اختيارية (لا ترفع مستندات Word/أرشيفات كبيرة إن لم تكن جزءاً من الكود)
+favicon_io.zip
+*.docx

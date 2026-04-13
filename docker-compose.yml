@@ -1,0 +1,23 @@
+# اسم المشروع لـ Docker (يجب أحرف لاتينية/أرقام/شرطة؛ يقابل تطبيق «إنقاذ حياة»)
+name: inqath-hayah
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: inqath-hayah-db
+    environment:
+      POSTGRES_USER: bloodconnect
+      POSTGRES_PASSWORD: bloodconnect
+      POSTGRES_DB: bloodconnect
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bloodconnect -d bloodconnect"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

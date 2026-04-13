@@ -1,0 +1,96 @@
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const dotenv = require('dotenv');
+const path = require('path');
+const { initDataLayer } = require('./lib/dataAccess');
+const { getJwtSecret } = require('./lib/jwtSecret');
+
+// Load environment variables (.env يتجاوز متغيرات النظام حتى يُلغى DATABASE_URL عند التعليق)
+dotenv.config({ override: true });
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+const devOrigins = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000'
+];
+
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production'
+        ? (process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',').map(s => s.trim()) : ['https://yourdomain.com'])
+        : devOrigins,
+    credentials: true
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use('/api/', limiter);
+
+// Body parser middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from frontend
+app.use(express.static(path.join(__dirname)));
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const donorRoutes = require('./routes/donors');
+const messageRoutes = require('./routes/messages');
+const smsRoutes = require('./routes/sms');
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/donors', donorRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/sms', smsRoutes);
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        message: 'Blood Connect API is running',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Serve frontend for all other routes
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ 
+        error: 'Something went wrong!',
+        message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+});
+
+async function start() {
+    try {
+        getJwtSecret();
+        await initDataLayer();
+    } catch (e) {
+        console.error('فشل تهيئة قاعدة البيانات:', e.message);
+        process.exit(1);
+    }
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 Blood Connect API server running on port ${PORT} (جميع الواجهات — للوصول من الهاتف على نفس الشبكة استخدم IP جهازك)`);
+        console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+        console.log(`📱 Twilio configured: ${process.env.TWILIO_ACCOUNT_SID ? 'Yes' : 'No'}`);
+        console.log(`🗄️ Storage: ${process.env.DATABASE_URL ? 'PostgreSQL' : 'JSON file'}`);
+    });
+}
+
+start();

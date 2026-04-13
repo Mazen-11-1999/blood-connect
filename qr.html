@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دخول من الهاتف — إنـقـاذ حــيـاة</title>
+    <meta name="theme-color" content="#dc3545">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .qr-page { max-width: 480px; margin: 2rem auto; padding: 1rem; text-align: center; }
+        .qr-page h1 { color: var(--primary-red, #dc3545); margin-bottom: 0.5rem; font-size: 1.35rem; }
+        .qr-page .lead { color: #555; margin-bottom: 1.25rem; font-size: 0.95rem; line-height: 1.6; }
+        #qrcode { display: inline-block; padding: 12px; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.08); margin: 1rem 0; }
+        .qr-url-box { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; margin: 0.5rem 0; direction: ltr; text-align: left; }
+        .qr-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 1rem; }
+        .qr-hint { font-size: 0.85rem; color: #666; margin-top: 1.5rem; text-align: right; line-height: 1.7; }
+        .qr-hint strong { color: #333; }
+        .back-link { display: inline-block; margin-top: 1.5rem; color: var(--primary-red, #dc3545); text-decoration: none; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+
+<body>
+    <div class="qr-page">
+        <h1><i class="fas fa-qrcode" aria-hidden="true"></i> افتح التطبيق من هاتفك</h1>
+        <p class="lead">امسح <strong>رمز QR</strong> بكاميرا هاتفك لفتح الموقع. بعد الفتح يمكنك <strong>تثبيته كتطبيق</strong> من قائمة المتصفح.</p>
+
+        <div id="qrcode" role="img" aria-label="رمز QR لرابط التطبيق"></div>
+
+        <label for="appUrl">رابط الموقع (عدّله إذا كان النشر على نطاق آخر):</label>
+        <input type="url" id="appUrl" class="qr-url-box" placeholder="https://example.com/" autocomplete="off">
+
+        <div class="qr-actions">
+            <button type="button" class="btn btn-primary" id="btnRegen"><i class="fas fa-sync-alt"></i> تحديث الرمز</button>
+            <button type="button" class="btn btn-secondary" id="btnCopy"><i class="fas fa-copy"></i> نسخ الرابط</button>
+        </div>
+
+        <div class="qr-hint">
+            <strong>أندرويد (Chrome):</strong> القائمة ⋮ ← <em>تثبيت التطبيق</em> أو <em>إضافة إلى الشاشة الرئيسية</em>.<br>
+            <strong>آيفون (Safari):</strong> زر المشاركة ← <em>إضافة إلى شاشة الإصل</em>.<br>
+            <strong>ملاحظة:</strong> التثبيت كتطبيق يعمل بشكل أفضل على <strong>HTTPS</strong> (أو على <code>localhost</code> أثناء التطوير).
+        </div>
+
+        <a href="/" class="back-link">← العودة للرئيسية</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" crossorigin="anonymous"></script>
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const fromQuery = params.get('url');
+            const defaultUrl = (fromQuery && fromQuery.trim()) ? decodeURIComponent(fromQuery.trim())
+                : (window.location.origin + '/');
+
+            const input = document.getElementById('appUrl');
+            const el = document.getElementById('qrcode');
+
+            function currentUrl() {
+                const v = (input.value || '').trim();
+                if (!v) return defaultUrl;
+                try {
+                    const u = new URL(v.startsWith('http') ? v : 'https://' + v);
+                    return u.href;
+                } catch (e) {
+                    return defaultUrl;
+                }
+            }
+
+            function draw() {
+                const url = currentUrl();
+                el.innerHTML = '';
+                QRCode.toCanvas(url, { width: 256, margin: 2, color: { dark: '#1a1a1a', light: '#ffffff' } }, function (err, canvas) {
+                    if (err) {
+                        el.textContent = 'تعذر إنشاء الرمز. تحقق من الرابط.';
+                        return;
+                    }
+                    el.appendChild(canvas);
+                });
+            }
+
+            input.value = defaultUrl;
+            draw();
+
+            document.getElementById('btnRegen').addEventListener('click', draw);
+            document.getElementById('btnCopy').addEventListener('click', function () {
+                const url = currentUrl();
+                navigator.clipboard.writeText(url).then(function () {
+                    alert('تم نسخ الرابط.');
+                }).catch(function () {
+                    prompt('انسخ الرابط يدوياً:', url);
+                });
+            });
+            input.addEventListener('change', draw);
+            input.addEventListener('blur', draw);
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنـقـاذ حــيـاة - منصة التبرع بالدم</title>
+    <meta name="description" content="منصة إنسانية تربط بين المحتاجين للدم والمتبرعين">
+    <meta name="theme-color" content="#dc3545">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="إنقاذ حياة">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="إنقاذ حياة">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png">
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <div class="heart-container">
+                    <i class="fas fa-heartbeat heart-icon"></i>
+                    <div class="blood-flow"></div>
+                </div>
+                <span class="brand-text">إنـقـاذ حــيـاة</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" onclick="showPage('home', this)" class="nav-link active">الرئيسية</a>
+                <a href="#" onclick="showPage('login', this)" class="nav-link">تسجيل الدخول</a>
+                <a href="#" onclick="showPage('register', this)" class="nav-link">التسجيل</a>
+                <a href="#" onclick="showPage('search', this)" class="nav-link">البحث عن متبرع</a>
+                <a href="#" onclick="showPage('messages', this)" class="nav-link">الرسائل <span id="messageCount"
+                        class="badge">0</span></a>
+                <a href="#" onclick="showPage('heroes', this)" class="nav-link">أبطالنا</a>
+                <a href="#" onclick="showPage('profile', this)" class="nav-link">الملف الشخصي</a>
+                <a href="/qr.html" class="nav-link" title="رمز QR للدخول من الهاتف" id="navQrLink">📱 دخول سريع</a>
+            </div>
+        </div>
+    </nav>
+
+    <div id="pwaInstallBanner" class="pwa-install-banner" style="display:none;" role="region" aria-label="تثبيت التطبيق">
+        <span class="pwa-install-banner-text">ثبّت التطبيق على هاتفك للوصول السريع</span>
+        <button type="button" id="pwaInstallBtn" class="btn btn-outline">تثبيت</button>
+        <button type="button" id="pwaInstallDismiss" class="btn btn-outline" aria-label="إغلاق">✕</button>
+    </div>
+
+    <!-- الصفحة الرئيسية -->
+    <div id="home" class="page active">
+        <div class="hero-section">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <div class="hero-text-section">
+                        <h1 class="hero-title">
+                            <i class="fas fa-tint"></i> قطرة دم منك
+                        </h1>
+                        <h2 class="hero-subtitle-bold">حياة الإنسان</h2>
+                        <p class="hero-description">
+                            انضم لأكبر منصة للتبرع بالدم في اليمن<br>
+                            كل قطرة دم تعني حياة جديدة.. كن جزءاً من رحلة الأمل والإنقاذ
+                        </p>
+                        <div class="hero-actions">
+                            <button class="btn btn-donor" onclick="showPage('register', null)">
+                                <i class="fas fa-user-heart"></i> سجل كمتبرع
+                            </button>
+                            <a class="btn btn-secondary" href="/qr.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.35rem;">
+                                <i class="fas fa-qrcode"></i> رمز الدخول من الهاتف
+                            </a>
+                        </div>
+                    </div>
+                    <div class="hero-icon-section">
+                        <div class="humanity-slider">
+                            <div class="slider-container">
+                                <div class="slide active">
+                                    <div class="slide-content">
+                                        <div class="human-icon">
+                                            <i class="fas fa-hands-helping"></i>
+                                        </div>
+                                        <p class="slide-text">يد بيد ننقذ الأرواح</p>
+                                    </div>
+                                </div>
+                                <div class="slide">
+                                    <div class="slide-content">
+                                        <div class="human-icon">
+                                            <i class="fas fa-heart"></i>
+                                        </div>
+                                        <p class="slide-text">قلبك ينبض بالحياة</p>
+                                    </div>
+                                </div>
+                                <div class="slide">
+                                    <div class="slide-content">
+                                        <div class="human-icon">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        <p class="slide-text">معاً نصنع الفرق</p>
+                                    </div>
+                                </div>
+                                <div class="slide">
+                                    <div class="slide-content">
+                                        <div class="human-icon">
+                                            <i class="fas fa-hand-holding-heart"></i>
+                                        </div>
+                                        <p class="slide-text">العطاء يجمعنا</p>
+                                    </div>
+                                </div>
+                                <div class="slide">
+                                    <div class="slide-content">
+                                        <div class="human-icon">
+                                            <i class="fas fa-people-carry"></i>
+                                        </div>
+                                        <p class="slide-text">نحن عائلة واحدة</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slider-indicators">
+                                <span class="indicator active" onclick="goToSlide(0)"></span>
+                                <span class="indicator" onclick="goToSlide(1)"></span>
+                                <span class="indicator" onclick="goToSlide(2)"></span>
+                                <span class="indicator" onclick="goToSlide(3)"></span>
+                                <span class="indicator" onclick="goToSlide(4)"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <h3 id="totalDonors">0</h3>
+                        <p>متبرع مسجل</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-heart"></i>
+                        <h3 id="totalRequests">0</h3>
+                        <p>طلب مساعد</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-handshake"></i>
+                        <h3 id="totalMatches">0</h3>
+                        <p>تأكيد مزدوج</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <div class="container">
+                <h2 class="section-title">مميزات المنصة</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>خصوصية كاملة</h3>
+                        <p>نظام رسائل داخلي يحمي معلوماتك الشخصية</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>بحث جغرافي</h3>
+                        <p>ابحث عن المتبرعين في مدينتك ومنطقتك</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-filter"></i>
+                        <h3>فلترة ذكية</h3>
+                        <p>ابحث حسب فصيلة الدم والموقع والعمر</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-comments"></i>
+                        <h3>تواصل آمن</h3>
+                        <p>رسائل داخلية محمية بدون كشف الأرقام</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- تسجيل الدخول -->
+    <div id="login" class="page">
+        <div class="container">
+            <div class="page-header">
+                <h2><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</h2>
+                <p>أدخل البريد وكلمة المرور (يتطلب تشغيل الخادم)</p>
+            </div>
+            <form id="loginForm" class="form-container">
+                <div class="form-group">
+                    <label for="loginEmail"><i class="fas fa-envelope"></i> البريد الإلكتروني *</label>
+                    <input type="email" id="loginEmail" required autocomplete="username" dir="ltr"
+                        style="text-align:left">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword"><i class="fas fa-lock"></i> كلمة المرور *</label>
+                    <input type="password" id="loginPassword" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> دخول
+                </button>
+                <p class="form-hint" style="text-align:center;margin-top:1rem;">
+                    ليس لديك حساب؟
+                    <a href="#" onclick="showPage('register',null);return false;">سجّل كمتبرع</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- صفحة التسجيل -->
+    <div id="register" class="page">
+        <div class="container">
+            <div class="page-header">
+                <h2><i class="fas fa-user-plus"></i> التسجيل كمتبرع</h2>
+                <p>سجل معلوماتك لمساعدة المحتاجين</p>
+            </div>
+            <form id="registerForm" class="form-container">
+                <div class="form-group">
+                    <label for="fullName"><i class="fas fa-user"></i> الاسم الكامل *</label>
+                    <input type="text" id="fullName" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email"><i class="fas fa-envelope"></i> البريد الإلكتروني *</label>
+                        <input type="email" id="email" required autocomplete="email" dir="ltr" style="text-align:left">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password"><i class="fas fa-lock"></i> كلمة المرور *</label>
+                        <input type="password" id="password" minlength="6" required autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword"><i class="fas fa-lock"></i> تأكيد كلمة المرور *</label>
+                        <input type="password" id="confirmPassword" minlength="6" required
+                            autocomplete="new-password">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="age"><i class="fas fa-birthday-cake"></i> العمر *</label>
+                        <input type="number" id="age" min="18" max="65" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bloodType"><i class="fas fa-tint"></i> فصيلة الدم *</label>
+                        <select id="bloodType" required>
+                            <option value="">اختر فصيلة الدم</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="governorate"><i class="fas fa-map"></i> المحافظة *</label>
+                        <select id="governorate" required>
+                            <option value="">جاري التحميل…</option>
+                        </select>
+                        <small class="form-hint"><i class="fas fa-list"></i> اختر المحافظة من القائمة (البرّ
+                            الرئيسي؛ سقطرى مستثناة لأنها أرخبيل).</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="region"><i class="fas fa-map-marker-alt"></i> المنطقة أو الشارع أو القرية *</label>
+                        <input type="text" id="region" placeholder="مثال: وصاب، حي معين، شارع الستين، قرية …" required
+                            autocomplete="street-address">
+                        <small class="form-hint" id="regionLocationHint"><i class="fas fa-pen"></i> اكتب ما يناسبك
+                            بحرية: مديرية، قرية، حي، أو شارع — الدقة هنا تساعد المحتاج على معرفة قربك الجغرافي.</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone"><i class="fas fa-phone"></i> رقم الهاتف (اختياري)</label>
+                    <input type="tel" id="phone" placeholder="سيتم استخدامه للتواصل عند الحاجة">
+                    <small class="form-hint">يمكنك إخفاء رقمك في الإعدادات</small>
+                </div>
+
+                <!-- الحالة الصحية -->
+                <div class="form-group health-section"
+                    style="border-top: 3px solid #dc3545; padding-top: 1.5rem; margin-top: 1.5rem; background: #fff5f5; padding: 1.5rem; border-radius: 8px; border-right: 4px solid #dc3545;">
+                    <label
+                        style="font-weight: bold; color: var(--primary-red); margin-bottom: 1rem; display: block; font-size: 1.2rem;">
+                        <i class="fas fa-heartbeat" style="margin-left: 8px;"></i> الحالة الصحية
+                    </label>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="hasHealthCondition"
+                            style="font-weight: bold; color: var(--dark-gray); display: block; margin-bottom: 0.5rem;">
+                            <i class="fas fa-question-circle" style="color: var(--primary-red); margin-left: 5px;"></i>
+                            هل تعاني من أي أمراض مزمنة أو حالات صحية؟ *
+                        </label>
+                        <select id="hasHealthCondition" required onchange="toggleHealthDetails()"
+                            style="margin-top: 0.5rem; width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                            <option value="">اختر الإجابة</option>
+                            <option value="no">لا، أنا بصحة جيدة</option>
+                            <option value="yes">نعم، لدي حالة صحية</option>
+                        </select>
+                    </div>
+
+                    <div id="healthDetailsSection" style="display: none;">
+                        <div class="form-group">
+                            <label style="font-weight: bold; margin-bottom: 0.8rem; display: block;">
+                                <i class="fas fa-stethoscope" style="color: var(--primary-red); margin-left: 5px;"></i>
+                                اختر الأمراض التي تعاني منها (يمكن اختيار أكثر من مرض):
+                            </label>
+                            <div class="health-conditions-grid">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="healthConditions" value="diabetes">
+                                    <span>داء السكري</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="healthConditions" value="hypertension">
+                                    <span>ارتفاع ضغط الدم</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="healthConditions" value="heart_disease">
+                                    <span>أمراض القلب</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="healthConditions" value="anemia">
+                                    <span>فقر الدم</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="healthConditions" value="hepatitis">
+                                    <span>التهاب الكبد (B أو C)</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="healthConditions" value="hiv">
+                                    <span>فيروس نقص المناعة (HIV)</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="healthConditions" value="cancer">
+                                    <span>سرطان (تم الشفاء منه)</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="healthConditions" value="pregnancy">
+                                    <span>حمل</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="healthConditions" value="recent_surgery">
+                                    <span>جراحة حديثة (أقل من 6 أشهر)</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="healthConditions" value="medication">
+                                    <span>تناول أدوية معينة</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="healthConditions" value="other">
+                                    <span>حالة صحية أخرى</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="healthNotes">
+                                <i class="fas fa-comment-medical"></i> رسالة اختيارية: إذا تريد أن تتحدث عن مرض تعانيه
+                                أو أي معلومات صحية إضافية
+                            </label>
+                            <textarea id="healthNotes" rows="4"
+                                placeholder="اكتب هنا أي معلومات صحية تريد مشاركتها، مثل: تفاصيل عن حالتك الصحية، الأدوية التي تتناولها، تاريخ المرض، أو أي معلومات مهمة أخرى..."></textarea>
+                            <small class="form-hint">هذه المعلومات اختيارية وستساعد في تحديد مدى أهليتك للتبرع
+                                بالدم</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="privacySettings" checked>
+                        <span>إظهار رقمي للمستخدمين الآخرين (يمكن تغييره لاحقاً)</span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="agreeTerms" required>
+                        <span>أوافق على الشروط والأحكام *</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-check"></i> تسجيل
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- صفحة البحث -->
+    <div id="search" class="page">
+        <div class="container">
+            <div class="page-header">
+                <h2><i class="fas fa-search"></i> البحث عن متبرع</h2>
+                <p>ابحث عن متبرع متوافق مع احتياجاتك</p>
+                <p class="form-hint" style="margin-top:0.75rem;line-height:1.6;">
+                    <i class="fas fa-info-circle"></i> المحافظة من قائمة موحّدة؛ يمكنك تقييد <strong>المنطقة/الشارع</strong>
+                    بنص يطابق ما كتبه المتبرعون (قرية، حي، مديرية…).
+                </p>
+            </div>
+
+            <div class="search-filters">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="searchBloodType"><i class="fas fa-tint"></i> فصيلة الدم المطلوبة</label>
+                        <select id="searchBloodType">
+                            <option value="">جميع الفصائل</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="searchGovernorate"><i class="fas fa-map"></i> المحافظة</label>
+                        <select id="searchGovernorate">
+                            <option value="">جميع المحافظات</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="searchAge"><i class="fas fa-birthday-cake"></i> العمر</label>
+                        <input type="number" id="searchAge" min="18" max="65" placeholder="جميع الأعمار">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="searchRegion"><i class="fas fa-map-marker-alt"></i> المنطقة / الشارع / القرية</label>
+                        <input type="text" id="searchRegion" placeholder="اختياري — مثال: وصاب، معين، شارع…">
+                        <small class="form-hint">اتركه فارغاً للبحث في كامل المحافظة المختارة.</small>
+                    </div>
+                </div>
+                <button onclick="searchDonors()" class="btn btn-primary">
+                    <i class="fas fa-search"></i> بحث
+                </button>
+            </div>
+
+            <div id="searchResults" class="results-container">
+                <p class="no-results">استخدم الفلاتر أعلاه للبحث عن متبرعين</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحة الرسائل -->
+    <div id="messages" class="page">
+        <div class="container">
+            <div class="page-header">
+                <h2><i class="fas fa-comments"></i> الرسائل</h2>
+                <p>تواصل مع المتبرعين والمحتاجين</p>
+            </div>
+            <div id="messagesList" class="messages-container">
+                <p class="no-results">لا توجد رسائل</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحة أبطال التبرع -->
+    <div id="heroes" class="page">
+        <div class="heroes-container">
+            <!-- القسم العلوي - الآية والدعاء -->
+            <div class="heroes-header">
+                <div class="verse-section">
+                    <div class="verse-icon">💝</div>
+                    <h1 class="verse-text">
+                        "وَمَنْ أَحْيَاهَا فَكَأَنَّمَا أَحْيَا النَّاسَ جَمِيعًا"
+                    </h1>
+                    <p class="verse-source">القرآن الكريم - سورة المائدة</p>
+                </div>
+
+                <!-- سلايدر الصور -->
+                <div class="heroes-images-slider">
+                    <div class="image-slide active">
+                        <div class="hero-image-placeholder image-1">
+                            <i class="fas fa-hands-helping"></i>
+                        </div>
+                    </div>
+                    <div class="image-slide">
+                        <div class="hero-image-placeholder image-2">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                    </div>
+                    <div class="image-slide">
+                        <div class="hero-image-placeholder image-3">
+                            <i class="fas fa-hand-holding-heart"></i>
+                        </div>
+                    </div>
+                    <div class="image-slide">
+                        <div class="hero-image-placeholder image-4">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="image-slide">
+                        <div class="hero-image-placeholder image-5">
+                            <i class="fas fa-people-carry"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- دعاء للمتبرعين -->
+            <div class="prayer-section">
+                <h2 class="prayer-title">🙏 دعاء للمتبرعين</h2>
+                <div class="prayer-boxes">
+                    <div class="prayer-box">
+                        <p>اللهم بارك في كل متبرع بالدم، واجعل تبرعه في ميزان حسناته، وارزقه الصحة والعافية، واجعل عمله
+                            خالصاً لوجهك الكريم.</p>
+                    </div>
+                    <div class="prayer-box">
+                        <p>اللهم احفظهم من كل سوء، وارزقهم الجنة ورضاك، واجعلهم من الذين يستمعون القول فيتبعون أحسنه.
+                        </p>
+                    </div>
+                    <div class="prayer-box">
+                        <p>اللهم اجعل تبرعهم سبباً في إنقاذ الأرواح، وسبباً في رفع البلاء عن المحتاجين.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- كلمة شكر وتقدير -->
+            <div class="thanks-section">
+                <h2 class="thanks-title">كلمة شكر وتقدير</h2>
+                <div class="thanks-content">
+                    <p class="thanks-text">
+                        إلى كل متبرع بالدم، أنتم الأبطال الحقيقيون الذين لا يراهم العالم، لكن أثركم يبقى خالداً في قلوب
+                        من أنقذتموهم.
+                    </p>
+                    <p class="thanks-text">
+                        تبرعكم ليس مجرد عملية طبية، بل هو عمل إنساني نبيل، وصدقة جارية، وعطاء من القلب إلى القلب.
+                    </p>
+                    <p class="thanks-text">
+                        كل قطرة دم تقدمونها قد تكون السبب في إنقاذ طفل، أو شاب، أو أم، أو أب... قد تكون السبب في إعادة
+                        الأمل لعائلة كاملة.
+                    </p>
+                    <p class="thanks-text highlight">
+                        شكراً لكم... شكراً لأنكم موجودون... شكراً لأنكم تختارون العطاء.
+                    </p>
+                </div>
+            </div>
+
+            <!-- قائمة الأبطال -->
+            <div class="heroes-list-section">
+                <h2 class="heroes-list-title">
+                    <i class="fas fa-trophy"></i> قائمة أبطالنا
+                </h2>
+                <p class="heroes-list-subtitle">يُرتَّب الأبطال بحسب عدد الطلبات التي <strong>اكتمل تأكيدها
+                        مزدوجاً</strong> (المحتاج + المتبرع) في الرسائل — لا يعني ذلك تحققاً طبياً من التبرع.</p>
+                <div id="heroesList" class="heroes-grid">
+                    <!-- سيتم ملؤها ديناميكياً -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحة الملف الشخصي -->
+    <div id="profile" class="page">
+        <div class="container">
+            <div class="page-header">
+                <h2><i class="fas fa-user"></i> الملف الشخصي</h2>
+            </div>
+            <div id="profileContent" class="profile-container">
+                <p class="no-results">يرجى تسجيل الدخول أولاً</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الرسالة -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeMessageModal()">&times;</span>
+            <h3><i class="fas fa-envelope"></i> إرسال رسالة</h3>
+            <form id="messageForm">
+                <input type="hidden" id="recipientId">
+                <div class="form-group">
+                    <label>إلى: <span id="recipientName"></span></label>
+                </div>
+
+                <!-- حالة الطوارئ -->
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="isUrgent">
+                        <span style="color: var(--primary-red); font-weight: bold;">
+                            <i class="fas fa-exclamation-triangle"></i> حالة طارئة - أحتاج التواصل فوراً
+                        </span>
+                    </label>
+                </div>
+
+                <!-- وقت الحاجة -->
+                <div class="form-group">
+                    <label for="neededDateTime">
+                        <i class="fas fa-clock"></i> وقت الحاجة (اختياري)
+                    </label>
+                    <input type="datetime-local" id="neededDateTime">
+                    <small class="form-hint">حدد التاريخ والوقت الذي تحتاج فيه الدم</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="messageText">الرسالة *</label>
+                    <textarea id="messageText" rows="5" required
+                        placeholder="اكتب رسالتك هنا... مثال: أحتاج فصيلة دم O+ في أقرب وقت ممكن"></textarea>
+                </div>
+
+                <!-- رقم الهاتف - إلزامي للحالات الطارئة -->
+                <div class="form-group" id="phoneGroup"
+                    style="background: #f8f9fa; padding: 1rem; border-radius: 5px; border-right: 3px solid #ddd;">
+                    <label for="messagePhone">
+                        <i class="fas fa-phone"></i> رقم هاتفي للتواصل
+                        <span id="phoneRequired" style="color: var(--primary-red); display: none;">*</span>
+                    </label>
+                    <input type="tel" id="messagePhone" placeholder="مهم: ضع رقمك للتواصل الفوري">
+                    <small class="form-hint" id="phoneHint">
+                        يرجى وضع رقمك للسماح للمتبرع بالتواصل معك مباشرة
+                    </small>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-paper-plane"></i> إرسال
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة عرض تفاصيل المتبرع -->
+    <div id="donorModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDonorModal()">&times;</span>
+            <div id="donorDetails"></div>
+        </div>
+    </div>
+
+    <!-- نافذة رسالة SMS داخل التطبيق -->
+    <div id="smsNotification" class="sms-notification">
+        <div class="sms-header">
+            <div class="sms-contact-info">
+                <div class="sms-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="sms-contact-details">
+                    <div class="sms-name" id="smsSenderName">مرسل غير معروف</div>
+                    <div class="sms-number" id="smsSenderPhone">رقم غير معروف</div>
+                </div>
+            </div>
+            <button class="sms-close" onclick="closeSMSNotification()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sms-content">
+            <div class="sms-message-header">
+                <span class="sms-badge urgent-badge-sms" id="smsUrgentBadge" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i> حالة طارئة
+                </span>
+                <span class="sms-time" id="smsTime">الآن</span>
+            </div>
+            <div class="sms-message-body" id="smsMessageBody">
+                <!-- محتوى الرسالة -->
+            </div>
+            <div class="sms-actions">
+                <button class="sms-action-btn call-btn" id="smsCallBtn" onclick="callFromSMS()" style="display: none;">
+                    <i class="fas fa-phone"></i> اتصل
+                </button>
+                <button class="sms-action-btn view-btn" onclick="viewMessageFromSMS()">
+                    <i class="fas fa-eye"></i> عرض الرسالة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="governorate-regions.js"></script>
+    <script src="yemen-governorates.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
