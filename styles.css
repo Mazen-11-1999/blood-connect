@@ -611,73 +611,225 @@ body {
     font-size: 1.1rem;
 }
 
-/* شريط تحفيزي ذكي — يعتمد على إحصائيات حقيقية */
-.motivational-strip {
-    margin-top: 2.25rem;
+.hero-stats-caption {
+    max-width: 1000px;
+    margin: 1.35rem auto 0;
+    padding: 0 0.5rem;
+    text-align: center;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #4a4d5c;
+    font-weight: 600;
+}
+
+/* إعلان توعوي متحرك — دوّار كل 3 ثوانٍ */
+.announcement-bar {
+    margin-top: 1.75rem;
     max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
-    padding: 1.25rem 1.35rem;
-    border-radius: 16px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.97) 0%, rgba(255, 248, 250, 0.98) 100%);
-    border: 1px solid rgba(220, 53, 69, 0.14);
-    box-shadow: 0 8px 32px rgba(60, 25, 40, 0.07);
-    opacity: 0.96;
+    padding: 1.5rem 1.5rem 1.25rem;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #fff5f7 0%, #ffeef2 45%, #fff8fa 100%);
+    border: 1px solid rgba(220, 53, 69, 0.16);
+    box-shadow:
+        0 4px 24px rgba(220, 53, 69, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.85);
     transition: opacity 0.35s ease;
 }
 
-.motivational-strip--loaded {
+.announcement-bar--loaded {
     opacity: 1;
 }
 
-.motivational-strip-inner {
-    text-align: right;
+.announcement-bar-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    text-align: center;
 }
 
-.motivational-strip-main {
-    margin: 0 0 0.65rem;
-    font-size: 0.98rem;
+.announcement-icon-wrap {
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #fff 0%, #ffe8ec 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-red);
+    font-size: 1.45rem;
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.2);
+}
+
+.announcement-copy {
+    width: 100%;
+    max-width: 52rem;
+    text-align: center;
+    direction: rtl;
+}
+
+.announcement-tagline {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1rem, 2.8vw, 1.2rem);
+    font-weight: 800;
+    color: #1a1d28;
+    line-height: 1.55;
+    min-height: 2.8em;
+    animation: announcementFade 0.55s ease both;
+}
+
+.announcement-body {
+    margin: 0;
+    font-size: 0.9rem;
     line-height: 1.75;
-    color: #2c2e38;
+    color: #c82333;
+    font-weight: 500;
+    min-height: 3.2em;
+    animation: announcementFade 0.55s ease both;
 }
 
-.motivational-headline {
-    display: block;
-    margin-bottom: 0.55rem;
-    font-weight: 600;
+@keyframes announcementFade {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.motivational-platform {
-    display: block;
-    font-size: 0.86rem;
+.announcement-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+}
+
+.announcement-dots button {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(220, 53, 69, 0.25);
+    cursor: pointer;
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease;
+}
+
+.announcement-dots button.is-active {
+    background: var(--primary-red);
+    transform: scale(1.25);
+}
+
+.announcement-platform {
+    margin: 1.1rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px dashed rgba(220, 53, 69, 0.28);
+    font-size: 0.84rem;
     line-height: 1.65;
     color: #5c6070;
-    font-weight: 500;
-    padding-top: 0.45rem;
-    border-top: 1px dashed rgba(220, 53, 69, 0.2);
+    font-weight: 600;
+    text-align: center;
 }
 
-.motivational-strip-sub {
-    margin: 0;
-    font-size: 0.88rem;
-    line-height: 1.65;
+.announcement-delta {
+    margin: 0.65rem 0 0;
+    font-size: 0.82rem;
+    line-height: 1.6;
     color: #198754;
     font-weight: 600;
+    text-align: center;
 }
 
-.motivational-strip-sub strong {
+.announcement-delta strong {
     color: #146c43;
 }
 
+.register-spiritual-hint {
+    margin: 1rem 0 0;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    background: rgba(220, 53, 69, 0.06);
+    border-right: 3px solid rgba(220, 53, 69, 0.35);
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: #3d4050;
+    font-weight: 600;
+    text-align: center;
+}
+
+.register-success-modal {
+    text-align: center;
+    max-width: 420px;
+}
+
+.register-success-icon {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #fff0f2, #ffe8ec);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-red);
+    font-size: 1.75rem;
+}
+
+.register-success-modal h3 {
+    color: var(--primary-red);
+    margin-bottom: 0.75rem;
+}
+
+.register-success-lead {
+    font-size: 1.02rem;
+    line-height: 1.75;
+    color: #2c2e38;
+    margin-bottom: 0.75rem;
+}
+
+.register-success-quote {
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: #5a5d6b;
+    font-style: italic;
+    margin-bottom: 0.75rem;
+    min-height: 3.2em;
+    animation: announcementFade 0.45s ease both;
+}
+
+.register-success-hint {
+    font-size: 0.88rem;
+    color: var(--gray);
+    margin-bottom: 1.25rem;
+}
+
 @media (max-width: 640px) {
-    .motivational-strip {
-        margin-top: 1.75rem;
-        padding: 1rem 1rem;
-        border-radius: 14px;
+    .announcement-bar {
+        margin-top: 1.35rem;
+        padding: 1.2rem 1rem 1rem;
+        border-radius: 16px;
     }
 
-    .motivational-strip-main {
-        font-size: 0.92rem;
+    .hero-stats-caption {
+        font-size: 0.88rem;
+    }
+
+    .announcement-body {
+        font-size: 0.85rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .announcement-tagline,
+    .announcement-body,
+    .register-success-quote {
+        animation: none;
     }
 }
 

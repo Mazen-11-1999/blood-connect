@@ -151,12 +151,22 @@
                         <p>تأكيد مزدوج</p>
                     </div>
                 </div>
-                <div class="motivational-strip" id="motivationalStrip" role="region" aria-live="polite"
-                    aria-label="رسالة تحفيزية وأرقام المنصة">
-                    <div class="motivational-strip-inner">
-                        <p class="motivational-strip-main" id="motivationalStripMain"></p>
-                        <p class="motivational-strip-sub" id="motivationalStripSub" hidden></p>
+                <p class="hero-stats-caption">كل رقم تراه هنا هو أمل جديد.. كن أنت الرقم القادم الذي يرجح كفة الخير.</p>
+
+                <div class="announcement-bar" id="motivationalStrip" role="region" dir="rtl"
+                    aria-label="إعلان توعوي متحرك وأرقام المنصة">
+                    <div class="announcement-bar-inner">
+                        <div class="announcement-icon-wrap" aria-hidden="true">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="announcement-copy">
+                            <p class="announcement-tagline" id="announcementTagline"></p>
+                            <p class="announcement-body" id="announcementBody"></p>
+                            <div class="announcement-dots" id="announcementDots" aria-hidden="true"></div>
+                        </div>
                     </div>
+                    <p class="announcement-platform" id="motivationalPlatformLine"></p>
+                    <p class="announcement-delta" id="motivationalStripSub" hidden></p>
                 </div>
             </div>
         </div>
@@ -268,6 +278,7 @@
             <div class="page-header">
                 <h2><i class="fas fa-user-plus"></i> التسجيل كمتبرع</h2>
                 <p>سجل معلوماتك لمساعدة المحتاجين</p>
+                <p class="register-spiritual-hint">النية خير، والعمل يسير، والأجر عند الله عظيم.</p>
             </div>
             <form id="registerForm" class="form-container">
                 <div class="form-group">
@@ -679,6 +690,20 @@
                     <i class="fas fa-paper-plane"></i> إرسال
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- نافذة نجاح التسجيل -->
+    <div id="registerSuccessModal" class="modal" role="dialog" aria-modal="true"
+        aria-labelledby="registerSuccessHeading">
+        <div class="modal-content register-success-modal">
+            <button type="button" class="close" id="registerSuccessClose" aria-label="إغلاق">&times;</button>
+            <div class="register-success-icon"><i class="fas fa-heart"></i></div>
+            <h3 id="registerSuccessHeading">تم التسجيل بنجاح</h3>
+            <p class="register-success-lead">هنيئاً لك.. لقد وضعت الآن لبنة في صرحٍ ينقذ الأرواح. جزاك الله خيراً.</p>
+            <p class="register-success-quote" id="registerSuccessQuote"></p>
+            <p class="register-success-hint">يمكنك الآن استخدام المنصة من أي جهاز.</p>
+            <button type="button" class="btn btn-primary btn-block" id="registerSuccessOk">تم</button>
         </div>
     </div>
 

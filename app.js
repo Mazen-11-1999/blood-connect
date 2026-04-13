@@ -219,6 +219,14 @@ function showPage(pageId, clickedElement) {
         }
     }
 
+    if (pageId === 'home') {
+        if (typeof startAnnouncementCarousel === 'function') {
+            startAnnouncementCarousel();
+        }
+    } else if (typeof stopAnnouncementCarousel === 'function') {
+        stopAnnouncementCarousel();
+    }
+
     // تحميل محتوى الصفحة
     try {
         if (typeof loadPageContent === 'function') {
@@ -313,48 +321,147 @@ let lastStatsSnapshot = null;
 /** يُعرض فرق «منذ آخر زيارة» مرة واحدة لكل تحميل للصفحة */
 let motivationalVisitDeltaShown = false;
 
+/** شرائح الإعلان التوعوي (تتبدّل كل 3 ثوانٍ) */
+const ANNOUNCEMENT_SLIDES = [
+    {
+        tag: 'صدقة جارية بضغطة زر',
+        body: 'تسجيلك وتطوعك قد يكتب لك به أجرٌ مستمر ما دامت هذه المنصة تنقذ الأرواح.'
+    },
+    {
+        tag: 'وَمَنْ تَطَوَّعَ خَيْرًا فَإِنَّ اللَّهَ شَاكِرٌ عَلِيمٌ',
+        body: 'استشعر شكر الله لك على هذه الخطوة البسيطة.'
+    },
+    {
+        tag: 'خبيئة صالحة',
+        body: 'اجعل تسجيلك في هذا الموقع عملاً بينك وبين الله، تدخره ليوم لا ينفع فيه مال ولا بنون.'
+    },
+    {
+        tag: 'تفريج كربة',
+        body: 'قال ﷺ: (مَن فرَّج عن مسلمٍ كُربةً، فرَّج اللهُ عنه كُربةً من كُربِ يومِ القيامة)؛ تخيّل عظم الأجر عندما تفرّج كربة مريض يبحث عن حياة.'
+    },
+    {
+        tag: 'كل ٣ ثوانٍ يحتاج شخص لنقل دم',
+        body: 'تبرعك يصنع الفارق — سجّل وكن جزءاً من شبكة الأمل.'
+    }
+];
+
+let announcementCarouselInterval = null;
+let announcementSlideIndex = 0;
+
+function renderAnnouncementSlide(index) {
+    const slides = ANNOUNCEMENT_SLIDES;
+    const tagEl = document.getElementById('announcementTagline');
+    const bodyEl = document.getElementById('announcementBody');
+    const dots = document.querySelectorAll('#announcementDots button');
+    if (!tagEl || !bodyEl) return;
+    const i = ((index % slides.length) + slides.length) % slides.length;
+    const s = slides[i];
+    tagEl.textContent = s.tag;
+    bodyEl.textContent = s.body;
+    dots.forEach((d, di) => d.classList.toggle('is-active', di === i));
+}
+
+function restartAnnouncementInterval() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (announcementCarouselInterval) clearInterval(announcementCarouselInterval);
+    announcementCarouselInterval = setInterval(() => {
+        announcementSlideIndex = (announcementSlideIndex + 1) % ANNOUNCEMENT_SLIDES.length;
+        renderAnnouncementSlide(announcementSlideIndex);
+    }, 3000);
+}
+
+function startAnnouncementCarousel() {
+    if (window.__announcementCarouselActive) return;
+    window.__announcementCarouselActive = true;
+
+    const dotsWrap = document.getElementById('announcementDots');
+    if (dotsWrap && dotsWrap.children.length === 0) {
+        ANNOUNCEMENT_SLIDES.forEach((_, i) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.setAttribute('aria-label', `شريحة ${i + 1}`);
+            b.addEventListener('click', () => {
+                announcementSlideIndex = i;
+                renderAnnouncementSlide(i);
+                restartAnnouncementInterval();
+            });
+            dotsWrap.appendChild(b);
+        });
+    }
+
+    announcementSlideIndex = 0;
+    renderAnnouncementSlide(0);
+
+    const stripEl = document.getElementById('motivationalStrip');
+    if (stripEl) stripEl.classList.add('announcement-bar--loaded');
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+    }
+    restartAnnouncementInterval();
+}
+
+function stopAnnouncementCarousel() {
+    window.__announcementCarouselActive = false;
+    if (announcementCarouselInterval) {
+        clearInterval(announcementCarouselInterval);
+        announcementCarouselInterval = null;
+    }
+}
+
+const REGISTER_SUCCESS_QUOTES = [
+    'أثمن ما تملكه ليس في رصيدك، بل في الأثر الذي تتركه في حياة الآخرين.',
+    'قد تكون بالنسبة للعالم مجرد شخص، لكنك بالنسبة لشخص واحد قد تكون العالم كله.',
+    'نحن لا نعيش لأنفسنا فقط؛ جمال الحياة يكمن في أن نكون سنداً لبعضنا.'
+];
+
+let registerSuccessQuoteInterval = null;
+
+function openRegisterSuccessModal() {
+    const modal = document.getElementById('registerSuccessModal');
+    const quoteEl = document.getElementById('registerSuccessQuote');
+    if (!modal) return;
+    let qi = 0;
+    if (quoteEl) {
+        quoteEl.textContent = REGISTER_SUCCESS_QUOTES[0];
+        if (registerSuccessQuoteInterval) clearInterval(registerSuccessQuoteInterval);
+        registerSuccessQuoteInterval = null;
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            registerSuccessQuoteInterval = setInterval(() => {
+                qi = (qi + 1) % REGISTER_SUCCESS_QUOTES.length;
+                quoteEl.textContent = REGISTER_SUCCESS_QUOTES[qi];
+            }, 4000);
+        }
+    }
+    modal.classList.add('active');
+}
+
+function closeRegisterSuccessModal() {
+    const modal = document.getElementById('registerSuccessModal');
+    if (registerSuccessQuoteInterval) {
+        clearInterval(registerSuccessQuoteInterval);
+        registerSuccessQuoteInterval = null;
+    }
+    if (modal) modal.classList.remove('active');
+}
+
 /**
- * رسائل تحفيزية حسب تقدّم الهدف الشهري + أرقام المنصة الحقيقية.
- * فرق «منذ آخر زيارة»: localStorage يُحفظ عند pagehide.
- * فرق «منذ آخر تحديث»: sessionStorage بين استدعاءات updateHomeStats (كل ~45ث).
+ * سطر إجمالي المنصة + فروق الزيارة/التحديث (الإعلان المتحرك يُدار بـ startAnnouncementCarousel).
  */
 function updateMotivationalStrip(stats) {
-    const mainEl = document.getElementById('motivationalStripMain');
+    const platformEl = document.getElementById('motivationalPlatformLine');
     const subEl = document.getElementById('motivationalStripSub');
     const stripEl = document.getElementById('motivationalStrip');
-    if (!mainEl || !stats) return;
+    if (!platformEl || !stats) return;
 
     const a = stats.awareness || {};
-    const goal = Number(a.monthlyGoal) || 500;
     const monthCount = Number(a.donorsRegisteredThisMonth) || 0;
-    const pct = Math.min(100, Math.max(0, Number(a.monthlyProgressPercent) || 0));
-    const weekCount = Number(a.donorsRegisteredThisWeek) || 0;
-    const goalMet = monthCount >= goal && goal > 0;
     const totalDonors = Number(stats.totalDonors) || 0;
     const totalMsg = Number(stats.totalMessages) || 0;
     const matches = Number(stats.successfulMatches) || 0;
 
-    let headline = '';
-    if (goalMet) {
-        headline =
-            'شكراً لكم — تسابقتم بالخير! اكتمل هدفنا الشهري وما زال العدد يرتفع؛ كل تسجيل جديد يُضاف فوراً إلى المنصة.';
-    } else if (pct >= 50) {
-        const left = Math.max(0, goal - monthCount);
-        headline = `تسابقوا بالخير — اقتربنا! بقي نحو ${formatArNumber(left)} تسجيلاً لإكمال هدفنا التوعوي لهذا الشهر (وصلنا ${formatArNumber(pct)}٪). شاركوا الرابط وادعموا المسار.`;
-    } else if (pct > 0) {
-        headline = `نحتاجكم — نحن على ${formatArNumber(pct)}٪ من هدفنا الشهري. ادعُ أحباءك؛ كل تسجيل يقرّبنا من إنقاذ أرواح.`;
-    } else if (monthCount === 0 && weekCount === 0) {
-        headline =
-            'كنوا أول من يضيء المسار هذا الشهر — سجّل أو شارك الرابط؛ الأرقام أدناه حية ومباشرة من قاعدة البيانات.';
-    } else {
-        headline = `معاً نحو الأمل — هذا الشهر سجّل ${formatArNumber(monthCount)} متبرعاً، وعلى المنصة إجمالي ${formatArNumber(totalDonors)} متبرعاً مسجّلاً.`;
-    }
-
     const platformLine = `إجمالي المنصة: ${formatArNumber(totalDonors)} متبرعاً مسجّلاً · ${formatArNumber(totalMsg)} طلب مساعدة · ${formatArNumber(matches)} تأكيد مزدوج ناجح.`;
-
-    mainEl.innerHTML =
-        `<span class="motivational-headline">${headline}</span>` +
-        `<span class="motivational-platform">${platformLine}</span>`;
+    platformEl.textContent = platformLine;
 
     const subParts = [];
 
@@ -427,7 +534,7 @@ function updateMotivationalStrip(stats) {
 
     lastStatsSnapshot = stats;
     if (stripEl) {
-        stripEl.classList.add('motivational-strip--loaded');
+        stripEl.classList.add('announcement-bar--loaded');
     }
 }
 
@@ -567,6 +674,13 @@ function toggleHealthDetails() {
 // قوائم المحافظات من yemen-governorates.js (بدون سقطرى) — المنطقة نص حر في #region
 document.addEventListener('DOMContentLoaded', function () {
     populateSearchGovernorates();
+    document.getElementById('registerSuccessClose')?.addEventListener('click', closeRegisterSuccessModal);
+    document.getElementById('registerSuccessOk')?.addEventListener('click', closeRegisterSuccessModal);
+    document.getElementById('registerSuccessModal')?.addEventListener('click', function (e) {
+        if (e.target && e.target.id === 'registerSuccessModal') {
+            closeRegisterSuccessModal();
+        }
+    });
 });
 
 /** يملأ #governorate و #searchGovernorate من القائمة الرسمية */
@@ -617,7 +731,7 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
 
     try {
         await dataManager.register(payload);
-        alert('تم التسجيل بنجاح! يمكنك الآن استخدام المنصة من أي جهاز.');
+        openRegisterSuccessModal();
         this.reset();
         toggleHealthDetails();
         void populateSearchGovernorates();
