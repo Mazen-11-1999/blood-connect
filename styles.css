@@ -16,6 +16,9 @@
     --warning: #ffc107;
     --shadow: 0 2px 10px rgba(0,0,0,0.1);
     --shadow-lg: 0 5px 20px rgba(0,0,0,0.15);
+    --anime-pink: #ffd6e0;
+    --anime-lavender: #e8d4ff;
+    --anime-peach: #ffe4d6;
 }
 
 body {
@@ -249,9 +252,9 @@ body {
     display: block;
 }
 
-/* الصفحة الرئيسية */
+/* الصفحة الرئيسية — خلفية أنمي متحركة */
 .hero-section {
-    background: linear-gradient(to left, #ffeef0 0%, #ffffff 100%);
+    background: linear-gradient(135deg, #fff5f7 0%, #fef8ff 35%, #fff 70%, #ffeef2 100%);
     color: var(--dark-gray);
     min-height: calc(100vh - 80px);
     display: flex;
@@ -260,11 +263,101 @@ body {
     overflow: hidden;
 }
 
+.hero-anime-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.anime-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(48px);
+    opacity: 0.55;
+    will-change: transform;
+}
+
+.anime-orb-1 {
+    width: min(55vw, 420px);
+    height: min(55vw, 420px);
+    background: radial-gradient(circle, var(--anime-pink) 0%, rgba(255, 182, 193, 0.3) 55%, transparent 70%);
+    top: -8%;
+    left: -5%;
+    animation: animeFloat1 18s ease-in-out infinite;
+}
+
+.anime-orb-2 {
+    width: min(45vw, 360px);
+    height: min(45vw, 360px);
+    background: radial-gradient(circle, var(--anime-lavender) 0%, rgba(200, 160, 255, 0.25) 60%, transparent 72%);
+    bottom: 5%;
+    right: -8%;
+    animation: animeFloat2 22s ease-in-out infinite;
+}
+
+.anime-orb-3 {
+    width: min(35vw, 280px);
+    height: min(35vw, 280px);
+    background: radial-gradient(circle, rgba(220, 53, 69, 0.35) 0%, var(--anime-peach) 45%, transparent 68%);
+    top: 40%;
+    left: 35%;
+    animation: animeFloat3 14s ease-in-out infinite;
+}
+
+.anime-shine {
+    position: absolute;
+    inset: -50%;
+    background: linear-gradient(
+        115deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.45) 48%,
+        rgba(255, 255, 255, 0.15) 52%,
+        transparent 58%
+    );
+    animation: animeShine 12s linear infinite;
+    opacity: 0.35;
+}
+
+@keyframes animeFloat1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(4%, 6%) scale(1.06); }
+    66% { transform: translate(-3%, 4%) scale(0.98); }
+}
+
+@keyframes animeFloat2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-6%, -5%) scale(1.08); }
+}
+
+@keyframes animeFloat3 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(8%, -4%) rotate(8deg) scale(1.05); }
+}
+
+@keyframes animeShine {
+    0% { transform: translateX(-30%) rotate(25deg); }
+    100% { transform: translateX(30%) rotate(25deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .anime-orb,
+    .anime-shine {
+        animation: none !important;
+    }
+    .anime-orb-1 { transform: translate(2%, 2%); }
+    .anime-orb-2 { transform: translate(-2%, -2%); }
+    .anime-orb-3 { opacity: 0.35; }
+}
+
 .hero-container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 4rem 2rem;
     width: 100%;
+    position: relative;
+    z-index: 1;
 }
 
 .hero-content {
@@ -2015,5 +2108,46 @@ body {
     background: var(--primary-red, #dc3545);
     color: #fff !important;
     border-color: var(--primary-red, #dc3545);
+}
+
+/* تفاعل اللمس والنقر (أزرار وروابط تفاعلية) */
+.btn,
+a.btn,
+button:not(:disabled),
+.nav-link,
+.indicator,
+.stat-card {
+    -webkit-tap-highlight-color: rgba(220, 53, 69, 0.12);
+    transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.btn:active,
+a.btn:active,
+button:not(:disabled):active {
+    transform: scale(0.98);
+}
+
+.nav-link:active {
+    transform: scale(0.97);
+    opacity: 0.92;
+}
+
+.indicator:active {
+    transform: scale(1.15);
+}
+
+.stat-card:active {
+    transform: scale(0.99);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn:active,
+    a.btn:active,
+    button:not(:disabled):active,
+    .nav-link:active,
+    .indicator:active,
+    .stat-card:active {
+        transform: none;
+    }
 }
 
