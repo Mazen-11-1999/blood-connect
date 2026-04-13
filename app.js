@@ -294,6 +294,243 @@ function loadPageContent(pageId) {
     }
 }
 
+/** أرقام بالعربية (تنسيق محلي) */
+function formatArNumber(n) {
+    try {
+        return Number(n).toLocaleString('ar-EG', { maximumFractionDigits: 0 });
+    } catch {
+        return String(n);
+    }
+}
+
+let awarenessBarInitialized = false;
+
+const LS_STATS_EXIT = 'bc_stats_last_exit_v1';
+const SS_STATS_PREV = 'bc_stats_prev_poll_v1';
+
+/** آخر إحصائيات لحفظها عند مغادرة الصفحة (مقارنة الزيارات) */
+let lastStatsSnapshot = null;
+/** يُعرض فرق «منذ آخر زيارة» مرة واحدة لكل تحميل للصفحة */
+let motivationalVisitDeltaShown = false;
+
+/**
+ * رسائل تحفيزية حسب تقدّم الهدف الشهري + أرقام المنصة الحقيقية.
+ * فرق «منذ آخر زيارة»: localStorage يُحفظ عند pagehide.
+ * فرق «منذ آخر تحديث»: sessionStorage بين استدعاءات updateHomeStats (كل ~45ث).
+ */
+function updateMotivationalStrip(stats) {
+    const mainEl = document.getElementById('motivationalStripMain');
+    const subEl = document.getElementById('motivationalStripSub');
+    const stripEl = document.getElementById('motivationalStrip');
+    if (!mainEl || !stats) return;
+
+    const a = stats.awareness || {};
+    const goal = Number(a.monthlyGoal) || 500;
+    const monthCount = Number(a.donorsRegisteredThisMonth) || 0;
+    const pct = Math.min(100, Math.max(0, Number(a.monthlyProgressPercent) || 0));
+    const weekCount = Number(a.donorsRegisteredThisWeek) || 0;
+    const goalMet = monthCount >= goal && goal > 0;
+    const totalDonors = Number(stats.totalDonors) || 0;
+    const totalMsg = Number(stats.totalMessages) || 0;
+    const matches = Number(stats.successfulMatches) || 0;
+
+    let headline = '';
+    if (goalMet) {
+        headline =
+            'شكراً لكم — تسابقتم بالخير! اكتمل هدفنا الشهري وما زال العدد يرتفع؛ كل تسجيل جديد يُضاف فوراً إلى المنصة.';
+    } else if (pct >= 50) {
+        const left = Math.max(0, goal - monthCount);
+        headline = `تسابقوا بالخير — اقتربنا! بقي نحو ${formatArNumber(left)} تسجيلاً لإكمال هدفنا التوعوي لهذا الشهر (وصلنا ${formatArNumber(pct)}٪). شاركوا الرابط وادعموا المسار.`;
+    } else if (pct > 0) {
+        headline = `نحتاجكم — نحن على ${formatArNumber(pct)}٪ من هدفنا الشهري. ادعُ أحباءك؛ كل تسجيل يقرّبنا من إنقاذ أرواح.`;
+    } else if (monthCount === 0 && weekCount === 0) {
+        headline =
+            'كنوا أول من يضيء المسار هذا الشهر — سجّل أو شارك الرابط؛ الأرقام أدناه حية ومباشرة من قاعدة البيانات.';
+    } else {
+        headline = `معاً نحو الأمل — هذا الشهر سجّل ${formatArNumber(monthCount)} متبرعاً، وعلى المنصة إجمالي ${formatArNumber(totalDonors)} متبرعاً مسجّلاً.`;
+    }
+
+    const platformLine = `إجمالي المنصة: ${formatArNumber(totalDonors)} متبرعاً مسجّلاً · ${formatArNumber(totalMsg)} طلب مساعدة · ${formatArNumber(matches)} تأكيد مزدوج ناجح.`;
+
+    mainEl.innerHTML =
+        `<span class="motivational-headline">${headline}</span>` +
+        `<span class="motivational-platform">${platformLine}</span>`;
+
+    const subParts = [];
+
+    if (!motivationalVisitDeltaShown) {
+        try {
+            const prevExit = JSON.parse(localStorage.getItem(LS_STATS_EXIT) || 'null');
+            if (prevExit && typeof prevExit.totalDonors === 'number') {
+                const dD = totalDonors - prevExit.totalDonors;
+                const dM = matches - (prevExit.matches || 0);
+                if (dD > 0 || dM > 0) {
+                    const bits = [];
+                    if (dD > 0) {
+                        bits.push(`+<strong>${formatArNumber(dD)}</strong> متبرعاً على المنصة`);
+                    }
+                    if (dM > 0) {
+                        bits.push(`+<strong>${formatArNumber(dM)}</strong> تأكيداً مزدوجاً ناجحاً`);
+                    }
+                    subParts.push(`منذ آخر زيارة لك للموقع: ${bits.join('، و')}.`);
+                }
+            }
+        } catch (_) {
+            /* ignore */
+        }
+        motivationalVisitDeltaShown = true;
+    }
+
+    try {
+        const prevPoll = JSON.parse(sessionStorage.getItem(SS_STATS_PREV) || 'null');
+        if (prevPoll && typeof prevPoll.totalDonors === 'number') {
+            const dD = totalDonors - prevPoll.totalDonors;
+            const dMonth = monthCount - (prevPoll.monthCount || 0);
+            if (dD > 0 || dMonth > 0) {
+                const bits = [];
+                if (dD > 0) {
+                    bits.push(`+<strong>${formatArNumber(dD)}</strong> متبرعاً على المنصة`);
+                }
+                if (dMonth > 0) {
+                    bits.push(`+<strong>${formatArNumber(dMonth)}</strong> تسجيلاً هذا الشهر`);
+                }
+                subParts.push(`منذ آخر تحديث للصفحة: ${bits.join('، و')}.`);
+            }
+        }
+    } catch (_) {
+        /* ignore */
+    }
+
+    try {
+        sessionStorage.setItem(
+            SS_STATS_PREV,
+            JSON.stringify({
+                totalDonors,
+                monthCount,
+                matches,
+                t: Date.now()
+            })
+        );
+    } catch (_) {
+        /* ignore */
+    }
+
+    if (subEl) {
+        if (subParts.length) {
+            subEl.innerHTML = subParts.join('<br>');
+            subEl.hidden = false;
+        } else {
+            subEl.innerHTML = '';
+            subEl.hidden = true;
+        }
+    }
+
+    lastStatsSnapshot = stats;
+    if (stripEl) {
+        stripEl.classList.add('motivational-strip--loaded');
+    }
+}
+
+window.addEventListener('pagehide', () => {
+    if (!lastStatsSnapshot) return;
+    try {
+        const awareness = lastStatsSnapshot.awareness || {};
+        localStorage.setItem(
+            LS_STATS_EXIT,
+            JSON.stringify({
+                totalDonors: lastStatsSnapshot.totalDonors ?? 0,
+                matches: lastStatsSnapshot.successfulMatches ?? 0,
+                totalMessages: lastStatsSnapshot.totalMessages ?? 0,
+                monthCount: awareness.donorsRegisteredThisMonth ?? 0,
+                t: Date.now()
+            })
+        );
+    } catch (_) {
+        /* ignore */
+    }
+});
+
+/** بطاقة الهدف التوعوي — هدف شهري (مثل 500) حتى الاكتمال، ثم شكر بالعدد الفعلي؛ التحديث تلقائي من قاعدة البيانات */
+function updateAwarenessFromStats(stats) {
+    const a = stats && stats.awareness;
+    const subtitleEl = document.getElementById('awarenessGoalSubtitle');
+    const fillEl = document.getElementById('awarenessProgressFill');
+    const labelEl = document.getElementById('awarenessProgressLabel');
+    const barEl = document.getElementById('awarenessProgressBar');
+    const footerEl = document.getElementById('awarenessWeekFooter');
+    const cardEl = document.getElementById('awarenessGoalCard');
+    const tipEl = document.getElementById('awarenessGoalTip');
+    if (!a || !subtitleEl || !fillEl || !labelEl || !footerEl) return;
+
+    const goal = Number(a.monthlyGoal) || 500;
+    const monthCount = Number(a.donorsRegisteredThisMonth) || 0;
+    const weekCount = Number(a.donorsRegisteredThisWeek) || 0;
+    const pct = Math.min(100, Math.max(0, Number(a.monthlyProgressPercent) || 0));
+    const goalMet = monthCount >= goal && goal > 0;
+
+    if (goalMet) {
+        subtitleEl.innerHTML =
+            `🎉 <strong>اكتمل هدف الشهر</strong> (${formatArNumber(goal)} متبرعاً مستهدفاً)! ` +
+            `العدد الفعلي المسجّل هذا الشهر: <strong>${formatArNumber(monthCount)}</strong> — ` +
+            `وكل تسجيل جديد يُضاف تلقائياً فور حفظه في المنصة.`;
+        if (tipEl) {
+            tipEl.textContent =
+                'الهدف الشهري تحقّق؛ ما زلنا نعدّ كل من ينضم لاحقاً هذا الشهر ويُعرض هنا مباشرة.';
+        }
+    } else {
+        subtitleEl.innerHTML =
+            `نسعى إلى <strong>${formatArNumber(goal)}</strong> متبرعاً جديداً هذا الشهر — ` +
+            `ومعنا الآن <strong>${formatArNumber(monthCount)}</strong> مسجّلاً (يتحدّث تلقائياً مع كل تسجيل).`;
+        if (tipEl) {
+            tipEl.textContent =
+                'شارك الرابط مع أهلك وأصدقاءك — كل تسجيل يُضاف فوراً إلى هذا الهدف.';
+        }
+    }
+
+    if (cardEl) {
+        cardEl.classList.toggle('awareness-goal-card--complete', goalMet);
+    }
+    fillEl.classList.toggle('awareness-progress-fill--complete', goalMet);
+
+    if (barEl) {
+        barEl.setAttribute('aria-valuenow', String(Math.min(100, pct)));
+    }
+
+    const applyWidth = () => {
+        fillEl.style.width = `${Math.min(100, pct)}%`;
+    };
+
+    if (!awarenessBarInitialized) {
+        fillEl.style.width = '0%';
+        awarenessBarInitialized = true;
+        requestAnimationFrame(() => requestAnimationFrame(applyWidth));
+    } else {
+        applyWidth();
+    }
+
+    if (goalMet) {
+        labelEl.textContent = 'اكتمل الهدف الشهري ✓';
+    } else {
+        labelEl.textContent = `${formatArNumber(pct)}٪ نحو اكتمال الهدف`;
+    }
+
+    if (goalMet) {
+        footerEl.innerHTML =
+            `شكراً لـ <strong>${formatArNumber(monthCount)}</strong> متبرعاً سجّلوا فعلياً هذا الشهر — أنتم من يصنع الفرق! 🙏 🏅` +
+            (weekCount > 0
+                ? `<br><span class="awareness-footer-note">منهم <strong>${formatArNumber(
+                      weekCount
+                  )}</strong> انضموا خلال الأسبوع الحالي.</span>`
+                : '');
+    } else if (weekCount === 0) {
+        footerEl.textContent =
+            'لم يُسجّل متبرعون جدد هذا الأسبوع بعد — سجّل أنت وكن بداية الموجة 🙏';
+    } else {
+        footerEl.innerHTML =
+            `هذا الأسبوع: شكراً لـ <strong>${formatArNumber(weekCount)}</strong> متبرعاً انضموا! أنتم نور الأمل 🙏`;
+    }
+}
+
 // تحديث إحصائيات الصفحة الرئيسية
 async function updateHomeStats() {
     try {
@@ -301,6 +538,8 @@ async function updateHomeStats() {
         document.getElementById('totalDonors').textContent = stats.totalDonors ?? 0;
         document.getElementById('totalRequests').textContent = stats.totalMessages ?? 0;
         document.getElementById('totalMatches').textContent = stats.successfulMatches ?? 0;
+        updateAwarenessFromStats(stats);
+        updateMotivationalStrip(stats);
     } catch (e) {
         console.warn('تعذر تحميل الإحصائيات (شغّل الخادم: npm start)', e);
     }
@@ -1322,6 +1561,20 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                 }, 30000);
+            }
+
+            // تحديث إحصائيات الصفحة الرئيسية (بطاقة التوعية والأعداد) كل 45 ثانية أثناء بقاء المستخدم في الرئيسية
+            if (typeof setInterval !== 'undefined') {
+                setInterval(function () {
+                    const home = document.getElementById('home');
+                    if (
+                        home &&
+                        home.classList.contains('active') &&
+                        typeof updateHomeStats === 'function'
+                    ) {
+                        void updateHomeStats();
+                    }
+                }, 45000);
             }
         } catch (error) {
             console.error('خطأ في تهيئة الصفحة:', error);

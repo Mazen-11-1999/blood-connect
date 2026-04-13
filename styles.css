@@ -611,6 +611,76 @@ body {
     font-size: 1.1rem;
 }
 
+/* شريط تحفيزي ذكي — يعتمد على إحصائيات حقيقية */
+.motivational-strip {
+    margin-top: 2.25rem;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1.25rem 1.35rem;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.97) 0%, rgba(255, 248, 250, 0.98) 100%);
+    border: 1px solid rgba(220, 53, 69, 0.14);
+    box-shadow: 0 8px 32px rgba(60, 25, 40, 0.07);
+    opacity: 0.96;
+    transition: opacity 0.35s ease;
+}
+
+.motivational-strip--loaded {
+    opacity: 1;
+}
+
+.motivational-strip-inner {
+    text-align: right;
+}
+
+.motivational-strip-main {
+    margin: 0 0 0.65rem;
+    font-size: 0.98rem;
+    line-height: 1.75;
+    color: #2c2e38;
+}
+
+.motivational-headline {
+    display: block;
+    margin-bottom: 0.55rem;
+    font-weight: 600;
+}
+
+.motivational-platform {
+    display: block;
+    font-size: 0.86rem;
+    line-height: 1.65;
+    color: #5c6070;
+    font-weight: 500;
+    padding-top: 0.45rem;
+    border-top: 1px dashed rgba(220, 53, 69, 0.2);
+}
+
+.motivational-strip-sub {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: #198754;
+    font-weight: 600;
+}
+
+.motivational-strip-sub strong {
+    color: #146c43;
+}
+
+@media (max-width: 640px) {
+    .motivational-strip {
+        margin-top: 1.75rem;
+        padding: 1rem 1rem;
+        border-radius: 14px;
+    }
+
+    .motivational-strip-main {
+        font-size: 0.92rem;
+    }
+}
+
 .hero-actions {
     display: flex;
     gap: 1.5rem;
@@ -706,47 +776,482 @@ body {
     justify-content: center;
 }
 
-/* قسم المميزات */
-.features-section {
-    padding: 4rem 0;
-    background: var(--white);
+/* رحلة الإنقاذ — خطوات بصرية بفخامة */
+.journey-section {
+    padding: 4.5rem 0 5rem;
+    background:
+        radial-gradient(ellipse 120% 80% at 50% 0%, rgba(255, 240, 245, 0.9) 0%, transparent 55%),
+        linear-gradient(180deg, #fdfcfd 0%, #f8f6f8 50%, #faf7f9 100%);
+    position: relative;
+    overflow: hidden;
 }
 
-.section-title {
+.journey-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(220, 53, 69, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.journey-title {
     text-align: center;
-    font-size: 2.5rem;
-    margin-bottom: 3rem;
-    color: var(--primary-red);
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+    font-weight: 700;
+    margin: 0 0 3.25rem;
+    color: #1a1a1e;
+    letter-spacing: 0.02em;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
-.features-grid {
+.journey-title-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #dc3545 0%, #b02a37 100%);
+    color: #fff;
+    font-size: 1.15rem;
+    box-shadow:
+        0 8px 24px rgba(220, 53, 69, 0.35),
+        0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+.journey-title-text {
+    background: linear-gradient(135deg, #2c2c32 0%, #1a1a1e 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.journey-track {
+    position: relative;
+    z-index: 1;
+    padding: 0.5rem 0 1rem;
+}
+
+.journey-line--horizontal {
+    display: block;
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    top: 2.85rem;
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(
+        90deg,
+        rgba(220, 53, 69, 0.15) 0%,
+        var(--primary-red) 15%,
+        var(--primary-red) 85%,
+        rgba(220, 53, 69, 0.15) 100%
+    );
+    box-shadow: 0 0 20px rgba(220, 53, 69, 0.25);
+    z-index: 0;
+}
+
+.journey-line--vertical {
+    display: none;
+    position: absolute;
+    top: 2.5rem;
+    bottom: 2.5rem;
+    right: 1.65rem;
+    width: 3px;
+    border-radius: 3px;
+    background: linear-gradient(
+        180deg,
+        rgba(220, 53, 69, 0.2) 0%,
+        var(--primary-red) 12%,
+        var(--primary-red) 88%,
+        rgba(220, 53, 69, 0.2) 100%
+    );
+    z-index: 0;
+}
+
+.journey-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    position: relative;
+    z-index: 1;
 }
 
-.feature-card {
-    background: var(--light-gray);
-    padding: 2rem;
-    border-radius: 10px;
+.journey-step {
+    margin: 0;
+    padding: 0;
+    animation: journeyStepIn 0.85s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.journey-step:nth-child(1) { animation-delay: 0.08s; }
+.journey-step:nth-child(2) { animation-delay: 0.2s; }
+.journey-step:nth-child(3) { animation-delay: 0.32s; }
+.journey-step:nth-child(4) { animation-delay: 0.44s; }
+
+@keyframes journeyStepIn {
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.journey-step-inner {
     text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
+    padding: 1.85rem 1.25rem 1.65rem;
+    border-radius: 20px;
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 252, 253, 0.88) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    box-shadow:
+        0 4px 6px rgba(220, 53, 69, 0.04),
+        0 18px 40px rgba(40, 20, 40, 0.06),
+        0 0 0 1px rgba(220, 53, 69, 0.06) inset;
+    transition:
+        transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.45s ease,
+        border-color 0.35s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
 }
 
-.feature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
+.journey-step-inner::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 12%;
+    right: 12%;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.45), transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
 }
 
-.feature-card i {
-    font-size: 3rem;
+.journey-step:hover .journey-step-inner,
+.journey-step:focus-within .journey-step-inner {
+    transform: translateY(-8px);
+    box-shadow:
+        0 8px 16px rgba(220, 53, 69, 0.08),
+        0 28px 56px rgba(60, 20, 40, 0.1),
+        0 0 0 1px rgba(220, 53, 69, 0.12) inset;
+    border-color: rgba(220, 53, 69, 0.15);
+}
+
+.journey-step:hover .journey-step-inner::after,
+.journey-step:focus-within .journey-step-inner::after {
+    opacity: 1;
+}
+
+.journey-icon-ring {
+    width: 4.25rem;
+    height: 4.25rem;
+    margin: 0 auto 1.15rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #fff 0%, #fff5f7 100%);
+    border: 2px solid rgba(220, 53, 69, 0.18);
+    box-shadow:
+        0 6px 16px rgba(220, 53, 69, 0.12),
+        0 0 0 6px rgba(255, 255, 255, 0.8) inset;
     color: var(--primary-red);
+    font-size: 1.55rem;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+}
+
+.journey-icon-ring--hero {
+    background: linear-gradient(145deg, #fff0f2 0%, #ffe8ec 100%);
+    border-color: rgba(220, 53, 69, 0.28);
+    box-shadow:
+        0 8px 22px rgba(220, 53, 69, 0.2),
+        0 0 0 6px rgba(255, 255, 255, 0.85) inset;
+}
+
+.journey-step:hover .journey-icon-ring,
+.journey-step:focus-within .journey-icon-ring {
+    transform: scale(1.06);
+    box-shadow:
+        0 10px 28px rgba(220, 53, 69, 0.22),
+        0 0 0 6px rgba(255, 255, 255, 0.9) inset;
+}
+
+.journey-step-title {
+    margin: 0 0 0.45rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e1e24;
+    letter-spacing: 0.01em;
+}
+
+.journey-step-desc {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #6c6c78;
+    font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+    .journey-steps {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .journey-line--horizontal {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .journey-section {
+        padding: 3rem 0 3.5rem;
+    }
+
+    .journey-title {
+        margin-bottom: 2.25rem;
+    }
+
+    .journey-track {
+        padding-right: 0.5rem;
+    }
+
+    .journey-line--vertical {
+        display: block;
+    }
+
+    .journey-steps {
+        grid-template-columns: 1fr;
+        gap: 1.15rem;
+        padding-right: 2.75rem;
+    }
+
+    .journey-step-inner {
+        text-align: right;
+        padding: 1.35rem 1.25rem 1.35rem 1.1rem;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            'j-icon j-title'
+            'j-icon j-desc';
+        column-gap: 1rem;
+        row-gap: 0.2rem;
+        align-items: center;
+    }
+
+    .journey-icon-ring {
+        margin: 0;
+        grid-area: j-icon;
+        width: 3.65rem;
+        height: 3.65rem;
+        font-size: 1.35rem;
+        align-self: center;
+    }
+
+    .journey-step-title {
+        grid-area: j-title;
+        align-self: end;
+        margin-bottom: 0;
+    }
+
+    .journey-step-desc {
+        grid-area: j-desc;
+        align-self: start;
+        font-size: 0.88rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .journey-step {
+        animation: none !important;
+    }
+
+    .journey-step-inner,
+    .journey-icon-ring {
+        transition: none;
+    }
+
+    .journey-step:hover .journey-step-inner,
+    .journey-step:focus-within .journey-step-inner,
+    .journey-step:hover .journey-icon-ring,
+    .journey-step:focus-within .journey-icon-ring {
+        transform: none;
+    }
+}
+
+/* بطاقة الهدف التوعوي — بيانات حية من الخادم */
+.awareness-goal-section {
+    padding: 0 0 4rem;
+    background: linear-gradient(180deg, #faf7f9 0%, #fff 40%);
+}
+
+.awareness-goal-card {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 2rem 1.75rem;
+    border-radius: 22px;
+    background: linear-gradient(165deg, #fff8f8 0%, #fff 55%, #fff9fa 100%);
+    border: 1px solid rgba(220, 53, 69, 0.1);
+    box-shadow:
+        0 2px 4px rgba(220, 53, 69, 0.04),
+        0 20px 48px rgba(60, 30, 45, 0.07);
+    transition:
+        border-color 0.4s ease,
+        box-shadow 0.4s ease;
+}
+
+.awareness-goal-card--complete {
+    border-color: rgba(212, 175, 55, 0.5);
+    background: linear-gradient(165deg, #fffef8 0%, #fff 50%, #fff9f5 100%);
+    box-shadow:
+        0 2px 6px rgba(212, 175, 55, 0.12),
+        0 22px 52px rgba(60, 40, 30, 0.08),
+        inset 0 0 0 1px rgba(212, 175, 55, 0.12);
+}
+
+.awareness-goal-header {
+    text-align: right;
+    margin-bottom: 1.5rem;
+}
+
+.awareness-goal-title {
+    margin: 0 0 0.65rem;
+    font-size: clamp(1.2rem, 3.2vw, 1.45rem);
+    font-weight: 800;
+    color: #1a1d2e;
+    letter-spacing: 0.02em;
+}
+
+.awareness-goal-lead {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: #5a5d6b;
+}
+
+.awareness-goal-subtitle {
+    margin: 0;
+    font-size: 0.98rem;
+    color: #6c7080;
+    line-height: 1.55;
+}
+
+.awareness-goal-subtitle strong {
+    color: var(--primary-red);
+    font-weight: 800;
+}
+
+.awareness-progress-block {
     margin-bottom: 1rem;
 }
 
-.feature-card h3 {
-    margin-bottom: 1rem;
-    color: var(--dark-gray);
+.awareness-progress-track {
+    height: 16px;
+    border-radius: 999px;
+    background: #e8eaef;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+    direction: rtl;
+}
+
+.awareness-progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(270deg, #dc3545 0%, #e85d6b 45%, #c82333 100%);
+    box-shadow: 0 0 18px rgba(220, 53, 69, 0.35);
+    transition:
+        width 1.15s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.5s ease,
+        box-shadow 0.5s ease;
+    max-width: 100%;
+}
+
+.awareness-progress-fill--complete {
+    background: linear-gradient(270deg, #b8860b 0%, #dc3545 40%, #198754 100%);
+    box-shadow: 0 0 22px rgba(220, 53, 69, 0.4);
+}
+
+.awareness-progress-label {
+    margin: 0.55rem 0 0;
+    text-align: right;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--primary-red);
+    letter-spacing: 0.02em;
+}
+
+.awareness-goal-tip {
+    margin: 0 0 1.1rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 12px;
+    background: rgba(220, 53, 69, 0.06);
+    border-right: 3px solid rgba(220, 53, 69, 0.35);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #4a4d5c;
+    text-align: right;
+}
+
+.awareness-goal-footer {
+    margin: 0;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(220, 53, 69, 0.12);
+    text-align: center;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: #3d4050;
+}
+
+.awareness-goal-footer strong {
+    color: var(--primary-red);
+    font-weight: 800;
+}
+
+.awareness-footer-note {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.88rem;
+    color: #5a5d6b;
+    font-weight: 500;
+}
+
+.awareness-footer-note strong {
+    color: #198754;
+}
+
+@media (max-width: 640px) {
+    .awareness-goal-card {
+        padding: 1.5rem 1.15rem 1.35rem;
+        border-radius: 18px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .awareness-progress-fill {
+        transition: none;
+    }
 }
 
 /* النماذج */

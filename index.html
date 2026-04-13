@@ -151,36 +151,87 @@
                         <p>تأكيد مزدوج</p>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="features-section">
-            <div class="container">
-                <h2 class="section-title">مميزات المنصة</h2>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <i class="fas fa-shield-alt"></i>
-                        <h3>خصوصية كاملة</h3>
-                        <p>نظام رسائل داخلي يحمي معلوماتك الشخصية</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <h3>بحث جغرافي</h3>
-                        <p>ابحث عن المتبرعين في مدينتك ومنطقتك</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-filter"></i>
-                        <h3>فلترة ذكية</h3>
-                        <p>ابحث حسب فصيلة الدم والموقع والعمر</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-comments"></i>
-                        <h3>تواصل آمن</h3>
-                        <p>رسائل داخلية محمية بدون كشف الأرقام</p>
+                <div class="motivational-strip" id="motivationalStrip" role="region" aria-live="polite"
+                    aria-label="رسالة تحفيزية وأرقام المنصة">
+                    <div class="motivational-strip-inner">
+                        <p class="motivational-strip-main" id="motivationalStripMain"></p>
+                        <p class="motivational-strip-sub" id="motivationalStripSub" hidden></p>
                     </div>
                 </div>
             </div>
         </div>
+
+        <section class="journey-section" aria-labelledby="journey-heading">
+            <div class="container">
+                <h2 id="journey-heading" class="journey-title">
+                    <span class="journey-title-icon" aria-hidden="true"><i class="fas fa-bullhorn"></i></span>
+                    <span class="journey-title-text">رحلة الإنقاذ في ٤ خطوات</span>
+                </h2>
+                <div class="journey-track">
+                    <div class="journey-line journey-line--horizontal" aria-hidden="true"></div>
+                    <div class="journey-line journey-line--vertical" aria-hidden="true"></div>
+                    <ol class="journey-steps">
+                        <li class="journey-step">
+                            <div class="journey-step-inner">
+                                <div class="journey-icon-ring">
+                                    <i class="fas fa-user-plus" aria-hidden="true"></i>
+                                </div>
+                                <h3 class="journey-step-title">تسجيل</h3>
+                                <p class="journey-step-desc">انضم كمتبرع</p>
+                            </div>
+                        </li>
+                        <li class="journey-step">
+                            <div class="journey-step-inner">
+                                <div class="journey-icon-ring">
+                                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                </div>
+                                <h3 class="journey-step-title">بحث جغرافي</h3>
+                                <p class="journey-step-desc">ابحث في مدينتك ومنطقتك</p>
+                            </div>
+                        </li>
+                        <li class="journey-step">
+                            <div class="journey-step-inner">
+                                <div class="journey-icon-ring">
+                                    <i class="fas fa-comment-dots" aria-hidden="true"></i>
+                                </div>
+                                <h3 class="journey-step-title">تواصل آمن</h3>
+                                <p class="journey-step-desc">رسائل مشفّرة دون كشف الأرقام</p>
+                            </div>
+                        </li>
+                        <li class="journey-step">
+                            <div class="journey-step-inner">
+                                <div class="journey-icon-ring journey-icon-ring--hero">
+                                    <i class="fas fa-heartbeat" aria-hidden="true"></i>
+                                </div>
+                                <h3 class="journey-step-title">إنقاذ حياة</h3>
+                                <p class="journey-step-desc">أنت البطل</p>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <section class="awareness-goal-section" aria-labelledby="awareness-goal-heading">
+            <div class="container">
+                <div class="awareness-goal-card" id="awarenessGoalCard">
+                    <header class="awareness-goal-header">
+                        <h2 id="awareness-goal-heading" class="awareness-goal-title">هدفنا التوعوي للشهر</h2>
+                        <p class="awareness-goal-lead" id="awarenessGoalLead">كل تسجيل جديد يُحفظ في المنصة ويُحدَّث العدد تلقائياً دون تدخل يدوي.</p>
+                        <p class="awareness-goal-subtitle" id="awarenessGoalSubtitle"></p>
+                    </header>
+                    <div class="awareness-progress-block" dir="rtl">
+                        <div class="awareness-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                            aria-valuenow="0" aria-labelledby="awareness-goal-heading" id="awarenessProgressBar">
+                            <div class="awareness-progress-fill" id="awarenessProgressFill"></div>
+                        </div>
+                        <p class="awareness-progress-label" id="awarenessProgressLabel">—</p>
+                    </div>
+                    <p class="awareness-goal-tip" id="awarenessGoalTip">شارك الرابط مع أهلك وأصدقاءك — كل تسجيل يُضاف فوراً إلى هذا الهدف.</p>
+                    <footer class="awareness-goal-footer" id="awarenessWeekFooter"></footer>
+                </div>
+            </div>
+        </section>
     </div>
 
     <!-- تسجيل الدخول -->

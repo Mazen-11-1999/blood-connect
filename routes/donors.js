@@ -38,6 +38,18 @@ router.get('/stats/summary', async (req, res) => {
             m => m.needyConfirmedAt && m.donorConfirmedAt
         ).length;
 
+        const { thisMonth: donorsRegisteredThisMonth, thisWeek: donorsRegisteredThisWeek } =
+            await dataAccess.getDonorRegistrationCounts();
+        const rawGoal = process.env.AWARENESS_MONTHLY_GOAL;
+        const parsedGoal =
+            rawGoal !== undefined && rawGoal !== '' ? parseInt(rawGoal, 10) : 500;
+        const monthlyGoal =
+            Number.isFinite(parsedGoal) && parsedGoal > 0 ? parsedGoal : 500;
+        const monthlyProgressPercent = Math.min(
+            100,
+            Math.round((donorsRegisteredThisMonth / monthlyGoal) * 100)
+        );
+
         res.json({
             totalDonors,
             availableDonors,
@@ -45,7 +57,13 @@ router.get('/stats/summary', async (req, res) => {
             bloodTypeDistribution: bloodTypeStats,
             governorateDistribution: governorateStats,
             totalMessages,
-            successfulMatches
+            successfulMatches,
+            awareness: {
+                monthlyGoal,
+                donorsRegisteredThisMonth,
+                donorsRegisteredThisWeek,
+                monthlyProgressPercent
+            }
         });
     } catch (error) {
         console.error('Get stats error:', error);
