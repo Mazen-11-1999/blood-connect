@@ -80,9 +80,17 @@ app.use((err, req, res, next) => {
 async function start() {
     try {
         getJwtSecret();
+    } catch (e) {
+        console.error('فشل التحقق من JWT_SECRET:', e.message);
+        process.exit(1);
+    }
+    try {
         await initDataLayer();
     } catch (e) {
-        console.error('فشل تهيئة قاعدة البيانات:', e.message);
+        console.error('فشل تهيئة قاعدة البيانات:', e.message || e);
+        if (process.env.DATABASE_URL && String(e.message || '').toLowerCase().includes('ssl')) {
+            console.error('تلميح: جرّب إضافة PGSSLMODE=require في متغيرات البيئة على Render.');
+        }
         process.exit(1);
     }
     app.listen(PORT, '0.0.0.0', () => {
