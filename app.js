@@ -223,8 +223,16 @@ function showPage(pageId, clickedElement) {
         if (typeof startAnnouncementCarousel === 'function') {
             startAnnouncementCarousel();
         }
-    } else if (typeof stopAnnouncementCarousel === 'function') {
-        stopAnnouncementCarousel();
+        if (typeof startAwarenessCardQuotes === 'function') {
+            startAwarenessCardQuotes();
+        }
+    } else {
+        if (typeof stopAnnouncementCarousel === 'function') {
+            stopAnnouncementCarousel();
+        }
+        if (typeof stopAwarenessCardQuotes === 'function') {
+            stopAwarenessCardQuotes();
+        }
     }
 
     // تحميل محتوى الصفحة
@@ -302,12 +310,14 @@ function loadPageContent(pageId) {
     }
 }
 
-/** أرقام بالعربية (تنسيق محلي) */
+/** أرقام بالعربية (تنسيق محلي) — يتعامل مع 0 وNaN بشكل صحيح */
 function formatArNumber(n) {
+    const x = Number(n);
+    if (!Number.isFinite(x)) return '٠';
     try {
-        return Number(n).toLocaleString('ar-EG', { maximumFractionDigits: 0 });
+        return x.toLocaleString('ar-EG', { maximumFractionDigits: 0 });
     } catch {
-        return String(n);
+        return String(Math.trunc(x));
     }
 }
 
@@ -406,6 +416,56 @@ function stopAnnouncementCarousel() {
     if (announcementCarouselInterval) {
         clearInterval(announcementCarouselInterval);
         announcementCarouselInterval = null;
+    }
+}
+
+/** عبارات قصيرة دوّارة داخل بطاقة الهدف (كل 3 ثوانٍ) */
+const AWARENESS_CARD_TAGLINES = [
+    'صدقة جارية بضغطة زر — أجرٌ قد يستمر بما دامت أرواحٌ تُنقذ.',
+    'قطرة دم تروي أملاً — كن سبباً فيها.',
+    'تفريج كربة مريض بحث عن حياة — أجرٌ عظيم عند الله.',
+    'معاً نبلغ أبعد — كل اسم جديد يحمل أملاً لغيره.'
+];
+
+let awarenessCardQuoteInterval = null;
+let awarenessCardQuoteIndex = 0;
+
+function renderAwarenessCardTagline(i) {
+    const el = document.getElementById('awarenessCardTagline');
+    if (!el) return;
+    const lines = AWARENESS_CARD_TAGLINES;
+    const idx = ((i % lines.length) + lines.length) % lines.length;
+    el.textContent = lines[idx];
+    el.classList.remove('awareness-tagline--flash');
+    void el.offsetWidth;
+    el.classList.add('awareness-tagline--flash');
+}
+
+function restartAwarenessCardQuoteInterval() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (awarenessCardQuoteInterval) clearInterval(awarenessCardQuoteInterval);
+    awarenessCardQuoteInterval = setInterval(() => {
+        awarenessCardQuoteIndex = (awarenessCardQuoteIndex + 1) % AWARENESS_CARD_TAGLINES.length;
+        renderAwarenessCardTagline(awarenessCardQuoteIndex);
+    }, 3000);
+}
+
+function startAwarenessCardQuotes() {
+    if (window.__awarenessCardQuotesActive) return;
+    window.__awarenessCardQuotesActive = true;
+    awarenessCardQuoteIndex = 0;
+    renderAwarenessCardTagline(0);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+    }
+    restartAwarenessCardQuoteInterval();
+}
+
+function stopAwarenessCardQuotes() {
+    window.__awarenessCardQuotesActive = false;
+    if (awarenessCardQuoteInterval) {
+        clearInterval(awarenessCardQuoteInterval);
+        awarenessCardQuoteInterval = null;
     }
 }
 
@@ -557,7 +617,7 @@ window.addEventListener('pagehide', () => {
     }
 });
 
-/** بطاقة الهدف التوعوي — هدف شهري (مثل 500) حتى الاكتمال، ثم شكر بالعدد الفعلي؛ التحديث تلقائي من قاعدة البيانات */
+/** بطاقة الهدف — نصوص إنسانية بلا أسلوب تقني؛ أرقام واضحة من الخادم */
 function updateAwarenessFromStats(stats) {
     const a = stats && stats.awareness;
     const subtitleEl = document.getElementById('awarenessGoalSubtitle');
@@ -569,28 +629,33 @@ function updateAwarenessFromStats(stats) {
     const tipEl = document.getElementById('awarenessGoalTip');
     if (!a || !subtitleEl || !fillEl || !labelEl || !footerEl) return;
 
-    const goal = Number(a.monthlyGoal) || 500;
-    const monthCount = Number(a.donorsRegisteredThisMonth) || 0;
-    const weekCount = Number(a.donorsRegisteredThisWeek) || 0;
+    const goal = Number(a.monthlyGoal);
+    const goalSafe = Number.isFinite(goal) && goal > 0 ? goal : 500;
+    const monthCount = Math.max(0, Number(a.donorsRegisteredThisMonth) || 0);
+    const weekCount = Math.max(0, Number(a.donorsRegisteredThisWeek) || 0);
     const pct = Math.min(100, Math.max(0, Number(a.monthlyProgressPercent) || 0));
-    const goalMet = monthCount >= goal && goal > 0;
+    const goalMet = monthCount >= goalSafe && goalSafe > 0;
+
+    const g = formatArNumber(goalSafe);
+    const m = formatArNumber(monthCount);
 
     if (goalMet) {
         subtitleEl.innerHTML =
-            `🎉 <strong>اكتمل هدف الشهر</strong> (${formatArNumber(goal)} متبرعاً مستهدفاً)! ` +
-            `العدد الفعلي المسجّل هذا الشهر: <strong>${formatArNumber(monthCount)}</strong> — ` +
-            `وكل تسجيل جديد يُضاف تلقائياً فور حفظه في المنصة.`;
+            `هذا الشهر: سجّل معنا <strong>${m}</strong> متبرعاً — بفضل الله ثم بكم تحقّق هدفنا البالغ <strong>${g}</strong> متبرعاً جديداً.`;
         if (tipEl) {
-            tipEl.textContent =
-                'الهدف الشهري تحقّق؛ ما زلنا نعدّ كل من ينضم لاحقاً هذا الشهر ويُعرض هنا مباشرة.';
+            tipEl.textContent = 'بارك الله فيكم — شاركوا الرابط مع من تحبون ليوسّع الخير أثره.';
+        }
+    } else if (monthCount === 0) {
+        subtitleEl.innerHTML =
+            `نسعى معاً إلى <strong>${g}</strong> متبرعاً جديداً هذا الشهر. كن أول من يترك بصمة خير معنا.`;
+        if (tipEl) {
+            tipEl.textContent = 'ادعُ أهلك وأصدقاءك — الخير يكبر حين يتعدّد.';
         }
     } else {
         subtitleEl.innerHTML =
-            `نسعى إلى <strong>${formatArNumber(goal)}</strong> متبرعاً جديداً هذا الشهر — ` +
-            `ومعنا الآن <strong>${formatArNumber(monthCount)}</strong> مسجّلاً (يتحدّث تلقائياً مع كل تسجيل).`;
+            `هدفنا هذا الشهر: <strong>${g}</strong> متبرعاً جديداً — وسجّل معنا حتى الآن <strong>${m}</strong> متبرعاً.`;
         if (tipEl) {
-            tipEl.textContent =
-                'شارك الرابط مع أهلك وأصدقاءك — كل تسجيل يُضاف فوراً إلى هذا الهدف.';
+            tipEl.textContent = 'شارك الرابط مع من تحب — معاً نكمل الطريق إلى الهدف.';
         }
     }
 
@@ -616,25 +681,25 @@ function updateAwarenessFromStats(stats) {
     }
 
     if (goalMet) {
-        labelEl.textContent = 'اكتمل الهدف الشهري ✓';
+        labelEl.textContent = 'اكتمل الهدف — بفضل الله ثم تبرعكم';
     } else {
-        labelEl.textContent = `${formatArNumber(pct)}٪ نحو اكتمال الهدف`;
+        labelEl.textContent = `${formatArNumber(pct)}٪ من الهدف الشهري`;
     }
 
     if (goalMet) {
         footerEl.innerHTML =
-            `شكراً لـ <strong>${formatArNumber(monthCount)}</strong> متبرعاً سجّلوا فعلياً هذا الشهر — أنتم من يصنع الفرق! 🙏 🏅` +
+            `شكراً لـ <strong>${m}</strong> متبرعاً معنا هذا الشهر — أنتم من يصنع الفرق.` +
             (weekCount > 0
-                ? `<br><span class="awareness-footer-note">منهم <strong>${formatArNumber(
+                ? `<br><span class="awareness-footer-note">هذا الأسبوع انضم <strong>${formatArNumber(
                       weekCount
-                  )}</strong> انضموا خلال الأسبوع الحالي.</span>`
+                  )}</strong> منهم.</span>`
                 : '');
     } else if (weekCount === 0) {
-        footerEl.textContent =
-            'لم يُسجّل متبرعون جدد هذا الأسبوع بعد — سجّل أنت وكن بداية الموجة 🙏';
+        footerEl.textContent = 'هذا الأسبوع: كن أول من يضيف بصمة خير جديدة.';
     } else {
-        footerEl.innerHTML =
-            `هذا الأسبوع: شكراً لـ <strong>${formatArNumber(weekCount)}</strong> متبرعاً انضموا! أنتم نور الأمل 🙏`;
+        footerEl.innerHTML = `هذا الأسبوع: <strong>${formatArNumber(
+            weekCount
+        )}</strong> متبرعاً انضموا — شكراً لكم.`;
     }
 }
 

@@ -1251,7 +1251,7 @@ body {
     }
 }
 
-/* بطاقة الهدف التوعوي — بيانات حية من الخادم */
+/* بطاقة الهدف — مظهر منصة احترافية */
 .awareness-goal-section {
     padding: 0 0 4rem;
     background: linear-gradient(180deg, #faf7f9 0%, #fff 40%);
@@ -1260,13 +1260,14 @@ body {
 .awareness-goal-card {
     max-width: 720px;
     margin: 0 auto;
-    padding: 2rem 2rem 1.75rem;
-    border-radius: 22px;
-    background: linear-gradient(165deg, #fff8f8 0%, #fff 55%, #fff9fa 100%);
-    border: 1px solid rgba(220, 53, 69, 0.1);
+    padding: 2.25rem 2.25rem 1.85rem;
+    border-radius: 24px;
+    background: linear-gradient(165deg, #ffffff 0%, #fffbfb 48%, #fff8f9 100%);
+    border: 1px solid rgba(220, 53, 69, 0.12);
     box-shadow:
-        0 2px 4px rgba(220, 53, 69, 0.04),
-        0 20px 48px rgba(60, 30, 45, 0.07);
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 12px 40px rgba(55, 25, 35, 0.07),
+        0 2px 8px rgba(220, 53, 69, 0.05);
     transition:
         border-color 0.4s ease,
         box-shadow 0.4s ease;
@@ -1283,34 +1284,60 @@ body {
 
 .awareness-goal-header {
     text-align: right;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.65rem;
 }
 
 .awareness-goal-title {
-    margin: 0 0 0.65rem;
-    font-size: clamp(1.2rem, 3.2vw, 1.45rem);
+    margin: 0 0 1rem;
+    font-size: clamp(1.25rem, 3.2vw, 1.5rem);
     font-weight: 800;
-    color: #1a1d2e;
-    letter-spacing: 0.02em;
+    color: #141722;
+    letter-spacing: 0.03em;
+    font-feature-settings: 'kern' 1;
 }
 
-.awareness-goal-lead {
-    margin: 0 0 0.5rem;
-    font-size: 0.95rem;
-    line-height: 1.65;
-    color: #5a5d6b;
+.awareness-goal-tagline {
+    margin: 0 0 1rem;
+    min-height: 3.1em;
+    font-size: 0.92rem;
+    line-height: 1.75;
+    color: #5a4a52;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    background: linear-gradient(125deg, rgba(255, 245, 247, 0.9) 0%, rgba(255, 252, 253, 0.95) 100%);
+    border-right: 3px solid rgba(220, 53, 69, 0.28);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+    animation: awarenessTaglineFade 0.5s ease both;
 }
 
-.awareness-goal-subtitle {
+@keyframes awarenessTaglineFade {
+    from {
+        opacity: 0.35;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.awareness-tagline--flash {
+    animation: awarenessTaglineFade 0.45s ease both;
+}
+
+.awareness-goal-figures {
     margin: 0;
-    font-size: 0.98rem;
-    color: #6c7080;
-    line-height: 1.55;
+    font-size: 1.02rem;
+    color: #3a3d4a;
+    line-height: 1.75;
+    font-weight: 600;
+    letter-spacing: 0.015em;
 }
 
-.awareness-goal-subtitle strong {
+.awareness-goal-figures strong {
     color: var(--primary-red);
     font-weight: 800;
+    font-variant-numeric: tabular-nums;
 }
 
 .awareness-progress-block {
@@ -1346,34 +1373,36 @@ body {
 }
 
 .awareness-progress-label {
-    margin: 0.55rem 0 0;
+    margin: 0.65rem 0 0;
     text-align: right;
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--primary-red);
-    letter-spacing: 0.02em;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #b02a37;
+    letter-spacing: 0.03em;
 }
 
 .awareness-goal-tip {
     margin: 0 0 1.1rem;
-    padding: 0.65rem 0.85rem;
-    border-radius: 12px;
-    background: rgba(220, 53, 69, 0.06);
-    border-right: 3px solid rgba(220, 53, 69, 0.35);
-    font-size: 0.88rem;
-    line-height: 1.55;
-    color: #4a4d5c;
+    padding: 0.75rem 1rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(220, 53, 69, 0.1);
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: #4d505c;
     text-align: right;
+    font-weight: 500;
 }
 
 .awareness-goal-footer {
     margin: 0;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(220, 53, 69, 0.12);
+    padding-top: 1.15rem;
+    border-top: 1px solid rgba(220, 53, 69, 0.1);
     text-align: center;
-    font-size: 0.95rem;
-    line-height: 1.65;
-    color: #3d4050;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: #454854;
+    font-weight: 500;
 }
 
 .awareness-goal-footer strong {
@@ -1403,6 +1432,11 @@ body {
 @media (prefers-reduced-motion: reduce) {
     .awareness-progress-fill {
         transition: none;
+    }
+
+    .awareness-goal-tagline,
+    .awareness-tagline--flash {
+        animation: none !important;
     }
 }
 
