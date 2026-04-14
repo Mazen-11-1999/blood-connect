@@ -1,5 +1,5 @@
 // Service Worker لإشعارات إنـقـاذ حــيـاة
-const CACHE_NAME = 'inqadh-hayah-v12';
+const CACHE_NAME = 'inqadh-hayah-v13';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -8,7 +8,8 @@ const urlsToCache = [
   '/app.js',
   '/governorate-regions.js',
   '/yemen-governorates.js',
-  '/manifest.json'
+  '/manifest.json',
+  '/vendor/qrcode-generator.js'
 ];
 
 // تثبيت Service Worker (ملف واحد فاشل لا يمنع الباقي)

@@ -122,7 +122,8 @@
             box-sizing: border-box;
         }
 
-        #qrcode canvas {
+        #qrcode canvas,
+        #qrcode img {
             display: block;
             max-width: 100% !important;
             width: auto !important;
@@ -284,7 +285,8 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" crossorigin="anonymous"></script>
+    <!-- ملف npm الرسمي لا يضمّ build/ على CDN؛ نستخدم qrcode-generator محلياً -->
+    <script src="/vendor/qrcode-generator.js"></script>
     <script>
         (function () {
             const params = new URLSearchParams(window.location.search);
@@ -315,17 +317,28 @@
 
             function draw() {
                 const url = currentUrl();
-                const size = qrPixelSize();
-                el.innerHTML = '';
-                QRCode.toCanvas(url, { width: size, margin: 2, color: { dark: '#1a1a1a', light: '#ffffff' } }, function (err, canvas) {
-                    if (err) {
-                        el.textContent = 'تعذر إنشاء الرمز. تحقق من الرابط.';
+                const targetPx = qrPixelSize();
+                el.textContent = '';
+                try {
+                    if (typeof qrcode !== 'function') {
+                        el.textContent = 'تعذر تحميل مكتبة الرمز. أعد تحميل الصفحة.';
                         return;
                     }
-                    canvas.style.maxWidth = '100%';
-                    canvas.style.height = 'auto';
-                    el.appendChild(canvas);
-                });
+                    const qr = qrcode(0, 'M');
+                    qr.addData(url);
+                    qr.make();
+                    const n = qr.getModuleCount();
+                    const margin = 8;
+                    var cell = Math.max(2, Math.floor((targetPx - 2 * margin) / n));
+                    el.innerHTML = qr.createImgTag(cell, margin, 'رمز QR لتطبيق إنقاذ حياة');
+                    const img = el.querySelector('img');
+                    if (img) {
+                        img.style.maxWidth = '100%';
+                        img.style.height = 'auto';
+                    }
+                } catch (e) {
+                    el.textContent = 'تعذر إنشاء الرمز. تحقق من الرابط.';
+                }
             }
 
             input.value = defaultUrl;
