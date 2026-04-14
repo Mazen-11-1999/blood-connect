@@ -22,8 +22,8 @@
 
 <body>
     <!-- شريط التنقل -->
-    <nav class="navbar">
-        <div class="container">
+    <nav class="navbar" id="mainNavbar">
+        <div class="container navbar-container">
             <div class="nav-brand">
                 <div class="heart-container">
                     <i class="fas fa-heartbeat heart-icon"></i>
@@ -31,17 +31,23 @@
                 </div>
                 <span class="brand-text">إنـقـاذ حــيـاة</span>
             </div>
-            <div class="nav-links">
-                <a href="#" onclick="showPage('home', this)" class="nav-link active">الرئيسية</a>
-                <a href="#" onclick="showPage('login', this)" class="nav-link">تسجيل الدخول</a>
-                <a href="#" onclick="showPage('register', this)" class="nav-link">التسجيل</a>
-                <a href="#" onclick="showPage('search', this)" class="nav-link">البحث عن متبرع</a>
-                <a href="#" onclick="showPage('messages', this)" class="nav-link">الرسائل <span id="messageCount"
-                        class="badge">0</span></a>
-                <a href="#" onclick="showPage('heroes', this)" class="nav-link">أبطالنا</a>
-                <a href="#" onclick="showPage('profile', this)" class="nav-link">الملف الشخصي</a>
-                <a href="/qr.html" class="nav-link" title="رمز QR للدخول من الهاتف" id="navQrLink">📱 دخول سريع</a>
+            <div class="nav-links" id="navLinks">
+                <a href="#" onclick="showPage('home', this); return false;" class="nav-link nav-link-home active">الرئيسية</a>
+                <div class="nav-links-rest" id="navLinksRest">
+                    <a href="#" onclick="showPage('login', this); return false;" class="nav-link">تسجيل الدخول</a>
+                    <a href="#" onclick="showPage('register', this); return false;" class="nav-link">التسجيل</a>
+                    <a href="#" onclick="showPage('search', this); return false;" class="nav-link">البحث عن متبرع</a>
+                    <a href="#" onclick="showPage('messages', this); return false;" class="nav-link">الرسائل <span id="messageCount"
+                            class="badge">0</span></a>
+                    <a href="#" onclick="showPage('heroes', this); return false;" class="nav-link">أبطالنا</a>
+                    <a href="#" onclick="showPage('profile', this); return false;" class="nav-link">الملف الشخصي</a>
+                    <a href="/qr.html" class="nav-link" title="رمز QR للدخول من الهاتف" id="navQrLink">📱 دخول سريع</a>
+                </div>
             </div>
+            <button type="button" class="nav-mobile-toggle" id="navMobileToggle" aria-expanded="false"
+                aria-controls="navLinksRest" aria-label="إظهار أو إخفاء باقي القائمة">
+                <i class="fas fa-chevron-down nav-mobile-toggle-icon" aria-hidden="true"></i>
+            </button>
         </div>
     </nav>
 

@@ -166,6 +166,14 @@ const dataManager = {
     }
 };
 
+function closeMobileNav() {
+    const nav = document.getElementById('mainNavbar');
+    const btn = document.getElementById('navMobileToggle');
+    if (!nav || !nav.classList.contains('mobile-nav-open')) return;
+    nav.classList.remove('mobile-nav-open');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
 // إدارة الصفحات
 function showPage(pageId, clickedElement) {
     // إخفاء جميع الصفحات
@@ -242,6 +250,10 @@ function showPage(pageId, clickedElement) {
         }
     } catch (error) {
         console.error('خطأ في تحميل محتوى الصفحة:', error);
+    }
+
+    if (typeof closeMobileNav === 'function') {
+        closeMobileNav();
     }
 }
 
@@ -739,6 +751,26 @@ function toggleHealthDetails() {
 // قوائم المحافظات من yemen-governorates.js (بدون سقطرى) — المنطقة نص حر في #region
 document.addEventListener('DOMContentLoaded', function () {
     populateSearchGovernorates();
+    document.getElementById('navMobileToggle')?.addEventListener('click', function () {
+        const nav = document.getElementById('mainNavbar');
+        if (!nav) return;
+        const open = nav.classList.toggle('mobile-nav-open');
+        this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    window.addEventListener(
+        'resize',
+        function () {
+            if (window.innerWidth > 768 && typeof closeMobileNav === 'function') {
+                closeMobileNav();
+            }
+        },
+        { passive: true }
+    );
+    document.getElementById('navQrLink')?.addEventListener('click', function () {
+        if (window.innerWidth <= 768 && typeof closeMobileNav === 'function') {
+            closeMobileNav();
+        }
+    });
     document.getElementById('registerSuccessClose')?.addEventListener('click', closeRegisterSuccessModal);
     document.getElementById('registerSuccessOk')?.addEventListener('click', closeRegisterSuccessModal);
     document.getElementById('registerSuccessModal')?.addEventListener('click', function (e) {
