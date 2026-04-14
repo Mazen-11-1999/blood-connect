@@ -588,23 +588,29 @@ body {
 
 .hero-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+    gap: clamp(0.65rem, 3vw, 1.25rem);
     margin-top: 5rem;
     padding-top: 4rem;
     border-top: 2px solid rgba(220, 53, 69, 0.15);
-    max-width: 1000px;
+    max-width: min(1000px, 100%);
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
 }
 
 .stat-card {
     background: var(--white);
-    padding: 2rem;
+    padding: clamp(0.85rem, 3vw, 2rem);
     border-radius: 10px;
     box-shadow: var(--shadow);
     text-align: center;
     transition: transform 0.3s, box-shadow 0.3s;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .stat-card:hover {
@@ -613,20 +619,22 @@ body {
 }
 
 .stat-card i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    font-size: clamp(1.75rem, 6vw, 3rem);
+    margin-bottom: clamp(0.35rem, 2vw, 1rem);
     color: var(--primary-red);
 }
 
 .stat-card h3 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
+    font-size: clamp(1.35rem, 5vw, 2.5rem);
+    margin-bottom: 0.35rem;
     color: var(--dark-gray);
 }
 
 .stat-card p {
     color: var(--gray);
-    font-size: 1.1rem;
+    font-size: clamp(0.78rem, 2.8vw, 1.1rem);
+    line-height: 1.35;
+    word-wrap: break-word;
 }
 
 .hero-stats-caption {
@@ -2255,16 +2263,6 @@ body {
     position: absolute;
     top: -10px;
     right: 10px;
-}
-
-.hero-stats {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(220, 53, 69, 0.1);
-    position: relative;
-    z-index: 1;
 }
 
 .hero-stat {
