@@ -337,15 +337,10 @@
                         <select id="governorate" required>
                             <option value="">جاري التحميل…</option>
                         </select>
-                        <small class="form-hint"><i class="fas fa-list"></i> اختر المحافظة من القائمة (البرّ
-                            الرئيسي؛ سقطرى مستثناة لأنها أرخبيل).</small>
                     </div>
                     <div class="form-group">
-                        <label for="region"><i class="fas fa-map-marker-alt"></i> المنطقة أو الشارع أو القرية *</label>
-                        <input type="text" id="region" placeholder="مثال: وصاب، حي معين، شارع الستين، قرية …" required
-                            autocomplete="street-address">
-                        <small class="form-hint" id="regionLocationHint"><i class="fas fa-pen"></i> اكتب ما يناسبك
-                            بحرية: مديرية، قرية، حي، أو شارع — الدقة هنا تساعد المحتاج على معرفة قربك الجغرافي.</small>
+                        <label for="region"><i class="fas fa-map-marker-alt"></i> المنطقة *</label>
+                        <input type="text" id="region" required autocomplete="off">
                     </div>
                 </div>
 
@@ -471,10 +466,6 @@
             <div class="page-header">
                 <h2><i class="fas fa-search"></i> البحث عن متبرع</h2>
                 <p>ابحث عن متبرع متوافق مع احتياجاتك</p>
-                <p class="form-hint" style="margin-top:0.75rem;line-height:1.6;">
-                    <i class="fas fa-info-circle"></i> المحافظة من قائمة موحّدة؛ يمكنك تقييد <strong>المنطقة/الشارع</strong>
-                    بنص يطابق ما كتبه المتبرعون (قرية، حي، مديرية…).
-                </p>
             </div>
 
             <div class="search-filters">
@@ -506,9 +497,8 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="searchRegion"><i class="fas fa-map-marker-alt"></i> المنطقة / الشارع / القرية</label>
-                        <input type="text" id="searchRegion" placeholder="اختياري — مثال: وصاب، معين، شارع…">
-                        <small class="form-hint">اتركه فارغاً للبحث في كامل المحافظة المختارة.</small>
+                        <label for="searchRegion"><i class="fas fa-map-marker-alt"></i> المنطقة</label>
+                        <input type="text" id="searchRegion">
                     </div>
                 </div>
                 <button onclick="searchDonors()" class="btn btn-primary">
