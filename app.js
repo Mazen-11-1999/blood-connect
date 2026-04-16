@@ -36,6 +36,58 @@ async function apiFetch(path, options = {}) {
     return data;
 }
 
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+}
+
+/** اشتراك Web Push لإظهار إشعار على الهاتف حتى مع إغلاق التبويب (يتطلب بيانات/واي فاي وإعداد VAPID على الخادم) */
+async function tryRegisterWebPush() {
+    const user = dataManager.getCurrentUser();
+    if (!user || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    try {
+        const r = await fetch('/api/push/vapid-public-key');
+        const j = await r.json();
+        if (!j.publicKey) return;
+        const reg = await navigator.serviceWorker.ready;
+        const appKey = urlBase64ToUint8Array(j.publicKey);
+        let sub = await reg.pushManager.getSubscription();
+        if (sub) {
+            const cur = sub.options.applicationServerKey;
+            let same = false;
+            if (cur && cur.byteLength === appKey.byteLength) {
+                same = true;
+                for (let i = 0; i < cur.byteLength; i++) {
+                    if (cur[i] !== appKey[i]) {
+                        same = false;
+                        break;
+                    }
+                }
+            }
+            if (!same) {
+                await sub.unsubscribe();
+                sub = null;
+            }
+        }
+        if (!sub) {
+            sub = await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: appKey
+            });
+        }
+        await apiFetch('/push/subscribe', {
+            method: 'POST',
+            body: JSON.stringify({ subscription: sub.toJSON() })
+        });
+    } catch (e) {
+        console.warn('Web Push:', e);
+    }
+}
+
 const dataManager = {
     getCurrentUser() {
         const u = localStorage.getItem('bloodConnect_user');
@@ -849,6 +901,7 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
         void updateHomeStats();
         showPage('profile', null);
         await loadProfile();
+        void tryRegisterWebPush();
     } catch (err) {
         alert('فشل التسجيل: ' + (err.message || err));
     }
@@ -866,6 +919,7 @@ document.getElementById('loginForm')?.addEventListener('submit', async function 
         showPage('profile', null);
         await loadProfile();
         dataManager.updateMessageCount();
+        void tryRegisterWebPush();
     } catch (err) {
         alert('فشل تسجيل الدخول: ' + (err.message || err));
     }
@@ -1747,7 +1801,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // طلب إذن الإشعارات عند تحميل الصفحة
             if (typeof NotificationManager !== 'undefined' && NotificationManager.requestPermission) {
-                NotificationManager.requestPermission();
+                NotificationManager.requestPermission().then(function () {
+                    void tryRegisterWebPush();
+                });
+            } else {
+                void tryRegisterWebPush();
             }
 
             // تهيئة خدمة SMS

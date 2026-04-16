@@ -49,12 +49,14 @@ const authRoutes = require('./routes/auth');
 const donorRoutes = require('./routes/donors');
 const messageRoutes = require('./routes/messages');
 const smsRoutes = require('./routes/sms');
+const pushRoutes = require('./routes/push');
 
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/donors', donorRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/sms', smsRoutes);
+app.use('/api/push', pushRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -100,6 +102,7 @@ async function start() {
         console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
         console.log(`📱 Twilio configured: ${process.env.TWILIO_ACCOUNT_SID ? 'Yes' : 'No'}`);
         console.log(`🗄️ Storage: ${process.env.DATABASE_URL ? 'PostgreSQL' : 'JSON file'}`);
+        console.log(`🔔 Web Push: ${process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY ? 'configured' : 'not configured (set VAPID_* in .env)'}`);
     });
 }
 

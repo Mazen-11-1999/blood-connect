@@ -1,5 +1,5 @@
 // Service Worker لإشعارات إنـقـاذ حــيـاة
-const CACHE_NAME = 'inqadh-hayah-v14';
+const CACHE_NAME = 'inqadh-hayah-v15';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -63,6 +63,29 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+// Web Push من الخادم (رسالة جديدة للمتبرع)
+self.addEventListener('push', (event) => {
+  let payload = { title: 'إنقاذ حياة', body: '', data: {} };
+  try {
+    if (event.data) {
+      payload = event.data.json();
+    }
+  } catch (e) {
+    /* ignore */
+  }
+  const title = payload.title || 'إنقاذ حياة';
+  const data = payload.data || {};
+  const options = {
+    body: payload.body || '',
+    icon: '/icon-192x192.png',
+    badge: '/icon-192x192.png',
+    data: data,
+    tag: data.messageId ? `push-msg-${data.messageId}` : 'blood-connect-push',
+    renotify: true
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
 // معالجة الإشعارات
 self.addEventListener('notificationclick', (event) => {
   console.log('تم النقر على الإشعار:', event.notification.tag);
@@ -70,8 +93,29 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   
   const action = event.action;
-  const data = event.notification.data;
+  const data = event.notification.data || {};
   
+  if (data.openMessages === '1' || data.openMessages === 1) {
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+        for (let i = 0; i < clientList.length; i++) {
+          const client = clientList[i];
+          if (client.url.includes('index.html') && 'focus' in client) {
+            client.focus();
+            client.postMessage({ type: 'OPEN_MESSAGE', messageId: data.messageId });
+            return;
+          }
+        }
+        return clients.openWindow('/index.html').then((client) => {
+          if (client && client.postMessage) {
+            client.postMessage({ type: 'OPEN_MESSAGE', messageId: data.messageId });
+          }
+        });
+      })
+    );
+    return;
+  }
+
   if (action === 'call' && data.phone) {
     // فتح تطبيق الاتصال مباشرة
     event.waitUntil(

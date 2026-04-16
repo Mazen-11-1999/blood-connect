@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult, query } = require('express-validator');
 const dataAccess = require('../lib/dataAccess');
+const { notifyRecipientNewMessage } = require('../lib/webPushService');
 const { authenticateToken } = require('../middleware/auth');
 
 function enrichMessage(msg) {
@@ -158,9 +159,16 @@ router.post('/', [
 
         await dataAccess.createMessage(newMessage);
 
+        const enriched = enrichMessage(newMessage);
+        setImmediate(() => {
+            notifyRecipientNewMessage(enriched).catch(err =>
+                console.error('Web Push notify:', err.message || err)
+            );
+        });
+
         res.status(201).json({
             message: 'Message sent successfully',
-            data: enrichMessage(newMessage)
+            data: enriched
         });
     } catch (error) {
         console.error('Send message error:', error);
