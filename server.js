@@ -23,7 +23,9 @@ const devOrigins = [
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
     origin: process.env.NODE_ENV === 'production'
-        ? (process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',').map(s => s.trim()) : ['https://yourdomain.com'])
+        ? (process.env.CORS_ORIGINS
+            ? process.env.CORS_ORIGINS.split(',').map(s => s.trim())
+            : true)
         : devOrigins,
     credentials: true
 }));

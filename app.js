@@ -5,7 +5,15 @@ async function apiFetch(path, options = {}) {
     const token = localStorage.getItem('bloodConnect_token');
     const headers = { 'Content-Type': 'application/json', ...options.headers };
     if (token) headers['Authorization'] = `Bearer ${token}`;
-    const res = await fetch(API_BASE + path, { ...options, headers });
+    let res;
+    try {
+        res = await fetch(API_BASE + path, { ...options, headers });
+    } catch (e) {
+        const m = e && e.message === 'Failed to fetch'
+            ? 'تعذر الاتصال بالخادم. تحقق من الإنترنت، أو أن الخادم غير جاهز (جرّب بعد قليل على Render).'
+            : (e && e.message) || 'تعذر الاتصال بالخادم';
+        throw new Error(m);
+    }
     const text = await res.text();
     let data = {};
     try {
@@ -14,9 +22,15 @@ async function apiFetch(path, options = {}) {
         data = {};
     }
     if (!res.ok) {
-        const msg = data.error
-            || (Array.isArray(data.errors) && data.errors[0] && (data.errors[0].msg || data.errors[0].message))
-            || 'Request failed';
+        let msg = data.error
+            || (Array.isArray(data.errors) && data.errors[0] && (data.errors[0].msg || data.errors[0].message));
+        if (!msg && text) {
+            const snippet = text.replace(/\s+/g, ' ').trim().slice(0, 160);
+            msg = snippet
+                ? `خطأ ${res.status}: ${snippet}`
+                : `خطأ ${res.status} من الخادم`;
+        }
+        if (!msg) msg = `خطأ ${res.status}`;
         throw new Error(msg);
     }
     return data;

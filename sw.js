@@ -1,5 +1,5 @@
 // Service Worker لإشعارات إنـقـاذ حــيـاة
-const CACHE_NAME = 'inqadh-hayah-v13';
+const CACHE_NAME = 'inqadh-hayah-v14';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -45,7 +45,14 @@ self.addEventListener('fetch', (event) => {
   const url = event.request.url;
   if (url.includes('/api/')) {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      fetch(event.request).catch(() =>
+        new Response(
+          JSON.stringify({
+            error: 'تعذر الاتصال بالخادم (شبكة أو الخادم غير جاهز).'
+          }),
+          { status: 503, headers: { 'Content-Type': 'application/json; charset=utf-8' } }
+        )
+      )
     );
     return;
   }
