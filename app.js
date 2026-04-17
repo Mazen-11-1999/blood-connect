@@ -399,6 +399,45 @@ function formatArNumber(n) {
     }
 }
 
+/** بعد الشريحة/العبارة (ميلي ثانية) — اضبطها هنا لإبطاء التنقل */
+const MS_ANNOUNCEMENT_CAROUSEL = 6000;
+const MS_AWARENESS_CARD_TAGLINE = 6000;
+const MS_HERO_MAIN_SLIDER = 8000;
+const MS_HERO_IMAGES_SLIDER = 6500;
+const MS_GO_TO_SLIDE_RESUME = 5000;
+const MS_REGISTER_SUCCESS_QUOTE = 5500;
+
+/** متبرع واحد → «متبرعاً»، وإلا «متبرعين» */
+function arDonorWordForCount(n) {
+    const x = Math.floor(Number(n)) || 0;
+    return x === 1 ? 'متبرعاً' : 'متبرعين';
+}
+
+function escapeHtml(s) {
+    return String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function formatHeroLocation(governorate, region) {
+    const g = String(governorate || '').trim();
+    const r = String(region || '').trim();
+    if (g && r) return `${g} — ${r}`;
+    if (g) return g;
+    if (r) return r;
+    return '—';
+}
+
+/** إجمالي المتبرعين في سطر المنصة */
+function arTotalDonorsLabel(n) {
+    const x = Math.max(0, Math.floor(Number(n)) || 0);
+    if (x === 0) return `${formatArNumber(0)} متبرع مسجّل`;
+    if (x === 1) return `${formatArNumber(1)} متبرع مسجّل`;
+    return `${formatArNumber(x)} متبرعين مسجّلين`;
+}
+
 let awarenessBarInitialized = false;
 
 const LS_STATS_EXIT = 'bc_stats_last_exit_v1';
@@ -409,7 +448,7 @@ let lastStatsSnapshot = null;
 /** يُعرض فرق «منذ آخر زيارة» مرة واحدة لكل تحميل للصفحة */
 let motivationalVisitDeltaShown = false;
 
-/** شرائح الإعلان التوعوي (تتبدّل كل 3 ثوانٍ) */
+/** شرائح الإعلان التوعوي (مدة البقاء: `MS_ANNOUNCEMENT_CAROUSEL`) */
 const ANNOUNCEMENT_SLIDES = [
     {
         tag: 'صدقة جارية بضغطة زر',
@@ -455,7 +494,7 @@ function restartAnnouncementInterval() {
     announcementCarouselInterval = setInterval(() => {
         announcementSlideIndex = (announcementSlideIndex + 1) % ANNOUNCEMENT_SLIDES.length;
         renderAnnouncementSlide(announcementSlideIndex);
-    }, 3000);
+    }, MS_ANNOUNCEMENT_CAROUSEL);
 }
 
 function startAnnouncementCarousel() {
@@ -497,7 +536,7 @@ function stopAnnouncementCarousel() {
     }
 }
 
-/** عبارات قصيرة دوّارة داخل بطاقة الهدف (كل 3 ثوانٍ) */
+/** عبارات قصيرة دوّارة داخل بطاقة الهدف (`MS_AWARENESS_CARD_TAGLINE`) */
 const AWARENESS_CARD_TAGLINES = [
     'صدقة جارية بضغطة زر — أجرٌ قد يستمر بما دامت أرواحٌ تُنقذ.',
     'قطرة دم تروي أملاً — كن سبباً فيها.',
@@ -525,7 +564,7 @@ function restartAwarenessCardQuoteInterval() {
     awarenessCardQuoteInterval = setInterval(() => {
         awarenessCardQuoteIndex = (awarenessCardQuoteIndex + 1) % AWARENESS_CARD_TAGLINES.length;
         renderAwarenessCardTagline(awarenessCardQuoteIndex);
-    }, 3000);
+    }, MS_AWARENESS_CARD_TAGLINE);
 }
 
 function startAwarenessCardQuotes() {
@@ -568,7 +607,7 @@ function openRegisterSuccessModal() {
             registerSuccessQuoteInterval = setInterval(() => {
                 qi = (qi + 1) % REGISTER_SUCCESS_QUOTES.length;
                 quoteEl.textContent = REGISTER_SUCCESS_QUOTES[qi];
-            }, 4000);
+            }, MS_REGISTER_SUCCESS_QUOTE);
         }
     }
     modal.classList.add('active');
@@ -598,7 +637,7 @@ function updateMotivationalStrip(stats) {
     const totalMsg = Number(stats.totalMessages) || 0;
     const matches = Number(stats.successfulMatches) || 0;
 
-    const platformLine = `إجمالي المنصة: ${formatArNumber(totalDonors)} متبرعاً مسجّلاً · ${formatArNumber(totalMsg)} طلب مساعدة · ${formatArNumber(matches)} تأكيد مزدوج ناجح.`;
+    const platformLine = `إجمالي المنصة: ${arTotalDonorsLabel(totalDonors)} · ${formatArNumber(totalMsg)} طلب مساعدة · ${formatArNumber(matches)} تأكيد مزدوج ناجح.`;
     platformEl.textContent = platformLine;
 
     const subParts = [];
@@ -612,7 +651,9 @@ function updateMotivationalStrip(stats) {
                 if (dD > 0 || dM > 0) {
                     const bits = [];
                     if (dD > 0) {
-                        bits.push(`+<strong>${formatArNumber(dD)}</strong> متبرعاً على المنصة`);
+                        bits.push(
+                            `+<strong>${formatArNumber(dD)}</strong> ${dD === 1 ? 'متبرعاً' : 'متبرعين'} على المنصة`
+                        );
                     }
                     if (dM > 0) {
                         bits.push(`+<strong>${formatArNumber(dM)}</strong> تأكيداً مزدوجاً ناجحاً`);
@@ -634,7 +675,9 @@ function updateMotivationalStrip(stats) {
             if (dD > 0 || dMonth > 0) {
                 const bits = [];
                 if (dD > 0) {
-                    bits.push(`+<strong>${formatArNumber(dD)}</strong> متبرعاً على المنصة`);
+                    bits.push(
+                        `+<strong>${formatArNumber(dD)}</strong> ${dD === 1 ? 'متبرعاً' : 'متبرعين'} على المنصة`
+                    );
                 }
                 if (dMonth > 0) {
                     bits.push(`+<strong>${formatArNumber(dMonth)}</strong> تسجيلاً هذا الشهر`);
@@ -719,7 +762,7 @@ function updateAwarenessFromStats(stats) {
 
     if (goalMet) {
         subtitleEl.innerHTML =
-            `هذا الشهر: سجّل معنا <strong>${m}</strong> متبرعاً — بفضل الله ثم بكم تحقّق هدفنا البالغ <strong>${g}</strong> متبرعاً جديداً.`;
+            `هذا الشهر: سجّل معنا <strong>${m}</strong> ${arDonorWordForCount(monthCount)} — بفضل الله ثم بكم تحقّق هدفنا البالغ <strong>${g}</strong> متبرعاً جديداً.`;
         if (tipEl) {
             tipEl.textContent = 'بارك الله فيكم — شاركوا الرابط مع من تحبون ليوسّع الخير أثره.';
         }
@@ -731,7 +774,7 @@ function updateAwarenessFromStats(stats) {
         }
     } else {
         subtitleEl.innerHTML =
-            `هدفنا هذا الشهر: <strong>${g}</strong> متبرعاً جديداً — وسجّل معنا حتى الآن <strong>${m}</strong> متبرعاً.`;
+            `هدفنا هذا الشهر: <strong>${g}</strong> متبرعاً جديداً — وسجّل معنا حتى الآن <strong>${m}</strong> ${arDonorWordForCount(monthCount)}.`;
         if (tipEl) {
             tipEl.textContent = 'شارك الرابط مع من تحب — معاً نكمل الطريق إلى الهدف.';
         }
@@ -766,18 +809,18 @@ function updateAwarenessFromStats(stats) {
 
     if (goalMet) {
         footerEl.innerHTML =
-            `شكراً لـ <strong>${m}</strong> متبرعاً معنا هذا الشهر — أنتم من يصنع الفرق.` +
+            `شكراً لـ <strong>${m}</strong> ${arDonorWordForCount(monthCount)} معنا هذا الشهر — أنتم من يصنع الفرق.` +
             (weekCount > 0
-                ? `<br><span class="awareness-footer-note">هذا الأسبوع انضم <strong>${formatArNumber(
+                ? `<br><span class="awareness-footer-note">هذا الأسبوع انضمّ <strong>${formatArNumber(
                       weekCount
-                  )}</strong> منهم.</span>`
+                  )}</strong> ${arDonorWordForCount(weekCount)} منهم.</span>`
                 : '');
     } else if (weekCount === 0) {
         footerEl.textContent = 'هذا الأسبوع: كن أول من يضيف بصمة خير جديدة.';
     } else {
-        footerEl.innerHTML = `هذا الأسبوع: <strong>${formatArNumber(
+        footerEl.innerHTML = `هذا الأسبوع انضمّ <strong>${formatArNumber(
             weekCount
-        )}</strong> متبرعاً انضموا — شكراً لكم.`;
+        )}</strong> ${arDonorWordForCount(weekCount)} — شكراً لكم.`;
     }
 }
 
@@ -1678,7 +1721,7 @@ function initSlider() {
 function startSlider() {
     slideInterval = setInterval(() => {
         nextSlide();
-    }, 5000); // كل 5 ثواني
+    }, MS_HERO_MAIN_SLIDER);
 }
 
 function stopSlider() {
@@ -1725,10 +1768,10 @@ function goToSlide(index) {
     slides[currentSlide].classList.add('active');
     indicators[currentSlide].classList.add('active');
 
-    // إعادة تشغيل السلايدر التلقائي بعد 3 ثواني
+    // إعادة تشغيل السلايدر التلقائي بعد توقف يدوي قصير
     setTimeout(() => {
         startSlider();
-    }, 3000);
+    }, MS_GO_TO_SLIDE_RESUME);
 }
 
 // تسجيل Service Worker للإشعارات الفورية
@@ -2103,7 +2146,7 @@ function initHeroImagesSlider() {
         slides[heroImageSlide].classList.remove('active');
         heroImageSlide = (heroImageSlide + 1) % slides.length;
         slides[heroImageSlide].classList.add('active');
-    }, 4000); // تغيير الصورة كل 4 ثواني
+    }, MS_HERO_IMAGES_SLIDER);
 }
 
 function stopHeroImagesSlider() {
@@ -2152,28 +2195,33 @@ async function loadHeroes() {
 
     heroesList.innerHTML = donorStats.map((hero, index) => {
         const randomMessage = heroMessages[Math.floor(Math.random() * heroMessages.length)];
-        const heroInitial = hero.fullName.charAt(0);
+        const safeName = String(hero.fullName || '').trim() || 'متبرع';
+        const heroInitial = escapeHtml(safeName.charAt(0));
+        const loc = escapeHtml(formatHeroLocation(hero.governorate, hero.region));
+        const blood = escapeHtml(String(hero.bloodType || ''));
+        const matchesN = Number(hero.successfulMatches) || 0;
+        const msgsN = Number(hero.totalMessages) || 0;
 
         return `
             <div class="hero-card" style="animation-delay: ${index * 0.1}s;">
                 <div class="hero-avatar">
                     ${heroInitial}
                 </div>
-                <h3 class="hero-name">${hero.fullName}</h3>
-                <span class="hero-blood-type">${hero.bloodType}</span>
+                <h3 class="hero-name">${escapeHtml(safeName)}</h3>
+                <span class="hero-blood-type">${blood}</span>
                 <div class="hero-location">
-                    <i class="fas fa-map-marker-alt"></i> ${hero.governorate || ''} - ${hero.region || ''}
+                    <i class="fas fa-map-marker-alt"></i> ${loc}
                 </div>
                 <div class="hero-message">
                     ${randomMessage}
                 </div>
                 <div class="hero-stats">
                     <div class="hero-stat">
-                        <span class="hero-stat-number">${hero.successfulMatches}</span>
+                        <span class="hero-stat-number">${matchesN}</span>
                         <span class="hero-stat-label">تأكيد مزدوج</span>
                     </div>
                     <div class="hero-stat">
-                        <span class="hero-stat-number">${hero.totalMessages}</span>
+                        <span class="hero-stat-number">${msgsN}</span>
                         <span class="hero-stat-label">رسالة</span>
                     </div>
                 </div>

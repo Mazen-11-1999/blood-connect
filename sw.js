@@ -1,5 +1,5 @@
 // Service Worker لإشعارات إنـقـاذ حــيـاة
-const CACHE_NAME = 'inqadh-hayah-v15';
+const CACHE_NAME = 'inqadh-hayah-v16';
 const urlsToCache = [
   '/',
   '/index.html',

@@ -703,7 +703,7 @@ body {
     color: #1a1d28;
     line-height: 1.55;
     min-height: 2.8em;
-    animation: announcementFade 0.55s ease both;
+    animation: announcementFade 0.72s ease both;
 }
 
 .announcement-body {
@@ -713,7 +713,7 @@ body {
     color: #c82333;
     font-weight: 500;
     min-height: 3.2em;
-    animation: announcementFade 0.55s ease both;
+    animation: announcementFade 0.72s ease both;
 }
 
 @keyframes announcementFade {
@@ -826,7 +826,7 @@ body {
     font-style: italic;
     margin-bottom: 0.75rem;
     min-height: 3.2em;
-    animation: announcementFade 0.45s ease both;
+    animation: announcementFade 0.65s ease both;
 }
 
 .register-success-hint {
@@ -1348,7 +1348,7 @@ body {
 }
 
 .awareness-tagline--flash {
-    animation: awarenessTaglineFade 0.45s ease both;
+    animation: awarenessTaglineFade 0.65s ease both;
 }
 
 .awareness-goal-figures {
