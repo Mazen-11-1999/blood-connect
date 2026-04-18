@@ -11,6 +11,8 @@ const { getJwtSecret } = require('./lib/jwtSecret');
 dotenv.config({ override: true });
 
 const app = express();
+/** مطلوب خلف Render/nginx حتى يعمل rate limit وIP بشكل صحيح */
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 
 const devOrigins = [

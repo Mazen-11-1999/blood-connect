@@ -24,9 +24,12 @@ function enrichMessage(msg) {
     };
 }
 
-router.get('/conversation/:userId1/:userId2', async (req, res) => {
+router.get('/conversation/:userId1/:userId2', authenticateToken, async (req, res) => {
     try {
         const { userId1, userId2 } = req.params;
+        if (req.userId !== userId1 && req.userId !== userId2) {
+            return res.status(403).json({ error: 'غير مصرح بعرض هذه المحادثة' });
+        }
         const all = await dataAccess.findAllMessages();
         const conversation = all
             .filter(
@@ -48,9 +51,12 @@ router.get('/conversation/:userId1/:userId2', async (req, res) => {
     }
 });
 
-router.get('/stats/:userId', async (req, res) => {
+router.get('/stats/:userId', authenticateToken, async (req, res) => {
     try {
         const { userId } = req.params;
+        if (userId !== req.userId) {
+            return res.status(403).json({ error: 'يمكنك فقط عرض إحصائياتك' });
+        }
         const all = await dataAccess.findAllMessages();
         const userMessages = all.filter(
             msg => msg.senderId === userId || msg.recipientId === userId
@@ -74,40 +80,52 @@ router.get('/stats/:userId', async (req, res) => {
     }
 });
 
-router.get('/', [
-    query('userId').notEmpty(),
-    query('type').optional().isIn(['sent', 'received', 'all']),
-    query('read').optional()
-], async (req, res) => {
-    try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+router.get(
+    '/',
+    [
+        query('userId').notEmpty(),
+        query('type').optional().isIn(['sent', 'received', 'all']),
+        query('read').optional()
+    ],
+    authenticateToken,
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
+
+            const { userId, type = 'all', read } = req.query;
+            if (userId !== req.userId) {
+                return res.status(403).json({ error: 'يمكنك فقط عرض رسائلك' });
+            }
+
+            const userMessages = await dataAccess.findMessagesForUser(userId, { type, read });
+            const list = userMessages.map(enrichMessage);
+            const unreadCount = list.filter(
+                msg => !msg.read && msg.recipientId === userId
+            ).length;
+
+            res.json({
+                messages: list,
+                total: list.length,
+                unreadCount
+            });
+        } catch (error) {
+            console.error('Get messages error:', error);
+            res.status(500).json({ error: 'Failed to fetch messages' });
         }
-
-        const { userId, type = 'all', read } = req.query;
-        const userMessages = await dataAccess.findMessagesForUser(userId, { type, read });
-        const list = userMessages.map(enrichMessage);
-        const unreadCount = list.filter(
-            msg => !msg.read && msg.recipientId === userId
-        ).length;
-
-        res.json({
-            messages: list,
-            total: list.length,
-            unreadCount
-        });
-    } catch (error) {
-        console.error('Get messages error:', error);
-        res.status(500).json({ error: 'Failed to fetch messages' });
     }
-});
+);
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
     try {
         const message = await dataAccess.findMessageById(req.params.id);
         if (!message) {
             return res.status(404).json({ error: 'Message not found' });
+        }
+        if (message.senderId !== req.userId && message.recipientId !== req.userId) {
+            return res.status(403).json({ error: 'غير مصرح بعرض هذه الرسالة' });
         }
         res.json(enrichMessage(message));
     } catch (error) {
@@ -116,65 +134,78 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', [
-    body('senderId').notEmpty(),
-    body('recipientId').notEmpty(),
-    body('senderName').notEmpty(),
-    body('recipientName').notEmpty(),
-    body('content').optional(),
-    body('message').optional()
-], async (req, res) => {
-    try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+router.post(
+    '/',
+    [
+        body('senderId').notEmpty(),
+        body('recipientId').notEmpty(),
+        body('senderName').notEmpty(),
+        body('recipientName').notEmpty(),
+        body('content').optional(),
+        body('message').optional()
+    ],
+    authenticateToken,
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
+
+            if (req.body.senderId !== req.userId) {
+                return res.status(403).json({ error: 'معرّف المرسل يجب أن يطابق حسابك المسجّل' });
+            }
+
+            const recipient = await dataAccess.findUserById(req.body.recipientId);
+            if (!recipient) {
+                return res.status(400).json({ error: 'المتبرع المستهدف غير موجود' });
+            }
+
+            const content = (req.body.content || req.body.message || '').trim();
+            if (!content) {
+                return res.status(400).json({ error: 'Message content is required' });
+            }
+
+            const urgency =
+                req.body.isUrgent === true || req.body.urgency === 'urgent' ? 'urgent' : 'normal';
+
+            const senderPhone = (req.body.senderPhone || req.body.phone || '').trim();
+
+            const newMessage = {
+                id: Date.now().toString(),
+                senderId: req.body.senderId,
+                recipientId: req.body.recipientId,
+                senderName: req.body.senderName,
+                recipientName: req.body.recipientName,
+                content,
+                senderPhone,
+                urgency,
+                neededDateTime: req.body.neededDateTime || null,
+                read: false,
+                needyConfirmedAt: null,
+                donorConfirmedAt: null,
+                createdAt: new Date().toISOString()
+            };
+
+            await dataAccess.createMessage(newMessage);
+
+            const enriched = enrichMessage(newMessage);
+            setImmediate(() => {
+                notifyRecipientNewMessage(enriched).catch(err =>
+                    console.error('Web Push notify:', err.message || err)
+                );
+            });
+
+            res.status(201).json({
+                message: 'Message sent successfully',
+                data: enriched
+            });
+        } catch (error) {
+            console.error('Send message error:', error);
+            res.status(500).json({ error: 'Failed to send message' });
         }
-
-        const content = (req.body.content || req.body.message || '').trim();
-        if (!content) {
-            return res.status(400).json({ error: 'Message content is required' });
-        }
-
-        const urgency = (req.body.isUrgent === true || req.body.urgency === 'urgent')
-            ? 'urgent'
-            : 'normal';
-
-        const senderPhone = (req.body.senderPhone || req.body.phone || '').trim();
-
-        const newMessage = {
-            id: Date.now().toString(),
-            senderId: req.body.senderId,
-            recipientId: req.body.recipientId,
-            senderName: req.body.senderName,
-            recipientName: req.body.recipientName,
-            content,
-            senderPhone,
-            urgency,
-            neededDateTime: req.body.neededDateTime || null,
-            read: false,
-            needyConfirmedAt: null,
-            donorConfirmedAt: null,
-            createdAt: new Date().toISOString()
-        };
-
-        await dataAccess.createMessage(newMessage);
-
-        const enriched = enrichMessage(newMessage);
-        setImmediate(() => {
-            notifyRecipientNewMessage(enriched).catch(err =>
-                console.error('Web Push notify:', err.message || err)
-            );
-        });
-
-        res.status(201).json({
-            message: 'Message sent successfully',
-            data: enriched
-        });
-    } catch (error) {
-        console.error('Send message error:', error);
-        res.status(500).json({ error: 'Failed to send message' });
     }
-});
+);
 
 /** المحتاج (مرسل الرسالة) يؤكد استلام المساعدة — يُفضّل بعد التبرع/الإتمام الفعلي */
 router.patch('/:id/confirm-needy', authenticateToken, async (req, res) => {
@@ -222,34 +253,46 @@ router.patch('/:id/confirm-donor', authenticateToken, async (req, res) => {
     }
 });
 
-router.patch('/mark-read/bulk', [
-    body('messageIds').isArray(),
-    body('messageIds.*').notEmpty()
-], async (req, res) => {
-    try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+router.patch(
+    '/mark-read/bulk',
+    [body('messageIds').isArray(), body('messageIds.*').notEmpty()],
+    authenticateToken,
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
+
+            const { messageIds } = req.body;
+            const allowed = [];
+            for (const id of messageIds) {
+                const m = await dataAccess.findMessageById(id);
+                if (m && m.recipientId === req.userId) {
+                    allowed.push(id);
+                }
+            }
+            const markedCount = await dataAccess.bulkMarkRead(allowed);
+
+            res.json({
+                message: `${markedCount} messages marked as read`,
+                markedCount
+            });
+        } catch (error) {
+            console.error('Bulk mark as read error:', error);
+            res.status(500).json({ error: 'Failed to mark messages as read' });
         }
-
-        const { messageIds } = req.body;
-        const markedCount = await dataAccess.bulkMarkRead(messageIds);
-
-        res.json({
-            message: `${markedCount} messages marked as read`,
-            markedCount
-        });
-    } catch (error) {
-        console.error('Bulk mark as read error:', error);
-        res.status(500).json({ error: 'Failed to mark messages as read' });
     }
-});
+);
 
-router.patch('/:id/read', async (req, res) => {
+router.patch('/:id/read', authenticateToken, async (req, res) => {
     try {
         const existing = await dataAccess.findMessageById(req.params.id);
         if (!existing) {
             return res.status(404).json({ error: 'Message not found' });
+        }
+        if (existing.recipientId !== req.userId) {
+            return res.status(403).json({ error: 'فقط المستلم يمكنه تعليم الرسالة كمقروءة' });
         }
 
         await dataAccess.updateMessage(req.params.id, { read: true });
@@ -264,11 +307,14 @@ router.patch('/:id/read', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         const existing = await dataAccess.findMessageById(req.params.id);
         if (!existing) {
             return res.status(404).json({ error: 'Message not found' });
+        }
+        if (existing.senderId !== req.userId && existing.recipientId !== req.userId) {
+            return res.status(403).json({ error: 'غير مصرح بحذف هذه الرسالة' });
         }
 
         await dataAccess.deleteMessage(req.params.id);

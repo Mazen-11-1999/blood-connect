@@ -1020,25 +1020,31 @@ function displaySearchResults(donors) {
         return;
     }
 
-    resultsContainer.innerHTML = donors.map(donor => `
+    resultsContainer.innerHTML = donors.map(donor => {
+        const loc = escapeHtml(
+            [donor.governorate, donor.region].filter(Boolean).join(' — ') || '—'
+        );
+        const phoneRow =
+            donor.showPhone && donor.phone
+                ? `<p><i class="fas fa-phone"></i> ${escapeHtml(String(donor.phone))}</p>`
+                : '<p><i class="fas fa-phone-slash"></i> الرقم مخفي - استخدم الرسائل للتواصل</p>';
+        const openArgs = `${JSON.stringify(String(donor.id))}, ${JSON.stringify(String(donor.fullName || ''))}`;
+        return `
         <div class="donor-card">
             <div class="donor-info">
-                <span class="blood-badge">${donor.bloodType}</span>
-                <h3>${donor.fullName}</h3>
+                <span class="blood-badge">${escapeHtml(String(donor.bloodType || ''))}</span>
+                <h3>${escapeHtml(String(donor.fullName || ''))}</h3>
                 <p><i class="fas fa-birthday-cake"></i> العمر: ${donor.age != null ? donor.age + ' سنة' : '—'}</p>
-                <p><i class="fas fa-map-marker-alt"></i> ${donor.governorate || ''} - ${donor.region || ''}</p>
-                ${donor.showPhone && donor.phone ?
-            `<p><i class="fas fa-phone"></i> ${donor.phone}</p>` :
-            '<p><i class="fas fa-phone-slash"></i> الرقم مخفي - استخدم الرسائل للتواصل</p>'
-        }
+                <p><i class="fas fa-map-marker-alt"></i> ${loc}</p>
+                ${phoneRow}
             </div>
             <div>
-                <button class="btn btn-primary" onclick="openMessageModal('${donor.id}', '${donor.fullName}')">
+                <button type="button" class="btn btn-primary" onclick="openMessageModal(${openArgs})">
                     <i class="fas fa-envelope"></i> إرسال رسالة
                 </button>
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 }
 
 // فتح نافذة الرسالة
@@ -1335,7 +1341,7 @@ function renderHelpConfirmationBlock(msg, currentUserId) {
     const n = !!(msg.needyConfirmedAt);
     const d = !!(msg.donorConfirmedAt);
     const complete = msg.helpComplete || (n && d);
-    const mid = String(msg.id).replace(/'/g, '');
+    const midJs = JSON.stringify(String(msg.id));
 
     if (complete) {
         let block = `
@@ -1369,7 +1375,7 @@ function renderHelpConfirmationBlock(msg, currentUserId) {
                     <i class="fas fa-hand-holding-heart"></i>
                     يُفضّل الضغط <strong>بعد</strong> أن يتم التبرع فعلياً أو بعد أن تتحقق أن المساعدة المتفق عليها تمت.
                 </p>
-                <button type="button" class="btn btn-confirm-needy" onclick="confirmHelpAsNeedy('${mid}')">
+                <button type="button" class="btn btn-confirm-needy" onclick="confirmHelpAsNeedy(${midJs})">
                     <i class="fas fa-check"></i> أؤكد أنني تلقيتُ المساعدة المتفق عليها
                 </button>`;
         } else {
@@ -1388,7 +1394,7 @@ function renderHelpConfirmationBlock(msg, currentUserId) {
                     <i class="fas fa-hand-holding-medical"></i>
                     اضغط بعد أن تكون قد نفّذت ما تعهدت به في هذا الطلب (مثلاً التبرع أو التنسيق كما اتفقتما).
                 </p>
-                <button type="button" class="btn btn-confirm-donor" onclick="confirmHelpAsDonor('${mid}')">
+                <button type="button" class="btn btn-confirm-donor" onclick="confirmHelpAsDonor(${midJs})">
                     <i class="fas fa-check"></i> أؤكد أنني نفّذتُ ما تعهدتُ به في هذا الطلب
                 </button>`;
         } else {
@@ -1471,7 +1477,7 @@ async function loadMessages() {
 
     messagesList.innerHTML = messages.map(msg => {
         const isIncoming = msg.recipientId === currentUser.id;
-        const otherPerson = isIncoming ? msg.senderName : msg.recipientName;
+        const otherPerson = escapeHtml(String(isIncoming ? msg.senderName : msg.recipientName || ''));
         const date = new Date(msg.createdAt).toLocaleDateString('ar-SA', {
             year: 'numeric',
             month: 'long',
@@ -1480,22 +1486,28 @@ async function loadMessages() {
             minute: '2-digit'
         });
 
-        // شارة الطوارئ
-        const urgentBadge = msg.isUrgent ?
-            '<span class="urgent-badge"><i class="fas fa-exclamation-triangle"></i> حالة طارئة</span>' : '';
+        const urgentBadge = msg.isUrgent
+            ? '<span class="urgent-badge"><i class="fas fa-exclamation-triangle"></i> حالة طارئة</span>'
+            : '';
 
-        // وقت الحاجة
-        const neededTime = msg.neededDateTime ?
-            `<div class="needed-time">
+        const neededTime = msg.neededDateTime
+            ? `<div class="needed-time">
                 <i class="fas fa-clock"></i> 
-                <strong>وقت الحاجة:</strong> ${new Date(msg.neededDateTime).toLocaleString('ar-SA', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            })}
-            </div>` : '';
+                <strong>وقت الحاجة:</strong> ${escapeHtml(
+                    new Date(msg.neededDateTime).toLocaleString('ar-SA', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                )}
+            </div>`
+            : '';
+
+        const bodyText = escapeHtml(String(msg.message || msg.content || ''));
+        const rawPhone = String(msg.phone || '').trim();
+        const safeTel = rawPhone.replace(/[^\d+]/g, '');
 
         return `
             <div class="message-card ${msg.isUrgent ? 'urgent-message' : ''} ${!msg.read && isIncoming ? 'unread' : ''}">
@@ -1505,16 +1517,18 @@ async function loadMessages() {
                         ${otherPerson}
                         ${urgentBadge}
                     </span>
-                    <span class="message-date">${date}</span>
+                    <span class="message-date">${escapeHtml(date)}</span>
                 </div>
                 ${neededTime}
-                <div class="message-content">${msg.message || msg.content || ''}</div>
-                ${msg.phone ? `
+                <div class="message-content">${bodyText}</div>
+                ${rawPhone
+                    ? `
                     <div class="message-phone">
-                        <i class="fas fa-phone"></i> رقم للتواصل: <strong>${msg.phone}</strong>
-                        ${msg.isUrgent ? '<a href="tel:' + msg.phone + '" class="call-btn"><i class="fas fa-phone-alt"></i> اتصل الآن</a>' : ''}
+                        <i class="fas fa-phone"></i> رقم للتواصل: <strong>${escapeHtml(rawPhone)}</strong>
+                        ${msg.isUrgent && safeTel ? `<a href="tel:${safeTel}" class="call-btn"><i class="fas fa-phone-alt"></i> اتصل الآن</a>` : ''}
                     </div>
-                ` : ''}
+                `
+                    : ''}
                 ${renderHelpConfirmationBlock(msg, currentUser.id)}
             </div>
         `;
@@ -2000,17 +2014,19 @@ class SMSNotificationService {
 
         // محتوى الرسالة
         const messageBody = document.getElementById('smsMessageBody');
-        let messageHTML = `<div class="message-text">${messageData.message || messageData.content || 'لا توجد رسالة'}</div>`;
+        const rawText = String(messageData.message || messageData.content || 'لا توجد رسالة');
+        let messageHTML = `<div class="message-text">${escapeHtml(rawText)}</div>`;
 
-        // إضافة وقت الحاجة إذا كان موجود
         if (messageData.neededDateTime) {
-            const neededTime = new Date(messageData.neededDateTime).toLocaleString('ar-YE', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            const neededTime = escapeHtml(
+                new Date(messageData.neededDateTime).toLocaleString('ar-YE', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+            );
             messageHTML += `
                 <div class="needed-time-sms">
                     <i class="fas fa-clock"></i> 
