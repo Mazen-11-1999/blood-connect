@@ -30,10 +30,13 @@ app.use(cors({
     credentials: true
 }));
 
-// Rate limiting
+// Rate limiting — الحدّ السابق (100/15د) كان يُستنزف بفحص الرسائل كل ثانيتين في الواجهة
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
+    windowMs: 15 * 60 * 1000,
+    max: 2500,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later' }
 });
 app.use('/api/', limiter);
 

@@ -22,13 +22,25 @@ async function apiFetch(path, options = {}) {
         data = {};
     }
     if (!res.ok) {
+        if (res.status === 429) {
+            throw new Error(
+                'طلبات كثيرة للخادم. انتظر دقيقة ثم حدّث الصفحة. (تم تخفيف التكرار في التحديث الأخير.)'
+            );
+        }
+        if (res.status >= 502 && res.status <= 504) {
+            throw new Error(
+                `الخادم غير متاح مؤقتاً (${res.status}). جرّب بعد قليل — غالباً بسبب ضغط الطلبات أو إعادة التشغيل.`
+            );
+        }
+        const ct = res.headers && res.headers.get && res.headers.get('content-type');
+        const looksJson = ct && ct.includes('application/json');
         let msg = data.error
             || (Array.isArray(data.errors) && data.errors[0] && (data.errors[0].msg || data.errors[0].message));
-        if (!msg && text) {
+        if (!msg && text && looksJson) {
             const snippet = text.replace(/\s+/g, ' ').trim().slice(0, 160);
-            msg = snippet
-                ? `خطأ ${res.status}: ${snippet}`
-                : `خطأ ${res.status} من الخادم`;
+            msg = snippet ? `خطأ ${res.status}: ${snippet}` : `خطأ ${res.status} من الخادم`;
+        } else if (!msg) {
+            msg = `خطأ ${res.status} من الخادم`;
         }
         if (!msg) msg = `خطأ ${res.status}`;
         throw new Error(msg);
@@ -218,10 +230,19 @@ const dataManager = {
         return await apiFetch('/donors/stats/summary');
     },
 
-    updateMessageCount() {
+    /** إن مُرِّرتَ مصفوفة رسائل من طلب سابق، لا يُعاد طلب الشبكة (يُفيد مع pollInboxAndNotifications) */
+    updateMessageCount(messagesFromCache) {
         const currentUser = this.getCurrentUser();
         const badge = document.getElementById('messageCount');
         if (!currentUser || !badge) return;
+        if (Array.isArray(messagesFromCache)) {
+            const n = messagesFromCache.filter(
+                m => !m.read && m.recipientId === currentUser.id
+            ).length;
+            badge.textContent = n;
+            badge.style.display = n > 0 ? 'inline' : 'none';
+            return;
+        }
         apiFetch('/messages?userId=' + encodeURIComponent(currentUser.id) + '&type=all')
             .then(result => {
                 const n = result.unreadCount || 0;
@@ -406,6 +427,8 @@ const MS_HERO_MAIN_SLIDER = 8000;
 const MS_HERO_IMAGES_SLIDER = 6500;
 const MS_GO_TO_SLIDE_RESUME = 5000;
 const MS_REGISTER_SUCCESS_QUOTE = 5500;
+/** فحص صندوق الرسائل + الشارة + إشعارات المتصفح — طلب واحد كل فترة (لا تكرار كل ثانيتين) */
+const POLL_INBOX_MS = 30000;
 
 /** متبرع واحد → «متبرعاً»، وإلا «متبرعين» */
 function arDonorWordForCount(n) {
@@ -1876,17 +1899,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }, 100);
 
-            // فحص الرسائل الجديدة كل 30 ثانية
-            if (typeof setInterval !== 'undefined') {
-                setInterval(function () {
-                    if (typeof checkNewMessages === 'function') {
-                        try {
-                            checkNewMessages();
-                        } catch (checkError) {
-                            console.error('خطأ في checkNewMessages:', checkError);
-                        }
+            // فحص الرسائل: طلب واحد كل 30ث (شارة + إشعار واجهة + إشعارات المتصفح)
+            if (typeof setInterval !== 'undefined' && typeof pollInboxAndNotifications === 'function') {
+                setTimeout(function () {
+                    try {
+                        pollInboxAndNotifications();
+                    } catch (e) {
+                        console.error('pollInbox:', e);
                     }
-                }, 30000);
+                }, 1600);
+                setInterval(function () {
+                    try {
+                        pollInboxAndNotifications();
+                    } catch (e) {
+                        console.error('pollInbox:', e);
+                    }
+                }, POLL_INBOX_MS);
             }
 
             // تحديث إحصائيات الصفحة الرئيسية (بطاقة التوعية والأعداد) كل 45 ثانية أثناء بقاء المستخدم في الرئيسية
@@ -1914,45 +1942,37 @@ class SMSNotificationService {
     static lastShownMessageId = null;
     static checkInterval = null;
 
-    // تهيئة الخدمة
+    /** الفحص الدوري أصبح موحّداً في pollInboxAndNotifications (كل 30ث) لتجنّب 429 من الخادم */
     static init() {
-        // فحص دوري كل 2 ثانية للرسائل الجديدة
-        this.checkInterval = setInterval(() => {
-            this.checkForNewMessages();
-        }, 2000);
+        this.checkInterval = null;
 
-        // فحص فوري عند تحميل الصفحة
-        setTimeout(() => {
-            this.checkForNewMessages();
-        }, 1000);
-
-        // الاستماع لتغييرات LocalStorage (للتبويبات الأخرى)
         window.addEventListener('storage', (e) => {
             if (e.key === 'bloodConnect_messages') {
                 setTimeout(() => {
-                    this.checkForNewMessages();
+                    if (typeof pollInboxAndNotifications === 'function') {
+                        pollInboxAndNotifications();
+                    }
                 }, 500);
             }
         });
     }
 
-    // فحص الرسائل الجديدة
-    static checkForNewMessages() {
+    /** يُستدعى من poll بعد جلب الرسائل مرة واحدة */
+    static checkForNewMessagesFromList(messages) {
         const currentUser = dataManager.getCurrentUser();
         if (!currentUser) return;
 
-        dataManager.getMessagesForUser(currentUser.id).then(messages => {
-            const unreadMessages = messages.filter(m =>
+        const unreadMessages = messages.filter(
+            m =>
                 m.recipientId === currentUser.id &&
                 !m.read &&
                 m.id !== this.lastShownMessageId
-            );
-            if (unreadMessages.length > 0) {
-                const newMessage = unreadMessages[0];
-                this.showSMSNotification(newMessage);
-                this.lastShownMessageId = newMessage.id;
-            }
-        }).catch(() => {});
+        );
+        if (unreadMessages.length > 0) {
+            const newMessage = unreadMessages[0];
+            this.showSMSNotification(newMessage);
+            this.lastShownMessageId = newMessage.id;
+        }
     }
 
     // إظهار إشعار SMS
@@ -2112,26 +2132,44 @@ function viewMessageFromSMS() {
     }, 300);
 }
 
-// فحص الرسائل الجديدة
-function checkNewMessages() {
+/** جلب الرسائل مرة ثم تحديث الشارة وإشعارات المتصفح وواجهة «SMS» */
+function pollInboxAndNotifications() {
     const currentUser = dataManager.getCurrentUser();
     if (!currentUser) return;
 
-    dataManager.getMessagesForUser(currentUser.id).then(messages => {
-        const unreadMessages = messages.filter(m =>
-            m.recipientId === currentUser.id && !m.read
-        );
-        if (unreadMessages.length > 0) {
-            unreadMessages.forEach(msg => {
-                if (msg.isUrgent) {
-                    NotificationManager.sendUrgentNotification(msg);
-                } else {
-                    NotificationManager.sendNormalNotification(msg);
-                }
-            });
-            dataManager.updateMessageCount();
-        }
-    }).catch(() => {});
+    dataManager
+        .getMessagesForUser(currentUser.id)
+        .then(messages => {
+            dataManager.updateMessageCount(messages);
+            if (typeof SMSNotificationService !== 'undefined') {
+                SMSNotificationService.checkForNewMessagesFromList(messages);
+            }
+            checkNewMessagesFromList(messages);
+        })
+        .catch(() => {});
+}
+
+function checkNewMessagesFromList(messages) {
+    const currentUser = dataManager.getCurrentUser();
+    if (!currentUser) return;
+
+    const unreadMessages = messages.filter(
+        m => m.recipientId === currentUser.id && !m.read
+    );
+    if (unreadMessages.length > 0) {
+        unreadMessages.forEach(msg => {
+            if (msg.isUrgent) {
+                NotificationManager.sendUrgentNotification(msg);
+            } else {
+                NotificationManager.sendNormalNotification(msg);
+            }
+        });
+    }
+}
+
+/** توافق قديم — يعيد استخدام الاستطلاع الموحّد */
+function checkNewMessages() {
+    pollInboxAndNotifications();
 }
 
 // إدارة سلايدر صور الأبطال
