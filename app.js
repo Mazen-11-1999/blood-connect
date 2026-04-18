@@ -2518,7 +2518,7 @@ function stopHeroesEncouragementRotation() {
 }
 
 // سلايدر صفحة فاعلو الخير — صور + آية + تلقائي ولمس
-const MS_HEROES_PAGE_CAROUSEL = 7200;
+const MS_HEROES_PAGE_CAROUSEL = 9000;
 let heroesCarouselIdx = 0;
 let heroesCarouselTimer = null;
 
@@ -2536,7 +2536,12 @@ function heroesCarouselApplySlide(index) {
         s.setAttribute('aria-hidden', on ? 'false' : 'true');
         const bg = s.querySelector('.heroes-pc-bg');
         if (bg) {
-            bg.classList.toggle('heroes-pc-bg--animating', on && s.classList.contains('heroes-pc-slide--photo'));
+            const isPhoto = s.classList.contains('heroes-pc-slide--photo');
+            bg.classList.toggle('heroes-pc-bg--animating', on && isPhoto);
+            bg.classList.toggle(
+                'heroes-pc-bg--ken-rev',
+                on && isPhoto && s.classList.contains('heroes-pc-slide--ken-alt')
+            );
         }
     });
     dots.forEach((d, j) => {
