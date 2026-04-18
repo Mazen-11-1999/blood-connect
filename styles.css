@@ -2619,20 +2619,20 @@ body {
     backface-visibility: hidden;
 }
 
-/* شريحات السلايدر — صور من مجلد images/ */
+/* شريحات السلايدر — خلفيات من مجلد images/ (SVG محلي؛ يمكن استبدالها بـ PNG/JPG) */
 #heroesPageCarousel .slide-1,
 .heroes-page-carousel .slide-1 {
-    background-image: url('images/slider-hope.png');
+    background-image: url('images/slider-hope.svg');
 }
 
 #heroesPageCarousel .slide-2,
 .heroes-page-carousel .slide-2 {
-    background-image: url('images/slider-recovery.png');
+    background-image: url('images/slider-recovery.svg');
 }
 
 #heroesPageCarousel .slide-3,
 .heroes-page-carousel .slide-3 {
-    background-image: url('images/slider-cooperation.png');
+    background-image: url('images/slider-cooperation.svg');
 }
 
 .heroes-pc-slide--photo.active .heroes-pc-bg.heroes-pc-bg--animating {
