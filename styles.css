@@ -2619,6 +2619,22 @@ body {
     backface-visibility: hidden;
 }
 
+/* شريحات السلايدر — صور من مجلد images/ */
+#heroesPageCarousel .slide-1,
+.heroes-page-carousel .slide-1 {
+    background-image: url('images/slider-hope.png');
+}
+
+#heroesPageCarousel .slide-2,
+.heroes-page-carousel .slide-2 {
+    background-image: url('images/slider-recovery.png');
+}
+
+#heroesPageCarousel .slide-3,
+.heroes-page-carousel .slide-3 {
+    background-image: url('images/slider-cooperation.png');
+}
+
 .heroes-pc-slide--photo.active .heroes-pc-bg.heroes-pc-bg--animating {
     will-change: transform;
     animation: heroesPcKenBurns 22s cubic-bezier(0.33, 0.11, 0.25, 1) both;
