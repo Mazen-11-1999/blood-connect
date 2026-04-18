@@ -27,7 +27,7 @@ html {
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--light-gray);
     color: var(--dark-gray);
     line-height: 1.6;
@@ -268,6 +268,414 @@ body {
 
 .page.active {
     display: block;
+}
+
+/* الصفحة الرئيسية: سلايدر العطاء بعرض كامل */
+#home.page {
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+    overflow-x: hidden;
+}
+
+/* سلايدر العطاء — أعلى الصفحة (صور + آية + حركة) */
+.give-hero-slider {
+    --give-overlay: rgba(220, 53, 69, 0.68);
+    position: relative;
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    min-height: min(46vh, 400px);
+    max-height: 480px;
+    overflow: hidden;
+    border-radius: 0 0 28px 28px;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.14);
+    font-family: 'Tajawal', sans-serif;
+    touch-action: pan-y pinch-zoom;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.give-hero-float {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 4;
+    overflow: hidden;
+}
+
+.give-float {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(36px);
+    opacity: 0.35;
+    animation: giveFloatDrift 16s ease-in-out infinite;
+}
+
+.give-float--1 {
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.55);
+    top: 12%;
+    right: 8%;
+    animation-delay: 0s;
+}
+
+.give-float--2 {
+    width: 180px;
+    height: 180px;
+    background: rgba(255, 200, 210, 0.4);
+    bottom: 18%;
+    left: 5%;
+    animation-delay: -4s;
+}
+
+.give-float--3 {
+    width: 90px;
+    height: 90px;
+    background: rgba(255, 255, 255, 0.45);
+    top: 55%;
+    right: 22%;
+    animation-delay: -8s;
+}
+
+@keyframes giveFloatDrift {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(-12px, 10px) scale(1.05);
+    }
+    66% {
+        transform: translate(8px, -6px) scale(0.98);
+    }
+}
+
+.give-hero-slides {
+    position: relative;
+    width: 100%;
+    height: min(46vh, 400px);
+    min-height: 280px;
+    isolation: isolate;
+}
+
+.give-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    contain: layout style;
+    transition: opacity 0.85s cubic-bezier(0.33, 1, 0.68, 1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.give-slide.active {
+    opacity: 1;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+.give-slide-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transform: translateZ(0) scale(1);
+    backface-visibility: hidden;
+}
+
+.give-slide--photo.active .give-slide-bg.give-slide-bg--animating {
+    will-change: transform;
+    animation: giveKenBurns 14s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+@keyframes giveKenBurns {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.09);
+    }
+}
+
+.give-slide-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--give-overlay);
+    z-index: 1;
+}
+
+.give-slide-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #fff;
+    padding: clamp(1rem, 4vw, 2.25rem);
+    max-width: 42rem;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
+}
+
+.give-slide-title {
+    font-size: clamp(1.65rem, 5vw, 2.65rem);
+    font-weight: 800;
+    margin: 0 0 0.65rem;
+    line-height: 1.35;
+}
+
+.give-slide-text {
+    font-size: clamp(1rem, 2.8vw, 1.35rem);
+    font-weight: 400;
+    line-height: 1.75;
+    margin: 0;
+    opacity: 0.98;
+}
+
+/* شريحة الآية — أسلوب البطاقة الناعمة */
+.give-slide--verse .give-slide-bg--verse {
+    background: linear-gradient(145deg, #fff5f6 0%, #fff9f8 40%, #ffeff2 100%);
+    background-size: 200% 200%;
+    animation: giveVerseBg 12s ease-in-out infinite;
+}
+
+@keyframes giveVerseBg {
+    0%,
+    100% {
+        background-position: 0% 40%;
+    }
+    50% {
+        background-position: 100% 60%;
+    }
+}
+
+.give-slide-overlay--verse {
+    background: linear-gradient(180deg, rgba(255, 245, 246, 0.25) 0%, rgba(255, 230, 235, 0.45) 100%);
+}
+
+.give-slide-content--verse {
+    color: var(--primary-red-dark);
+    text-shadow: none;
+}
+
+.give-verse-icon {
+    position: relative;
+    width: 4.5rem;
+    height: 4.5rem;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: giveVerseIconPulse 2.8s ease-in-out infinite;
+}
+
+.give-verse-icon .fa-gift {
+    font-size: 2.5rem;
+    color: #e8b923;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+}
+
+.give-verse-heart {
+    position: absolute;
+    font-size: 1.35rem;
+    color: var(--primary-red);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -52%);
+}
+
+@keyframes giveVerseIconPulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.06);
+    }
+}
+
+.give-verse-quote {
+    margin: 0 0 0.75rem;
+    font-size: clamp(1.2rem, 3.8vw, 1.85rem);
+    font-weight: 800;
+    line-height: 1.85;
+    color: var(--primary-red);
+    font-style: normal;
+    border: none;
+    padding: 0;
+}
+
+.give-verse-mark {
+    color: var(--primary-red-dark);
+    font-weight: 700;
+    opacity: 0.85;
+}
+
+.give-verse-ref {
+    margin: 0;
+    font-size: clamp(0.85rem, 2.2vw, 1rem);
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.give-hero-dots {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    gap: 0.15rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: calc(100% - 5rem);
+}
+
+/* منطقة لمس ≥ 44×44 للهاتف — المظهر يبقى نقطة صغيرة */
+.give-hero-dot {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.give-hero-dot::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.88);
+    box-sizing: border-box;
+    background: transparent;
+    transition:
+        transform 0.22s cubic-bezier(0.33, 1, 0.68, 1),
+        background 0.22s ease,
+        border-color 0.22s ease;
+}
+
+.give-hero-dot.active::before {
+    background: #fff;
+    transform: translate(-50%, -50%) scale(1.18);
+}
+
+.give-hero-slider--verse .give-hero-dot::before {
+    border-color: rgba(220, 53, 69, 0.5);
+}
+
+.give-hero-slider--verse .give-hero-dot.active::before {
+    background: var(--primary-red);
+    border-color: var(--primary-red);
+}
+
+.give-hero-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    min-width: 44px;
+    min-height: 44px;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.24);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        background 0.22s cubic-bezier(0.33, 1, 0.68, 1),
+        transform 0.2s ease;
+    backdrop-filter: blur(8px);
+}
+
+.give-hero-arrow:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.give-hero-arrow:active {
+    transform: translateY(-50%) scale(0.96);
+}
+
+.give-hero-arrow--next {
+    left: 0.5rem;
+}
+
+.give-hero-arrow--prev {
+    right: 0.5rem;
+}
+
+.give-hero-slider--verse .give-hero-arrow {
+    background: rgba(220, 53, 69, 0.16);
+    color: var(--primary-red-dark);
+    backdrop-filter: blur(4px);
+}
+
+.give-hero-slider--verse .give-hero-arrow:hover {
+    background: rgba(220, 53, 69, 0.3);
+}
+
+@media (max-width: 768px) {
+    .give-hero-arrow {
+        backdrop-filter: none;
+        background: rgba(0, 0, 0, 0.28);
+    }
+
+    .give-hero-slider--verse .give-hero-arrow {
+        background: rgba(220, 53, 69, 0.22);
+    }
+}
+
+@media (max-width: 640px) {
+    .give-hero-arrow {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .give-slide {
+        transition:
+            opacity 0.2s ease,
+            visibility 0.2s linear;
+        transition-delay: 0s;
+    }
+
+    .give-slide--photo.active .give-slide-bg {
+        animation: none !important;
+    }
+
+    .give-slide--verse .give-slide-bg--verse {
+        animation: none;
+    }
+
+    .give-float {
+        animation: none;
+        opacity: 0.2;
+    }
+
+    .give-verse-icon {
+        animation: none;
+    }
+
+    .give-slide-bg {
+        will-change: auto;
+    }
 }
 
 /* الصفحة الرئيسية — خلفية أنمي متحركة */
@@ -648,6 +1056,72 @@ body {
     font-weight: 600;
 }
 
+/* شريط جمل روحية — الصفحة الرئيسية */
+.home-spirit-section {
+    padding: 1.75rem 0 0.25rem;
+    margin: 0 auto;
+    max-width: 1100px;
+}
+
+.home-spirit-section .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.home-spirit-heading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0 0 0.85rem;
+    font-size: clamp(1rem, 2.4vw, 1.15rem);
+    font-weight: 700;
+    color: #2e6b4a;
+    text-align: center;
+}
+
+.home-spirit-heading-icon {
+    color: #2e7d4a;
+    opacity: 0.9;
+}
+
+.home-spirit-encouragement {
+    padding: 1.25rem 1.35rem;
+    border-radius: 16px;
+    text-align: center;
+    background: linear-gradient(118deg, #f4fbf7 0%, #fff9f4 42%, #f8fffc 100%);
+    background-size: 200% 200%;
+    animation: homeSpiritBg 24s ease-in-out infinite;
+    border: 1px solid rgba(46, 125, 80, 0.14);
+    box-shadow: 0 6px 28px rgba(46, 125, 80, 0.07);
+}
+
+@keyframes homeSpiritBg {
+    0%,
+    100% {
+        background-position: 0% 40%;
+    }
+    50% {
+        background-position: 100% 60%;
+    }
+}
+
+.home-spirit-line {
+    margin: 0;
+    font-size: clamp(1rem, 2.5vw, 1.18rem);
+    font-weight: 650;
+    color: #2d3436;
+    line-height: 1.85;
+    min-height: 3.2em;
+    letter-spacing: 0.01em;
+    transition: opacity 0.45s ease;
+}
+
+.home-spirit-line.is-transitioning {
+    opacity: 0.2;
+}
+
 /* إعلان توعوي متحرك — دوّار كل 3 ثوانٍ */
 .announcement-bar {
     margin-top: 1.75rem;
@@ -810,6 +1284,14 @@ body {
 .register-success-modal h3 {
     color: var(--primary-red);
     margin-bottom: 0.75rem;
+}
+
+.register-success-taqabbal {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #1b5e20;
+    margin: 0 0 0.65rem;
+    letter-spacing: 0.02em;
 }
 
 .register-success-lead {
@@ -1807,6 +2289,31 @@ body {
     border-bottom: 2px solid var(--light-gray);
 }
 
+.profile-spirit-card {
+    margin: 0 0 1.75rem;
+    padding: 1.35rem 1.4rem;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #f6fcf8 0%, #fffbf7 55%, #f9fff9 100%);
+    border: 1px solid rgba(27, 94, 32, 0.18);
+    box-shadow: 0 4px 22px rgba(27, 94, 32, 0.06);
+    text-align: right;
+}
+
+.profile-spirit-title {
+    margin: 0 0 0.9rem;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #1b5e20;
+    text-align: center;
+}
+
+.profile-spirit-body {
+    margin: 0;
+    font-size: 0.98rem;
+    line-height: 1.9;
+    color: #2d3436;
+}
+
 .profile-avatar {
     width: 120px;
     height: 120px;
@@ -1818,6 +2325,27 @@ body {
     margin: 0 auto 1rem;
     font-size: 3rem;
     color: var(--white);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.profile-avatar--photo {
+    padding: 0;
+    background: #eee;
+}
+
+.profile-avatar--photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-avatar-file-input {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5rem 0;
+    font-size: 0.95rem;
 }
 
 .profile-info {
@@ -1890,11 +2418,54 @@ body {
     color: var(--primary-red);
 }
 
-/* صفحة أبطال التبرع */
+/* صفحة فاعلو الخير */
 .heroes-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
+}
+
+.heroes-page {
+    position: relative;
+}
+
+/* شريط تشجيع دوّار */
+.heroes-encouragement {
+    margin: 2rem auto 2.5rem;
+    max-width: 920px;
+    padding: 1.35rem 1.5rem;
+    border-radius: 16px;
+    text-align: center;
+    background: linear-gradient(110deg, #fff8f8 0%, #fff5f0 38%, #fff8fb 72%, #fff0f2 100%);
+    background-size: 220% 220%;
+    animation: heroesEncourageBg 22s ease-in-out infinite;
+    box-shadow: 0 8px 32px rgba(220, 53, 69, 0.08);
+    border: 1px solid rgba(220, 53, 69, 0.12);
+}
+
+@keyframes heroesEncourageBg {
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.heroes-encouragement-line {
+    margin: 0;
+    font-size: clamp(1.05rem, 2.5vw, 1.22rem);
+    font-weight: 650;
+    color: #3a3235;
+    line-height: 1.8;
+    min-height: 3.1em;
+    letter-spacing: 0.01em;
+    transition: opacity 0.45s ease;
+}
+
+.heroes-encouragement-line.is-transitioning {
+    opacity: 0.2;
 }
 
 .heroes-header {
@@ -2111,7 +2682,7 @@ body {
     border-right: 4px solid var(--primary-red);
 }
 
-/* قائمة الأبطال */
+/* قائمة فاعلي الخير */
 .heroes-list-section {
     margin-top: 4rem;
     padding-top: 3rem;
@@ -2130,7 +2701,183 @@ body {
     text-align: center;
     font-size: 1.2rem;
     color: var(--gray);
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
+}
+
+.heroes-list-hint {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #5a5d6b;
+    line-height: 1.65;
+    max-width: 40rem;
+    margin: 0 auto 1.25rem;
+}
+
+.heroes-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.65rem;
+    margin-bottom: 0.5rem;
+}
+
+.heroes-filter-btn {
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.55rem 1.15rem;
+    border-radius: 999px;
+    border: 2px solid rgba(220, 53, 69, 0.35);
+    background: #fff;
+    color: var(--primary-red-dark);
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.heroes-filter-btn:hover {
+    background: rgba(220, 53, 69, 0.06);
+}
+
+.heroes-filter-btn.active {
+    background: linear-gradient(135deg, var(--primary-red) 0%, var(--primary-red-dark) 100%);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 14px rgba(220, 53, 69, 0.28);
+}
+
+.hero-card-actions {
+    margin-top: 1.15rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(220, 53, 69, 0.12);
+    position: relative;
+    z-index: 2;
+}
+
+.hero-detail-btn {
+    font-size: 0.95rem;
+}
+
+.modal-content--donor-preview {
+    max-width: 440px;
+}
+
+.donor-modal-title {
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+    color: var(--primary-red);
+    text-align: right;
+}
+
+.donor-modal-details {
+    text-align: right;
+}
+
+.donor-modal-head {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.donor-modal-name {
+    margin: 0.65rem 0 0;
+    font-size: 1.35rem;
+    color: var(--dark-gray);
+}
+
+.donor-modal-list {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+}
+
+.donor-modal-list li {
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--light-gray);
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: var(--dark-gray);
+}
+
+.donor-modal-list li i {
+    margin-left: 0.45rem;
+    color: var(--primary-red);
+    width: 1.1rem;
+    text-align: center;
+}
+
+.donor-modal-hint {
+    font-size: 0.86rem;
+    color: var(--gray);
+    line-height: 1.55;
+    margin: 0 0 1rem;
+}
+
+.donor-modal-actions {
+    margin-top: 0.5rem;
+}
+
+.heroes-intro-actions {
+    text-align: center;
+    margin: 2.5rem auto 2rem;
+    max-width: 36rem;
+    padding: 0 1rem;
+}
+
+.heroes-to-gallery-btn {
+    font-size: 1.05rem;
+    padding: 0.85rem 1.25rem;
+}
+
+.heroes-intro-actions-hint {
+    margin-top: 1rem;
+    font-size: 0.92rem;
+    color: var(--gray);
+    line-height: 1.7;
+}
+
+.heroes-gallery-page {
+    padding: 1.5rem 0 3rem;
+    min-height: calc(100vh - 100px);
+    background: linear-gradient(180deg, #fff8f9 0%, #fff 100%);
+}
+
+.heroes-gallery-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.heroes-gallery-header h2 {
+    color: var(--primary-red);
+    font-size: clamp(1.35rem, 4vw, 2rem);
+    margin-bottom: 0.75rem;
+}
+
+.heroes-gallery-lead,
+.heroes-gallery-photo-hint {
+    max-width: 44rem;
+    margin: 0.5rem auto 0;
+    font-size: 0.98rem;
+    line-height: 1.75;
+    color: #4a4d5c;
+}
+
+.heroes-gallery-photo-hint {
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
+.heroes-grid--gallery {
+    margin-top: 1.5rem;
+}
+
+.profile-avatar-field {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    background: rgba(220, 53, 69, 0.04);
+    border: 1px solid rgba(220, 53, 69, 0.12);
 }
 
 .heroes-grid {
@@ -2140,16 +2887,51 @@ body {
     margin-top: 2rem;
 }
 
+@keyframes heroCardIn {
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .hero-card {
     background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%);
     padding: 2rem;
     border-radius: 15px;
     text-align: center;
     box-shadow: 0 5px 20px rgba(220, 53, 69, 0.15);
-    transition: all 0.3s ease;
+    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
     position: relative;
     overflow: hidden;
     border: 2px solid transparent;
+    animation: heroCardIn 0.58s ease backwards;
+    will-change: opacity, transform;
+}
+
+.hero-role-badge {
+    display: inline-block;
+    margin: 0 auto 0.85rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.hero-role-badge--confirmed {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(25, 135, 84, 0.1) 100%);
+    color: #1e6f42;
+    border: 1px solid rgba(40, 167, 69, 0.35);
+}
+
+.hero-role-badge--generous {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.12) 0%, rgba(13, 110, 253, 0.06) 100%);
+    color: #0a58ca;
+    border: 1px solid rgba(13, 110, 253, 0.25);
 }
 
 .hero-card::before {
@@ -2172,6 +2954,29 @@ body {
 
 .hero-card:hover::before {
     opacity: 1;
+}
+
+.hero-avatar-wrap {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.25rem;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(220, 53, 69, 0.28);
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(135deg, var(--primary-red) 0%, var(--primary-red-dark) 100%);
+}
+
+.hero-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.hero-card--confirmed-only .hero-avatar-wrap {
+    animation: heroPulse 3s ease-in-out infinite;
 }
 
 .hero-avatar {
@@ -2279,6 +3084,38 @@ body {
 .hero-stat-label {
     font-size: 0.9rem;
     color: var(--gray);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .heroes-encouragement {
+        animation: none;
+        background: #fff8f8;
+    }
+
+    .home-spirit-encouragement {
+        animation: none;
+        background: #f4fbf7;
+    }
+
+    .hero-card {
+        animation: none;
+    }
+
+    .heroes-encouragement-line {
+        transition: none;
+    }
+
+    .heroes-encouragement-line.is-transitioning {
+        opacity: 1;
+    }
+
+    .home-spirit-line {
+        transition: none;
+    }
+
+    .home-spirit-line.is-transitioning {
+        opacity: 1;
+    }
 }
 
 /* استجابة للشاشات الصغيرة */

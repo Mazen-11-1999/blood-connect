@@ -16,6 +16,9 @@
     <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png">
     <link rel="apple-touch-icon" href="/icon-192x192.png">
     <link rel="manifest" href="/manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -39,7 +42,8 @@
                     <a href="#" onclick="showPage('search', this); return false;" class="nav-link">البحث عن متبرع</a>
                     <a href="#" onclick="showPage('messages', this); return false;" class="nav-link">الرسائل <span id="messageCount"
                             class="badge">0</span></a>
-                    <a href="#" onclick="showPage('heroes', this); return false;" class="nav-link">أبطالنا</a>
+                    <a href="#" onclick="showPage('heroes', this); return false;" class="nav-link">فاعلو الخير</a>
+                    <a href="#" onclick="showPage('heroesGallery', this); return false;" class="nav-link nav-link-heroes-gallery">فاعلو الخير — المعرض</a>
                     <a href="#" onclick="showPage('profile', this); return false;" class="nav-link">الملف الشخصي</a>
                     <a href="/qr.html" class="nav-link" title="رمز QR للدخول من الهاتف" id="navQrLink">📱 دخول سريع</a>
                 </div>
@@ -59,6 +63,67 @@
 
     <!-- الصفحة الرئيسية -->
     <div id="home" class="page active">
+        <!-- سلايدر العطاء — خلفيات صور + حركة + آية -->
+        <section class="give-hero-slider" id="giveHeroSlider" aria-roledescription="carousel" aria-label="سلايدر العطاء والتشجيع">
+            <div class="give-hero-float" aria-hidden="true">
+                <span class="give-float give-float--1"></span>
+                <span class="give-float give-float--2"></span>
+                <span class="give-float give-float--3"></span>
+            </div>
+            <div class="give-hero-slides">
+                <article class="give-slide give-slide--photo active" data-index="0" aria-hidden="false">
+                    <div class="give-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1596707172051-7008104526d1?q=80&amp;w=1600&amp;auto=format&amp;fit=crop');"></div>
+                    <div class="give-slide-overlay"></div>
+                    <div class="give-slide-content">
+                        <h2 class="give-slide-title">كن سبباً في حياة</h2>
+                        <p class="give-slide-text">لا تتوقف عن العطاء.. يدك التي تمتد اليوم هي الأمل الذي ينتظره مريض.</p>
+                    </div>
+                </article>
+                <article class="give-slide give-slide--photo" data-index="1" aria-hidden="true">
+                    <div class="give-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1599043513903-ef640067689b?q=80&amp;w=1600&amp;auto=format&amp;fit=crop');"></div>
+                    <div class="give-slide-overlay"></div>
+                    <div class="give-slide-content">
+                        <h2 class="give-slide-title">تبرعك هو نبضهم</h2>
+                        <p class="give-slide-text">في كل كيس دم تبذله، قصة شفاء تبدأ، ودعوة صادقة لك بالخير.</p>
+                    </div>
+                </article>
+                <article class="give-slide give-slide--photo" data-index="2" aria-hidden="true">
+                    <div class="give-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1490138139357-fc819d02e344?q=80&amp;w=1600&amp;auto=format&amp;fit=crop');"></div>
+                    <div class="give-slide-overlay"></div>
+                    <div class="give-slide-content">
+                        <h2 class="give-slide-title">ابتسامةُ شفاء</h2>
+                        <p class="give-slide-text">فاعلو الخير.. أنتم من يمنح المرضى وأسرهم لحظات الفرح والسكينة.</p>
+                    </div>
+                </article>
+                <article class="give-slide give-slide--verse" data-index="3" aria-hidden="true">
+                    <div class="give-slide-bg give-slide-bg--verse"></div>
+                    <div class="give-slide-overlay give-slide-overlay--verse"></div>
+                    <div class="give-slide-content give-slide-content--verse">
+                        <div class="give-verse-icon" aria-hidden="true">
+                            <i class="fas fa-gift"></i>
+                            <i class="fas fa-heart give-verse-heart"></i>
+                        </div>
+                        <blockquote class="give-verse-quote" cite="القرآن الكريم">
+                            <span class="give-verse-mark">«</span>وَمَنْ أَحْيَاهَا فَكَأَنَّمَا أَحْيَا النَّاسَ جَمِيعًا<span class="give-verse-mark">»</span>
+                        </blockquote>
+                        <p class="give-verse-ref">القرآن الكريم — سورة المائدة</p>
+                    </div>
+                </article>
+            </div>
+            <div class="give-hero-dots" role="tablist" aria-label="اختيار الشريحة">
+                <button type="button" class="give-hero-dot active" onclick="giveHeroGoTo(0); return false;" role="tab" aria-selected="true" aria-label="شريحة 1"></button>
+                <button type="button" class="give-hero-dot" onclick="giveHeroGoTo(1); return false;" role="tab" aria-selected="false" aria-label="شريحة 2"></button>
+                <button type="button" class="give-hero-dot" onclick="giveHeroGoTo(2); return false;" role="tab" aria-selected="false" aria-label="شريحة 3"></button>
+                <button type="button" class="give-hero-dot" onclick="giveHeroGoTo(3); return false;" role="tab" aria-selected="false" aria-label="شريحة الآية"></button>
+            </div>
+            <button type="button" class="give-hero-arrow give-hero-arrow--next" onclick="giveHeroStep(1); return false;" aria-label="الشريحة التالية">
+                <i class="fas fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="give-hero-arrow give-hero-arrow--prev" onclick="giveHeroStep(-1); return false;" aria-label="الشريحة السابقة">
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+            </button>
+        </section>
+
         <div class="hero-section">
             <div class="hero-anime-bg" aria-hidden="true">
                 <div class="anime-orb anime-orb-1"></div>
@@ -177,6 +242,18 @@
             </div>
         </div>
 
+        <section class="home-spirit-section" aria-labelledby="homeSpiritHeading">
+            <div class="container">
+                <h2 id="homeSpiritHeading" class="home-spirit-heading">
+                    <span class="home-spirit-heading-icon" aria-hidden="true"><i class="fas fa-hands-praying"></i></span>
+                    <span>من معاني العطاء والأجر</span>
+                </h2>
+                <div class="home-spirit-encouragement">
+                    <p id="homeSpiritLine" class="home-spirit-line" aria-live="polite">كن واحداً من صناع الحياة</p>
+                </div>
+            </div>
+        </section>
+
         <section class="journey-section" aria-labelledby="journey-heading">
             <div class="container">
                 <h2 id="journey-heading" class="journey-title">
@@ -220,7 +297,7 @@
                                     <i class="fas fa-heartbeat" aria-hidden="true"></i>
                                 </div>
                                 <h3 class="journey-step-title">إنقاذ حياة</h3>
-                                <p class="journey-step-desc">أنت البطل</p>
+                                <p class="journey-step-desc">بإذن الله.. أثرٌ يُحسب لك</p>
                             </div>
                         </li>
                     </ol>
@@ -348,6 +425,13 @@
                     <label for="phone"><i class="fas fa-phone"></i> رقم الهاتف (اختياري)</label>
                     <input type="tel" id="phone" placeholder="سيتم استخدامه للتواصل عند الحاجة">
                     <small class="form-hint">يمكنك إخفاء رقمك في الإعدادات</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="avatarUrl"><i class="fas fa-image"></i> رابط صورة العرض (اختياري)</label>
+                    <input type="url" id="avatarUrl" dir="ltr" style="text-align:left" maxlength="2000"
+                        placeholder="https://… صورة تظهر في «فاعلو الخير» بعد التأكيد المزدوج">
+                    <small class="form-hint">رابط صورة عامة (مثلاً من موقع صور). تُعرض فقط لمن اكتمل تأكيد المحتاج والمتبرع في الرسائل.</small>
                 </div>
 
                 <!-- الحالة الصحية -->
@@ -525,9 +609,9 @@
         </div>
     </div>
 
-    <!-- صفحة أبطال التبرع -->
+    <!-- صفحة فاعلو الخير -->
     <div id="heroes" class="page">
-        <div class="heroes-container">
+        <div class="heroes-container heroes-page">
             <!-- القسم العلوي - الآية والدعاء -->
             <div class="heroes-header">
                 <div class="verse-section">
@@ -568,9 +652,13 @@
                 </div>
             </div>
 
+            <div class="heroes-encouragement" aria-live="polite">
+                <p id="heroesEncouragementLine" class="heroes-encouragement-line">هنا يُذكر من ثبّت إسناده.. جزاهم الله خيراً.</p>
+            </div>
+
             <!-- دعاء للمتبرعين -->
             <div class="prayer-section">
-                <h2 class="prayer-title">🙏 دعاء للمتبرعين</h2>
+                <h2 class="prayer-title">🙏 دعاء لفاعلي الخير</h2>
                 <div class="prayer-boxes">
                     <div class="prayer-box">
                         <p>اللهم بارك في كل متبرع بالدم، واجعل تبرعه في ميزان حسناته، وارزقه الصحة والعافية، واجعل عمله
@@ -591,31 +679,50 @@
                 <h2 class="thanks-title">كلمة شكر وتقدير</h2>
                 <div class="thanks-content">
                     <p class="thanks-text">
-                        إلى كل متبرع بالدم، أنتم الأبطال الحقيقيون الذين لا يراهم العالم، لكن أثركم يبقى خالداً في قلوب
-                        من أنقذتموهم.
+                        إلى كل من تبرع بالدم أو سهّل الإسناد بإذن الله — أثركم يبقى فيمن انتفع بكم، وفي ميزان حسناتكم
+                        عند الله.
                     </p>
                     <p class="thanks-text">
-                        تبرعكم ليس مجرد عملية طبية، بل هو عمل إنساني نبيل، وصدقة جارية، وعطاء من القلب إلى القلب.
+                        تبرعكم ليس مجرد عملية طبية، بل عمل إنساني نبيل، وصدقة جارية، وعطاء من القلب إلى القلب.
                     </p>
                     <p class="thanks-text">
-                        كل قطرة دم تقدمونها قد تكون السبب في إنقاذ طفل، أو شاب، أو أم، أو أب... قد تكون السبب في إعادة
-                        الأمل لعائلة كاملة.
+                        كل قطرة دم تقدمونها قد تكون سبباً في إنقاذ طفل، أو شاب، أو أم، أو أب.. وفي إعادة الأمل لعائلة
+                        كاملة.
                     </p>
                     <p class="thanks-text highlight">
-                        شكراً لكم... شكراً لأنكم موجودون... شكراً لأنكم تختارون العطاء.
+                        شكراً لكم.. شكراً لأنكم تختارون الخير، ونسأل الله أن يتقبل منكم ويبارك فيكم.
                     </p>
                 </div>
             </div>
 
-            <!-- قائمة الأبطال -->
-            <div class="heroes-list-section">
-                <h2 class="heroes-list-title">
-                    <i class="fas fa-trophy"></i> قائمة أبطالنا
-                </h2>
-                <p class="heroes-list-subtitle">يُرتَّب الأبطال بحسب عدد الطلبات التي <strong>اكتمل تأكيدها
-                        مزدوجاً</strong> (المحتاج + المتبرع) في الرسائل — لا يعني ذلك تحققاً طبياً من التبرع.</p>
-                <div id="heroesList" class="heroes-grid">
-                    <!-- سيتم ملؤها ديناميكياً -->
+            <div class="heroes-intro-actions">
+                <a href="#" class="btn btn-primary heroes-to-gallery-btn" onclick="showPage('heroesGallery', null); return false;">
+                    <i class="fas fa-images"></i> معرض فاعلي الخير المؤكدين — صور الجميع
+                </a>
+                <p class="heroes-intro-actions-hint">يظهر في المعرض <strong>فقط</strong> من اكتمل له <strong>تأكيد مزدوج</strong> (محتاج + متبرع) في الرسائل — وليس كل المسجّلين.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- معرض فاعلي الخير: المؤكدون فقط + صور — قائمة كاملة قابلة للتمرير -->
+    <div id="heroesGallery" class="page">
+        <div class="heroes-gallery-page">
+            <div class="container">
+                <header class="heroes-gallery-header">
+                    <h2><i class="fas fa-users"></i> فاعلو الخير — المعرض كامل</h2>
+                    <p class="heroes-gallery-lead">
+                        هنا يُعرض <strong>فقط</strong> المتبرعون الذين اكتمل لهم في المنصة <strong>تأكيد مزدوج</strong>:
+                        تأكيد المحتاج وتأكيد المتبرع على نفس طلب المساعدة. لا يُعد ذلك إثباتاً طبياً للتبرع، بل تأكيداً
+                        إلكترونياً داخل التطبيق.
+                    </p>
+                    <p class="heroes-gallery-photo-hint">
+                        <i class="fas fa-camera" aria-hidden="true"></i>
+                        الصورة من <strong>رفعها في الملف الشخصي</strong> (تُخزَّن على الخادم) أو من رابط اختياري؛ وإن لم
+                        تُضف، تُعرض صورة رمزية بالاسم.
+                    </p>
+                </header>
+                <div id="heroesGalleryGrid" class="heroes-grid heroes-grid--gallery">
+                    <!-- يُملأ ديناميكياً -->
                 </div>
             </div>
         </div>
@@ -696,6 +803,7 @@
             <button type="button" class="close" id="registerSuccessClose" aria-label="إغلاق">&times;</button>
             <div class="register-success-icon"><i class="fas fa-heart"></i></div>
             <h3 id="registerSuccessHeading">تم التسجيل بنجاح</h3>
+            <p class="register-success-taqabbal">تقبل الله منك</p>
             <p class="register-success-lead">هنيئاً لك.. لقد وضعت الآن لبنة في صرحٍ ينقذ الأرواح. جزاك الله خيراً.</p>
             <p class="register-success-quote" id="registerSuccessQuote"></p>
             <p class="register-success-hint">يمكنك الآن استخدام المنصة من أي جهاز.</p>

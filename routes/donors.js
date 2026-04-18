@@ -15,7 +15,8 @@ function userToPublicDonor(user) {
         phone: user.showPhone ? user.phone : 'الرقم مخفي - استخدم الرسائل للتواصل',
         showPhone: user.showPhone,
         isAvailable: user.isAvailable !== false,
-        lastDonation: user.lastDonation || null
+        lastDonation: user.lastDonation || null,
+        avatarUrl: user.avatarUrl || null
     };
 }
 
@@ -100,6 +101,42 @@ router.get('/heroes/list', async (req, res) => {
     } catch (error) {
         console.error('Get heroes list error:', error);
         res.status(500).json({ error: 'Failed to fetch heroes' });
+    }
+});
+
+/** فاعلو الخير المؤكدون فقط: تأكيد محتاج + تأكيد متبرع على الأقل مرة — مع رابط الصورة للعرض العام */
+router.get('/heroes/confirmed', async (req, res) => {
+    try {
+        const users = await dataAccess.findAllUsers();
+        const messages = await dataAccess.findAllMessages();
+        const heroes = users
+            .map((u) => {
+                const msgs = messages.filter(
+                    (m) => m.senderId === u.id || m.recipientId === u.id
+                );
+                const successfulMatches = messages.filter(
+                    (m) =>
+                        m.recipientId === u.id &&
+                        m.needyConfirmedAt &&
+                        m.donorConfirmedAt
+                ).length;
+                return {
+                    id: u.id,
+                    fullName: u.fullName,
+                    bloodType: u.bloodType,
+                    governorate: u.governorate,
+                    region: u.region,
+                    avatarUrl: u.avatarUrl || null,
+                    totalMessages: msgs.length,
+                    successfulMatches
+                };
+            })
+            .filter((h) => h.successfulMatches >= 1);
+        heroes.sort((a, b) => b.successfulMatches - a.successfulMatches);
+        res.json({ heroes, count: heroes.length });
+    } catch (error) {
+        console.error('Get heroes confirmed error:', error);
+        res.status(500).json({ error: 'Failed to fetch confirmed heroes' });
     }
 });
 

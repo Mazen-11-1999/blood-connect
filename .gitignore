@@ -21,6 +21,10 @@ build/
 *.sqlite
 data/app-data.json
 
+# صور المستخدمين المرفوعة (تُبقى البنية فقط)
+uploads/avatars/*
+!uploads/avatars/.gitkeep
+
 # Logs
 logs
 *.log

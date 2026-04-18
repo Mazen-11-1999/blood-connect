@@ -2,10 +2,27 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs').promises;
 const { body, validationResult } = require('express-validator');
 const dataAccess = require('../lib/dataAccess');
+const avatarStorage = require('../lib/avatarStorage');
+const cloudinaryAvatar = require('../lib/cloudinaryAvatar');
 const { getJwtSecret } = require('../lib/jwtSecret');
 const { authenticateToken } = require('../middleware/auth');
+
+const uploadAvatar = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: avatarStorage.MAX_BYTES },
+    fileFilter: (req, file, cb) => {
+        if (avatarStorage.ALLOWED_MIMES.has(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('نوع الملف غير مدعوم. استخدم JPEG أو PNG أو WebP'));
+        }
+    }
+});
 
 function publicUser(user) {
     return {
@@ -23,9 +40,30 @@ function publicUser(user) {
         healthNotes: user.healthNotes,
         isAvailable: user.isAvailable !== false,
         lastDonation: user.lastDonation || null,
+        avatarUrl: user.avatarUrl || null,
         createdAt: user.createdAt
     };
 }
+
+/** عرض صورة الملف الشخصي المخزّنة في PostgreSQL — عام (لقوائم المتبرعين والواجهة) */
+router.get('/avatar/:userId', async (req, res) => {
+    try {
+        const uid = req.params.userId != null ? String(req.params.userId) : '';
+        if (!uid || uid.length > 96) {
+            return res.status(400).end();
+        }
+        const blob = await dataAccess.getAvatarBlobByUserId(uid);
+        if (!blob) {
+            return res.status(404).end();
+        }
+        res.setHeader('Content-Type', blob.mime);
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.send(blob.buffer);
+    } catch (err) {
+        console.error('Avatar serve error:', err);
+        res.status(500).end();
+    }
+});
 
 router.post('/register', [
     body('fullName').notEmpty().withMessage('Full name is required'),
@@ -34,7 +72,8 @@ router.post('/register', [
     body('bloodType').notEmpty().withMessage('Blood type is required'),
     body('governorate').notEmpty().withMessage('Governorate is required'),
     body('region').notEmpty().withMessage('Region is required'),
-    body('age').optional().isInt({ min: 18, max: 80 })
+    body('age').optional().isInt({ min: 18, max: 80 }),
+    body('avatarUrl').optional({ checkFalsy: true }).isURL().withMessage('رابط الصورة غير صالح')
 ], async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -45,7 +84,8 @@ router.post('/register', [
         const {
             fullName, email, password, bloodType, governorate, region,
             phone, showPhone, age,
-            hasHealthCondition, healthConditions, healthNotes
+            hasHealthCondition, healthConditions, healthNotes,
+            avatarUrl
         } = req.body;
 
         const existing = await dataAccess.findUserByEmail(email);
@@ -71,6 +111,7 @@ router.post('/register', [
             healthNotes: healthNotes || null,
             isAvailable: true,
             lastDonation: null,
+            avatarUrl: typeof avatarUrl === 'string' && avatarUrl.trim() ? avatarUrl.trim() : null,
             createdAt: new Date().toISOString()
         };
 
@@ -148,7 +189,8 @@ router.put('/profile', authenticateToken, [
     body('fullName').optional().notEmpty(),
     body('bloodType').optional().notEmpty(),
     body('governorate').optional().notEmpty(),
-    body('region').optional().notEmpty()
+    body('region').optional().notEmpty(),
+    body('avatarUrl').optional({ checkFalsy: true }).isURL().withMessage('رابط الصورة غير صالح')
 ], async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -163,7 +205,8 @@ router.put('/profile', authenticateToken, [
 
         const allowed = [
             'fullName', 'bloodType', 'governorate', 'region', 'phone', 'showPhone',
-            'age', 'hasHealthCondition', 'healthConditions', 'healthNotes', 'isAvailable', 'lastDonation'
+            'age', 'hasHealthCondition', 'healthConditions', 'healthNotes', 'isAvailable', 'lastDonation',
+            'avatarUrl'
         ];
         const updates = {};
         allowed.forEach(key => {
@@ -181,12 +224,106 @@ router.put('/profile', authenticateToken, [
     }
 });
 
+/** رفع صورة العرض — Cloudinary إن وُجد، أو PostgreSQL BYTEA عند DATABASE_URL، وإلا مجلد uploads محلياً */
+router.post(
+    '/profile/avatar',
+    authenticateToken,
+    (req, res, next) => {
+        uploadAvatar.single('avatar')(req, res, (err) => {
+            if (err) {
+                if (err instanceof multer.MulterError) {
+                    if (err.code === 'LIMIT_FILE_SIZE') {
+                        return res.status(400).json({ error: 'حجم الصورة يتجاوز ٢ ميجابايت' });
+                    }
+                    return res.status(400).json({ error: 'فشل استقبال الملف' });
+                }
+                return res.status(400).json({ error: err.message || 'فشل رفع الصورة' });
+            }
+            next();
+        });
+    },
+    async (req, res) => {
+        let localFilePath = null;
+        try {
+            if (!req.file || !req.file.buffer) {
+                return res.status(400).json({ error: 'يرجى اختيار ملف صورة' });
+            }
+
+            if (cloudinaryAvatar.isEnabled()) {
+                const secureUrl = await cloudinaryAvatar.uploadBuffer(
+                    req.file.buffer,
+                    req.file.mimetype,
+                    req.userId
+                );
+                const updated = await dataAccess.updateUser(req.userId, { avatarUrl: secureUrl });
+                if (!updated) {
+                    await cloudinaryAvatar.destroyByUserId(req.userId);
+                    return res.status(404).json({ error: 'User not found' });
+                }
+                await avatarStorage.removeStoredAvatarFiles(req.userId);
+                return res.json({
+                    message: 'تم حفظ الصورة بنجاح (تخزين سحابي دائم)',
+                    user: publicUser(updated)
+                });
+            }
+
+            if (dataAccess.usePostgres()) {
+                const updated = await dataAccess.setUserAvatarBlob(
+                    req.userId,
+                    req.file.buffer,
+                    req.file.mimetype
+                );
+                if (!updated) {
+                    return res.status(404).json({ error: 'User not found' });
+                }
+                await avatarStorage.removeStoredAvatarFiles(req.userId);
+                return res.json({
+                    message: 'تم حفظ الصورة في قاعدة البيانات (تخزين دائم)',
+                    user: publicUser(updated)
+                });
+            }
+
+            const { filename, publicPath } = await avatarStorage.saveBufferToDisk(
+                req.userId,
+                req.file.buffer,
+                req.file.mimetype
+            );
+            localFilePath = path.join(avatarStorage.AVATAR_DIR, filename);
+
+            const updated = await dataAccess.updateUser(req.userId, { avatarUrl: publicPath });
+            if (!updated) {
+                await fs.unlink(localFilePath).catch(() => {});
+                return res.status(404).json({ error: 'User not found' });
+            }
+            await avatarStorage.removeOtherAvatarFiles(req.userId, filename);
+            res.json({
+                message: 'تم حفظ الصورة بنجاح',
+                user: publicUser(updated)
+            });
+        } catch (error) {
+            console.error('Avatar upload error:', error);
+            if (localFilePath) {
+                await fs.unlink(localFilePath).catch(() => {});
+            }
+            if (cloudinaryAvatar.isEnabled()) {
+                await cloudinaryAvatar.destroyByUserId(req.userId).catch(() => {});
+            }
+            res.status(500).json({ error: 'تعذر حفظ الصورة. حاول مرة أخرى.' });
+        }
+    }
+);
+
 router.delete('/account', authenticateToken, async (req, res) => {
     try {
         const user = await dataAccess.findUserById(req.userId);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
+        const av = user.avatarUrl ? String(user.avatarUrl) : '';
+        if (av.includes('res.cloudinary.com') || cloudinaryAvatar.isEnabled()) {
+            await cloudinaryAvatar.destroyByUserId(req.userId);
+        }
+        await avatarStorage.removeStoredAvatarFiles(req.userId);
         await dataAccess.deleteUser(req.userId);
         res.json({ message: 'Account deleted successfully' });
     } catch (error) {

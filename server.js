@@ -5,6 +5,8 @@ const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const path = require('path');
 const { initDataLayer } = require('./lib/dataAccess');
+const { ensureAvatarDir } = require('./lib/avatarStorage');
+const cloudinaryAvatar = require('./lib/cloudinaryAvatar');
 const { getJwtSecret } = require('./lib/jwtSecret');
 
 // Load environment variables (.env يتجاوز متغيرات النظام حتى يُلغى DATABASE_URL عند التعليق)
@@ -95,6 +97,20 @@ async function start() {
     }
     try {
         await initDataLayer();
+        try {
+            ensureAvatarDir();
+            console.log('📷 مجلد صور الملف الشخصي (محلي):', path.join(__dirname, 'uploads', 'avatars'));
+            if (cloudinaryAvatar.isEnabled()) {
+                console.log('☁️ صور المستخدمين: Cloudinary (تخزين دائم)');
+            } else if (process.env.DATABASE_URL) {
+                console.log('🗄️ صور الملف الشخصي: PostgreSQL BYTEA (تخزين دائم مع قاعدة البيانات — مناسب لـ Render)');
+            } else {
+                console.log('📁 Cloudinary غير مضبوط ولا يوجد DATABASE_URL — الصور في مجلد uploads محلياً (غير دائم على Render).');
+            }
+        } catch (dirErr) {
+            console.error('تعذر إنشاء مجلد uploads/avatars:', dirErr.message || dirErr);
+            process.exit(1);
+        }
     } catch (e) {
         console.error('فشل تهيئة قاعدة البيانات:', e.message || e);
         if (process.env.DATABASE_URL && String(e.message || '').toLowerCase().includes('ssl')) {

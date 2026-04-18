@@ -320,6 +320,12 @@ function showPage(pageId, clickedElement) {
         if (typeof startAwarenessCardQuotes === 'function') {
             startAwarenessCardQuotes();
         }
+        if (typeof startHomeSpiritQuoteRotation === 'function') {
+            startHomeSpiritQuoteRotation();
+        }
+        if (typeof initGiveHeroSlider === 'function') {
+            initGiveHeroSlider();
+        }
     } else {
         if (typeof stopAnnouncementCarousel === 'function') {
             stopAnnouncementCarousel();
@@ -327,6 +333,20 @@ function showPage(pageId, clickedElement) {
         if (typeof stopAwarenessCardQuotes === 'function') {
             stopAwarenessCardQuotes();
         }
+        if (typeof stopHomeSpiritQuoteRotation === 'function') {
+            stopHomeSpiritQuoteRotation();
+        }
+        if (typeof stopGiveHeroAutoplay === 'function') {
+            stopGiveHeroAutoplay();
+        }
+    }
+
+    if (pageId === 'heroes') {
+        if (typeof startHeroesEncouragementRotation === 'function') {
+            startHeroesEncouragementRotation();
+        }
+    } else if (typeof stopHeroesEncouragementRotation === 'function') {
+        stopHeroesEncouragementRotation();
     }
 
     // تحميل محتوى الصفحة
@@ -396,9 +416,22 @@ function loadPageContent(pageId) {
                 if (typeof stopHeroImagesSlider === 'function') {
                     stopHeroImagesSlider();
                 }
-                if (typeof loadHeroes === 'function') {
+                setTimeout(() => {
+                    if (typeof initHeroImagesSlider === 'function') {
+                        initHeroImagesSlider();
+                    }
+                }, 100);
+                break;
+            case 'heroesGallery':
+                if (typeof stopSlider === 'function') {
+                    stopSlider();
+                }
+                if (typeof stopHeroImagesSlider === 'function') {
+                    stopHeroImagesSlider();
+                }
+                if (typeof loadHeroesGallery === 'function') {
                     setTimeout(() => {
-                        loadHeroes();
+                        loadHeroesGallery();
                     }, 100);
                 }
                 break;
@@ -608,13 +641,23 @@ function stopAwarenessCardQuotes() {
     }
 }
 
-const REGISTER_SUCCESS_QUOTES = [
-    'أثمن ما تملكه ليس في رصيدك، بل في الأثر الذي تتركه في حياة الآخرين.',
-    'قد تكون بالنسبة للعالم مجرد شخص، لكنك بالنسبة لشخص واحد قد تكون العالم كله.',
-    'نحن لا نعيش لأنفسنا فقط؛ جمال الحياة يكمن في أن نكون سنداً لبعضنا.'
+/** جمل تشجيعية — الصفحة الرئيسية + نافذة نجاح التسجيل */
+const SPIRIT_ENCOURAGEMENT_QUOTES = [
+    'كن واحداً من صناع الحياة',
+    'ومن أحياها فكأنما أحيا الناس جميعاً.. أجرك عند الله لا يضيع.',
+    'صدقةٌ جارية، ونبضٌ يبقى.. هنيئاً لقلوبٍ اختارها الله لتكون سبباً في حياة الآخرين.',
+    'في كل قطرةٍ بذلتها، أجرٌ يسبقك إلى جنات النعيم.',
+    'عطاءٌ يُرى أثره في الدنيا، ويُجنى ثوابه في الآخرة.. جزاكم الله خيراً.',
+    'ما نقص مالٌ من صدقة، وما نقص جسدٌ من بذل.. فكيف إذا كان البذلُ حياة؟',
+    'يوم القيامة.. ستجدون عطاءكم نوراً يسعى بين أيديكم.',
+    'تبرعكم للدم هو تجارةٌ رابحة مع الله.. والله لا يخلف الميعاد.',
+    'جعلكم الله مفاتيح للخير، مغاليق للشر.. وأثابكم خير الجزاء.'
 ];
 
+const REGISTER_SUCCESS_QUOTES = SPIRIT_ENCOURAGEMENT_QUOTES;
+
 let registerSuccessQuoteInterval = null;
+let homeSpiritQuoteTimer = null;
 
 function openRegisterSuccessModal() {
     const modal = document.getElementById('registerSuccessModal');
@@ -643,6 +686,143 @@ function closeRegisterSuccessModal() {
     }
     if (modal) modal.classList.remove('active');
 }
+
+const MS_HOME_SPIRIT_QUOTE = 9000;
+
+function startHomeSpiritQuoteRotation() {
+    const el = document.getElementById('homeSpiritLine');
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        el.textContent = SPIRIT_ENCOURAGEMENT_QUOTES[0];
+        return;
+    }
+    stopHomeSpiritQuoteRotation();
+    let idx = 0;
+    el.textContent = SPIRIT_ENCOURAGEMENT_QUOTES[0];
+    homeSpiritQuoteTimer = setInterval(() => {
+        idx = (idx + 1) % SPIRIT_ENCOURAGEMENT_QUOTES.length;
+        el.classList.add('is-transitioning');
+        setTimeout(() => {
+            el.textContent = SPIRIT_ENCOURAGEMENT_QUOTES[idx];
+            el.classList.remove('is-transitioning');
+        }, 240);
+    }, MS_HOME_SPIRIT_QUOTE);
+}
+
+function stopHomeSpiritQuoteRotation() {
+    if (homeSpiritQuoteTimer) {
+        clearInterval(homeSpiritQuoteTimer);
+        homeSpiritQuoteTimer = null;
+    }
+}
+
+/** سلايدر العطاء — أعلى الصفحة الرئيسية */
+let giveHeroSlideIdx = 0;
+let giveHeroTimer = null;
+
+function giveHeroApplySlide(index) {
+    const root = document.getElementById('giveHeroSlider');
+    if (!root) return;
+    const slides = root.querySelectorAll('.give-slide');
+    const dots = root.querySelectorAll('.give-hero-dot');
+    if (slides.length === 0) return;
+    const n = slides.length;
+    const i = ((index % n) + n) % n;
+    slides.forEach((s, j) => {
+        const on = j === i;
+        s.classList.toggle('active', on);
+        s.setAttribute('aria-hidden', on ? 'false' : 'true');
+        const bg = s.querySelector('.give-slide-bg');
+        if (bg) {
+            bg.classList.toggle('give-slide-bg--animating', on && s.classList.contains('give-slide--photo'));
+        }
+    });
+    dots.forEach((d, j) => {
+        d.classList.toggle('active', j === i);
+        d.setAttribute('aria-selected', j === i ? 'true' : 'false');
+    });
+    const cur = slides[i];
+    root.classList.toggle('give-hero-slider--verse', !!(cur && cur.classList.contains('give-slide--verse')));
+    giveHeroSlideIdx = i;
+}
+
+function restartGiveHeroAutoplay() {
+    stopGiveHeroAutoplay();
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+    }
+    giveHeroTimer = setInterval(() => {
+        giveHeroApplySlide(giveHeroSlideIdx + 1);
+    }, 7000);
+}
+
+function stopGiveHeroAutoplay() {
+    if (giveHeroTimer) {
+        clearInterval(giveHeroTimer);
+        giveHeroTimer = null;
+    }
+}
+
+function initGiveHeroTouchOnce() {
+    const root = document.getElementById('giveHeroSlider');
+    if (!root || root.dataset.giveTouchBound === '1') return;
+    root.dataset.giveTouchBound = '1';
+    let startX = 0;
+    const threshold = 56;
+    root.addEventListener(
+        'touchstart',
+        (e) => {
+            if (e.changedTouches && e.changedTouches[0]) {
+                startX = e.changedTouches[0].screenX;
+            }
+        },
+        { passive: true }
+    );
+    root.addEventListener(
+        'touchend',
+        (e) => {
+            if (!e.changedTouches || !e.changedTouches[0]) return;
+            const endX = e.changedTouches[0].screenX;
+            const dx = endX - startX;
+            if (Math.abs(dx) < threshold) return;
+            if (dx < 0) {
+                giveHeroStep(1);
+            } else {
+                giveHeroStep(-1);
+            }
+        },
+        { passive: true }
+    );
+}
+
+function initGiveHeroSlider() {
+    const root = document.getElementById('giveHeroSlider');
+    if (!root) return;
+    initGiveHeroTouchOnce();
+    giveHeroApplySlide(0);
+    restartGiveHeroAutoplay();
+}
+
+function giveHeroStep(delta) {
+    giveHeroApplySlide(giveHeroSlideIdx + delta);
+    restartGiveHeroAutoplay();
+}
+
+function giveHeroGoTo(index) {
+    giveHeroApplySlide(index);
+    restartGiveHeroAutoplay();
+}
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        stopGiveHeroAutoplay();
+    } else {
+        const home = document.getElementById('home');
+        if (home && home.classList.contains('active')) {
+            restartGiveHeroAutoplay();
+        }
+    }
+});
 
 /**
  * سطر إجمالي المنصة + فروق الزيارة/التحديث (الإعلان المتحرك يُدار بـ startAnnouncementCarousel).
@@ -954,7 +1134,8 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
         showPhone: document.getElementById('privacySettings').checked,
         hasHealthCondition: hasHealthCondition === 'yes',
         healthConditions: selectedConditions,
-        healthNotes
+        healthNotes,
+        avatarUrl: (document.getElementById('avatarUrl')?.value || '').trim() || undefined
     };
 
     try {
@@ -1340,7 +1521,7 @@ function renderHelpConfirmationBlock(msg, currentUserId) {
             block += `
                 <p class="help-thanks-hint">
                     <i class="fas fa-heart"></i>
-                    يمكنك أن تشكر المتبرع بأنه <strong>البطل</strong> الذي سهّل عليك هذا الخير — يظهر ذلك في سجل المنصة للأبطال المؤكدين.
+                    يمكنك أن تشكر المتبرع بأنه سهّل عليك الخير بإذن الله — يظهر ذلك في سجل المنصة لفاعلي الخير المؤكَّدين.
                 </p>`;
         }
         block += '</div>';
@@ -1577,13 +1758,29 @@ async function loadProfile() {
         }
     }
 
+    const avSrc = currentUser.avatarUrl ? String(currentUser.avatarUrl).trim() : '';
+    const showAvatarImg =
+        avSrc &&
+        (avSrc.startsWith('/uploads/') ||
+            avSrc.startsWith('/api/auth/avatar/') ||
+            avSrc.startsWith('http://') ||
+            avSrc.startsWith('https://'));
+    const avatarHeader =
+        showAvatarImg && (avSrc.startsWith('/uploads/') || avSrc.startsWith('/api/auth/avatar/'))
+            ? `<div class="profile-avatar profile-avatar--photo"><img src="${escapeHtml(avSrc)}?v=${Date.now()}" alt="" width="120" height="120" loading="lazy" decoding="async" /></div>`
+            : showAvatarImg
+              ? `<div class="profile-avatar profile-avatar--photo"><img src="${escapeHtml(avSrc)}" alt="" width="120" height="120" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></div>`
+              : `<div class="profile-avatar">${escapeHtml(currentUser.fullName.charAt(0))}</div>`;
+
     profileContent.innerHTML = `
         <div class="profile-header">
-            <div class="profile-avatar">
-                ${currentUser.fullName.charAt(0)}
-            </div>
+            ${avatarHeader}
             <h2>${currentUser.fullName}</h2>
             ${currentUser.email ? `<p class="form-hint">${currentUser.email}</p>` : ''}
+        </div>
+        <div class="profile-spirit-card" aria-labelledby="profileSpiritTitle">
+            <h3 id="profileSpiritTitle" class="profile-spirit-title">تقبل الله منك</h3>
+            <p class="profile-spirit-body">أخي الكريم/ أختي الكريمة، اعلم أن الله اطلع على صنيعك، وقد أثمر عطاؤك في ميزان حسناتك. إن إحياءك لنفسٍ بشرية هو أمانةٌ عظيمة، وقد أديتها بفضل الله. نسأل الله أن يبارك في صحتك، وأن يجعل عملك هذا سبباً في دخولك الفردوس الأعلى.</p>
         </div>
         <div class="profile-info">
             <h3><i class="fas fa-info-circle"></i> المعلومات الشخصية</h3>
@@ -1630,6 +1827,21 @@ async function loadProfile() {
             </div>
             ` : ''}
         </div>
+        <div class="form-group profile-avatar-field">
+            <label><i class="fas fa-camera"></i> صورة العرض (من الهاتف أو المعرض)</label>
+            <p class="form-hint" style="margin-bottom:0.65rem">تُحفظ على الخادم بشكل دائم وتُعرض في «فاعلو الخير» بعد التأكيد المزدوج. الحد الأقصى ٢ ميجابايت — JPEG أو PNG أو WebP.</p>
+            <input type="file" id="profileAvatarFile" accept="image/jpeg,image/png,image/webp" class="profile-avatar-file-input">
+            <button type="button" class="btn btn-primary btn-block" id="profileAvatarUploadBtn" style="margin-top:0.65rem" onclick="uploadProfileAvatarFile()">
+                <i class="fas fa-cloud-upload-alt"></i> رفع الصورة وحفظها
+            </button>
+            <label for="profileAvatarUrl" style="margin-top:1rem;display:block"><i class="fas fa-link"></i> أو الصق رابط صورة (اختياري)</label>
+            <input type="url" id="profileAvatarUrl" dir="ltr" style="text-align:left" maxlength="2000"
+                placeholder="https://…"
+                value="${escapeHtml(String(currentUser.avatarUrl && String(currentUser.avatarUrl).startsWith('http') ? currentUser.avatarUrl : ''))}">
+            <button type="button" class="btn btn-secondary btn-block" style="margin-top:0.65rem" onclick="saveProfileAvatarUrl()">
+                <i class="fas fa-save"></i> حفظ الرابط فقط
+            </button>
+        </div>
         <div class="form-group">
             <label>
                 <input type="checkbox" id="togglePhonePrivacy" ${currentUser.showPhone ? 'checked' : ''} 
@@ -1649,6 +1861,83 @@ async function loadProfile() {
             </small>
         </div>
     `;
+}
+
+async function saveProfileAvatarUrl() {
+    const currentUser = dataManager.getCurrentUser();
+    if (!currentUser) return;
+    const el = document.getElementById('profileAvatarUrl');
+    const raw = (el && el.value ? el.value : '').trim();
+    const prev = currentUser.avatarUrl ? String(currentUser.avatarUrl) : '';
+    if (!raw) {
+        if (prev.startsWith('/uploads/') || prev.startsWith('/api/auth/avatar/')) {
+            alert('صورتك محفوظة على الخادم. لاستبدالها ارفع صورة جديدة من الأعلى.');
+            return;
+        }
+    }
+    try {
+        await dataManager.updateDonor(currentUser.id, { avatarUrl: raw === '' ? null : raw });
+        alert('تم حفظ رابط الصورة');
+        await loadProfile();
+    } catch (e) {
+        alert('تعذر الحفظ: ' + (e.message || e));
+    }
+}
+
+const PROFILE_AVATAR_MAX_BYTES = 2 * 1024 * 1024;
+const PROFILE_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+async function uploadProfileAvatarFile() {
+    const currentUser = dataManager.getCurrentUser();
+    if (!currentUser) return;
+    const input = document.getElementById('profileAvatarFile');
+    const btn = document.getElementById('profileAvatarUploadBtn');
+    if (!input || !input.files || !input.files[0]) {
+        alert('يرجى اختيار صورة من المعرض أو الكاميرا أولاً');
+        return;
+    }
+    const file = input.files[0];
+    if (file.size > PROFILE_AVATAR_MAX_BYTES) {
+        alert('حجم الصورة يتجاوز ٢ ميجابايت. اختر صورة أصغر.');
+        return;
+    }
+    if (!PROFILE_AVATAR_TYPES.includes(file.type)) {
+        alert('يُسمح بصيغ JPEG أو PNG أو WebP فقط');
+        return;
+    }
+    const token = localStorage.getItem('bloodConnect_token');
+    if (!token) {
+        alert('انتهت الجلسة. سجّل الدخول مجدداً');
+        return;
+    }
+    const fd = new FormData();
+    fd.append('avatar', file);
+    if (btn) {
+        btn.disabled = true;
+    }
+    try {
+        const res = await fetch('/api/auth/profile/avatar', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: fd
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            throw new Error(data.error || 'تعذر رفع الصورة');
+        }
+        if (data.user) {
+            dataManager.setSession(data.user, token);
+        }
+        input.value = '';
+        alert('تم حفظ الصورة على الخادم بنجاح');
+        await loadProfile();
+    } catch (e) {
+        alert(e.message || 'تعذر رفع الصورة. تحقق من الاتصال بالخادم.');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+        }
+    }
 }
 
 // تبديل إعدادات الخصوصية
@@ -2174,7 +2463,57 @@ function checkNewMessages() {
     pollInboxAndNotifications();
 }
 
-// إدارة سلايدر صور الأبطال
+/** شريط تشجيع صفحة فاعلو الخير */
+const HEROES_ENCOURAGEMENT_LINES = [
+    'هنا يُذكر من ثبّت إسناده.. جزاهم الله خيراً.',
+    'شكراً لكل من بادر.. عطاؤكم يمنح الحياة أملاً جديداً.',
+    "بصمتك اليوم في 'فاعلو الخير' هي نبضٌ لمريضٍ ينتظر.",
+    'تتبرع بدمك اليوم، لتكتب قصة حياةٍ لغيرك غداً.',
+    'بأيديكم أعدتم نبضاً كاد أن يتوقف.. شكراً لعطائكم النبيل.',
+    'فاعلو الخير.. هم النور الذي يضيء دروب المرضى في أشد لحظاتهم.',
+    'في ميزان حسناتكم ما قدمتم، وفي قلوب المرضى دعواتٌ لكم بالخير.'
+];
+
+const HERO_CARD_SNIPPETS = [
+    'جزاكم الله خيراً على العطاء.',
+    'عطاؤكم يمنح الحياة أملاً جديداً.',
+    'في ميزان حسناتكم ما قدمتم.',
+    'بصمتكم نبضٌ لمريضٍ ينتظر.',
+    'شكراً لكل من بادر.',
+    'اللهم تقبل من فاعلي الخير.',
+    'أثرٌ يُذكر عند الله أولاً.'
+];
+
+let heroesEncouragementTimer = null;
+
+function startHeroesEncouragementRotation() {
+    const el = document.getElementById('heroesEncouragementLine');
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        el.textContent = HEROES_ENCOURAGEMENT_LINES[0];
+        return;
+    }
+    stopHeroesEncouragementRotation();
+    let idx = 0;
+    el.textContent = HEROES_ENCOURAGEMENT_LINES[0];
+    heroesEncouragementTimer = setInterval(() => {
+        idx = (idx + 1) % HEROES_ENCOURAGEMENT_LINES.length;
+        el.classList.add('is-transitioning');
+        setTimeout(() => {
+            el.textContent = HEROES_ENCOURAGEMENT_LINES[idx];
+            el.classList.remove('is-transitioning');
+        }, 240);
+    }, 9000);
+}
+
+function stopHeroesEncouragementRotation() {
+    if (heroesEncouragementTimer) {
+        clearInterval(heroesEncouragementTimer);
+        heroesEncouragementTimer = null;
+    }
+}
+
+// إدارة سلايدر صور فاعلي الخير
 let heroImageSlide = 0;
 let heroImageInterval;
 
@@ -2195,84 +2534,80 @@ function stopHeroImagesSlider() {
     }
 }
 
-// رسائل تحفيزية للأبطال
-const heroMessages = [
-    "أنت بطل حقيقي، عطاؤك ينقذ الأرواح",
-    "كل قطرة دم منك تعني حياة جديدة",
-    "شكراً لأنك تختار العطاء",
-    "أنت مصدر الأمل للكثيرين",
-    "عطاؤك صدقة جارية",
-    "أنت تجسد معنى الإنسانية",
-    "شكراً لأنك موجود",
-    "أنت فارس الخير الحقيقي"
-];
+function heroPhotoFallbackDataUrl(name) {
+    const n = encodeURIComponent(String(name || 'م').trim().slice(0, 48) || 'م');
+    return `https://ui-avatars.com/api/?name=${n}&size=160&background=dc3545&color=fff&rounded=true&bold=true`;
+}
 
-// تحميل قائمة الأبطال
-async function loadHeroes() {
-    const heroesList = document.getElementById('heroesList');
-    if (!heroesList) return;
+function buildHeroAvatarHtml(hero) {
+    const safeName = String(hero.fullName || '').trim() || 'متبرع';
+    const raw = hero.avatarUrl && String(hero.avatarUrl).trim();
+    const primary = raw || heroPhotoFallbackDataUrl(safeName);
+    const fb = heroPhotoFallbackDataUrl(safeName);
+    const primaryJson = JSON.stringify(primary);
+    const fbJson = JSON.stringify(fb);
+    return `
+        <div class="hero-avatar-wrap">
+            <img class="hero-avatar-img" src=${primaryJson} alt="" width="120" height="120" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src=${fbJson};" />
+        </div>`;
+}
 
-    let donorStats;
+function buildConfirmedHeroCardHtml(hero, index) {
+    const snippet = HERO_CARD_SNIPPETS[Math.floor(Math.random() * HERO_CARD_SNIPPETS.length)];
+    const safeName = String(hero.fullName || '').trim() || 'متبرع';
+    const loc = escapeHtml(formatHeroLocation(hero.governorate, hero.region));
+    const blood = escapeHtml(String(hero.bloodType || ''));
+    const matchesN = Number(hero.successfulMatches) || 0;
+    const msgsN = Number(hero.totalMessages) || 0;
+    return `
+        <div class="hero-card hero-card--confirmed-only" style="animation-delay: ${index * 0.05}s;">
+            ${buildHeroAvatarHtml(hero)}
+            <span class="hero-role-badge hero-role-badge--confirmed">أثبت إسناده</span>
+            <h3 class="hero-name">${escapeHtml(safeName)}</h3>
+            <span class="hero-blood-type">${blood}</span>
+            <div class="hero-location">
+                <i class="fas fa-map-marker-alt"></i> ${loc}
+            </div>
+            <div class="hero-message">${escapeHtml(snippet)}</div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="hero-stat-number">${matchesN}</span>
+                    <span class="hero-stat-label">تأكيد مزدوج</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number">${msgsN}</span>
+                    <span class="hero-stat-label">رسالة</span>
+                </div>
+            </div>
+        </div>`;
+}
+
+function renderConfirmedHeroesInto(containerEl, heroes) {
+    if (!containerEl) return;
+    if (!heroes || heroes.length === 0) {
+        containerEl.innerHTML = `
+            <div class="heroes-empty-confirmed" style="text-align: center; padding: 2.5rem; color: var(--gray); grid-column: 1 / -1;">
+                <i class="fas fa-user-check" style="font-size: 3rem; margin-bottom: 0.75rem; opacity: 0.35;"></i>
+                <p style="font-size: 1.1rem;">لا يوجد أحد بعد ضمن <strong>فاعلي الخير المؤكدين</strong>.</p>
+                <p class="form-hint">يُدرَج المتبرع هنا عندما يكون هو مستقبل الطلب ويُكمّل الطرفان (محتاج + متبرع) تأكيد الإسناد في الرسائل.</p>
+            </div>`;
+        return;
+    }
+    containerEl.innerHTML = heroes.map((h, i) => buildConfirmedHeroCardHtml(h, i)).join('');
+}
+
+async function loadHeroesGallery() {
+    const grid = document.getElementById('heroesGalleryGrid');
+    if (!grid) return;
+    grid.innerHTML =
+        '<p class="no-results" style="grid-column:1/-1;text-align:center">جاري التحميل...</p>';
     try {
-        const res = await apiFetch('/donors/heroes/list');
-        donorStats = res.heroes || [];
+        const res = await apiFetch('/donors/heroes/confirmed');
+        const heroes = res.heroes || [];
+        renderConfirmedHeroesInto(grid, heroes);
     } catch (e) {
-        heroesList.innerHTML =
-            '<p class="no-results">تعذر تحميل القائمة. شغّل الخادم (npm start).</p>';
-        return;
+        grid.innerHTML =
+            '<p class="no-results" style="grid-column:1/-1">تعذر تحميل المعرض. شغّل الخادم (npm start).</p>';
     }
-
-    if (donorStats.length === 0) {
-        heroesList.innerHTML = `
-            <div style="text-align: center; padding: 3rem; color: var(--gray);">
-                <i class="fas fa-users" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                <p style="font-size: 1.2rem;">لا يوجد متبرعين مسجلين بعد</p>
-                <p>كن أول بطل ينضم إلينا!</p>
-            </div>
-        `;
-        return;
-    }
-
-    heroesList.innerHTML = donorStats.map((hero, index) => {
-        const randomMessage = heroMessages[Math.floor(Math.random() * heroMessages.length)];
-        const safeName = String(hero.fullName || '').trim() || 'متبرع';
-        const heroInitial = escapeHtml(safeName.charAt(0));
-        const loc = escapeHtml(formatHeroLocation(hero.governorate, hero.region));
-        const blood = escapeHtml(String(hero.bloodType || ''));
-        const matchesN = Number(hero.successfulMatches) || 0;
-        const msgsN = Number(hero.totalMessages) || 0;
-
-        return `
-            <div class="hero-card" style="animation-delay: ${index * 0.1}s;">
-                <div class="hero-avatar">
-                    ${heroInitial}
-                </div>
-                <h3 class="hero-name">${escapeHtml(safeName)}</h3>
-                <span class="hero-blood-type">${blood}</span>
-                <div class="hero-location">
-                    <i class="fas fa-map-marker-alt"></i> ${loc}
-                </div>
-                <div class="hero-message">
-                    ${randomMessage}
-                </div>
-                <div class="hero-stats">
-                    <div class="hero-stat">
-                        <span class="hero-stat-number">${matchesN}</span>
-                        <span class="hero-stat-label">تأكيد مزدوج</span>
-                    </div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-number">${msgsN}</span>
-                        <span class="hero-stat-label">رسالة</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    // بدء سلايدر الصور
-    stopHeroImagesSlider();
-    setTimeout(() => {
-        initHeroImagesSlider();
-    }, 100);
 }
 
