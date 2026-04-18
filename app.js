@@ -179,11 +179,10 @@ const dataManager = {
             urgency: message.isUrgent ? 'urgent' : 'normal',
             neededDateTime: message.neededDateTime || null
         };
-        const result = await apiFetch('/messages', {
+        return await apiFetch('/messages', {
             method: 'POST',
             body: JSON.stringify(body)
         });
-        return result.data;
     },
 
     async getMessagesForUser(userId) {
@@ -1270,17 +1269,19 @@ document.getElementById('messageForm')?.addEventListener('submit', async functio
         neededDateTime: neededDateTime || null
     };
 
-    let newMessage;
+    let sendResult;
     try {
-        newMessage = await dataManager.addMessage(message);
+        sendResult = await dataManager.addMessage(message);
     } catch (err) {
         alert('فشل إرسال الرسالة: ' + (err.message || err));
         return;
     }
 
-    const rawPhone = typeof recipient.phone === 'string' && recipient.phone.includes('مخفي')
-        ? null
-        : recipient.phone;
+    const newMessage = sendResult.data;
+    const rawPhone =
+        typeof recipient.phone === 'string' && recipient.phone.includes('مخفي')
+            ? null
+            : recipient.phone;
 
     if (isUrgent) {
         await NotificationManager.sendUrgentNotification({
@@ -1288,34 +1289,19 @@ document.getElementById('messageForm')?.addEventListener('submit', async functio
             recipientPhone: rawPhone
         });
 
-        let smsSent = false;
-        if (rawPhone) {
-            const internationalPhone = formatPhoneNumber(rawPhone);
-            if (internationalPhone) {
-                try {
-                    const response = await fetch('/api/sms/urgent', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            to: internationalPhone,
-                            recipientName: recipient.fullName,
-                            bloodType: recipient.bloodType,
-                            urgency: 'عاجل جداً',
-                            location: `${recipient.governorate || ''} - ${recipient.region || ''}`
-                        })
-                    });
-                    if (response.ok) smsSent = true;
-                } catch (error) {
-                    console.error('SMS:', error);
-                }
-            }
-        }
-
-        if (smsSent) {
-            alert('✅ تم إرسال رسالة طارئة وتمت محاولة إشعار المتبرع عبر SMS');
+        const u = sendResult.urgentSms;
+        if (u && u.skipped) {
+            alert(
+                '✅ تم إرسال الطلب الطارئ.\n\n' +
+                    'تنبيه: لا يوجد رقم هاتف محفوظ في حساب المتبرع، لذلك لم يُرسل SMS. يمكنه الاطلاع من التطبيق.'
+            );
+        } else if (u && u.queued) {
+            alert(
+                '✅ تم إرسال الطلب الطارئ.\n\n' +
+                    'يُشعَر المتبرع عبر المنصة، ويُرسل له SMS تلقائياً من الخادم إن وُجد رقم مسجّل في حسابه (حتى لو كان الرقم مخفياً للعامة).'
+            );
         } else {
-            alert('✅ تم إرسال رسالة طارئة! (إشعارات المتصفح)' +
-                (rawPhone ? ' — إن لم يُرسل SMS فتحقق من إعداد Twilio في الخادم' : ''));
+            alert('✅ تم إرسال رسالة طارئة! (إشعارات المتصفح)');
         }
     } else {
         await NotificationManager.sendNormalNotification(newMessage);

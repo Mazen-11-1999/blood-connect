@@ -3,6 +3,7 @@ const router = express.Router();
 const { body, validationResult, query } = require('express-validator');
 const dataAccess = require('../lib/dataAccess');
 const { notifyRecipientNewMessage } = require('../lib/webPushService');
+const { sendUrgentBloodRequestSms } = require('../lib/urgentSms');
 const { authenticateToken } = require('../middleware/auth');
 
 function enrichMessage(msg) {
@@ -196,9 +197,30 @@ router.post(
                 );
             });
 
+            /** SMS طارئ للمتبرع من رقم DB (حتى لو كان مخفياً في واجهة المتبرعين) */
+            let urgentSms = undefined;
+            if (urgency === 'urgent') {
+                const donorPhone = String(recipient.phone || '').trim();
+                if (donorPhone) {
+                    setImmediate(() => {
+                        sendUrgentBloodRequestSms({
+                            to: donorPhone,
+                            recipientName: recipient.fullName,
+                            bloodType: recipient.bloodType,
+                            urgency: 'عاجل جداً',
+                            location: [recipient.governorate, recipient.region].filter(Boolean).join(' — ') || 'غير محدد'
+                        }).catch(err => console.error('[urgent SMS async]', err.message || err));
+                    });
+                    urgentSms = { queued: true };
+                } else {
+                    urgentSms = { skipped: true, reason: 'no_phone' };
+                }
+            }
+
             res.status(201).json({
                 message: 'Message sent successfully',
-                data: enriched
+                data: enriched,
+                ...(urgentSms !== undefined ? { urgentSms } : {})
             });
         } catch (error) {
             console.error('Send message error:', error);

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
+const { sendUrgentBloodRequestSms } = require('../lib/urgentSms');
 
 const smsLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
@@ -83,19 +84,15 @@ router.post('/urgent', smsLimiter, async (req, res) => {
             });
         }
 
-        const urgentMessage = `🆘 طلب دم عاجل جداً\n\n` +
-            `المتبرع: ${recipientName}\n` +
-            `فصيلة الدم: ${bloodType}\n` +
-            `الموقع: ${location || 'غير محدد'}\n` +
-            `الإلحاح: ${urgency || 'عاجل'}\n\n` +
-            `يرجى فتح التطبيق للرد على الطلب\n\n` +
-            `منصة إنقاذ حياة`;
+        const result = await sendUrgentBloodRequestSms({
+            to,
+            recipientName,
+            bloodType,
+            urgency: urgency || 'عاجل',
+            location: location || 'غير محدد'
+        });
 
-        const client = getTwilioClient();
-        const phone = to.startsWith('+') ? to : `+${String(to).replace(/^\+/, '')}`;
-
-        if (!client) {
-            console.log('[SMS mock urgent] would send to', phone);
+        if (result.mock) {
             return res.json({
                 success: true,
                 mock: true,
@@ -104,16 +101,19 @@ router.post('/urgent', smsLimiter, async (req, res) => {
             });
         }
 
-        const smsResult = await client.messages.create({
-            body: urgentMessage,
-            from: process.env.TWILIO_PHONE_NUMBER,
-            to: phone
-        });
+        if (!result.ok) {
+            const status = result.code === 21614 || result.code === 21608 ? 400 : 500;
+            return res.status(status).json({
+                error: 'Failed to send urgent SMS',
+                details: result.error || 'Unknown',
+                code: result.code
+            });
+        }
 
         res.json({
             success: true,
             message: 'Urgent SMS sent successfully',
-            sid: smsResult.sid,
+            sid: result.sid,
             urgency: 'high'
         });
     } catch (error) {
