@@ -18,7 +18,7 @@
     <link rel="manifest" href="/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;600;700;800&family=El+Messiri:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -612,16 +612,8 @@
     <!-- صفحة فاعلو الخير -->
     <div id="heroes" class="page">
         <div class="heroes-container heroes-page">
-            <!-- القسم العلوي - الآية والدعاء -->
+            <!-- الآية تُعرض في السلايدر الأخير — لا تكرار هنا -->
             <div class="heroes-header">
-                <div class="verse-section">
-                    <div class="verse-icon">💝</div>
-                    <h1 class="verse-text">
-                        "وَمَنْ أَحْيَاهَا فَكَأَنَّمَا أَحْيَا النَّاسَ جَمِيعًا"
-                    </h1>
-                    <p class="verse-source">القرآن الكريم - سورة المائدة</p>
-                </div>
-
                 <!-- سلايدر فاعلو الخير: عرض سينمائي + صور عالية الجودة -->
                 <div class="heroes-pc-bleed">
                 <section class="heroes-page-carousel" id="heroesPageCarousel" aria-roledescription="carousel" aria-label="معرض مشاهد فاعلي الخير">
@@ -633,7 +625,54 @@
                         <span class="heroes-pc-float heroes-pc-float--3"></span>
                     </div>
                     <div class="heroes-pc-slides">
-                        <article class="heroes-pc-slide heroes-pc-slide--photo active" data-index="0" aria-hidden="false">
+                        <!-- شريحتان بتصميم «أبطال فاعلي الخير» + زر المعرض -->
+                        <article class="heroes-pc-slide heroes-pc-slide--cta active" data-index="0" aria-hidden="false">
+                            <div class="heroes-pc-bg" style="background-image:url('https://images.unsplash.com/photo-1532629345428-a999ac91fff9?q=90&amp;w=2400&amp;auto=format&amp;fit=crop');"></div>
+                            <div class="heroes-pc-vignette" aria-hidden="true"></div>
+                            <div class="heroes-pc-overlay heroes-pc-overlay--cta"></div>
+                            <div class="heroes-pc-grain" aria-hidden="true"></div>
+                            <div class="heroes-pc-content heroes-pc-content--cta">
+                                <div class="heroes-pc-content-inner">
+                                    <div class="heroes-pc-cta-icons" aria-hidden="true">
+                                        <span class="heroes-pc-cta-icon"><i class="fas fa-trophy"></i></span>
+                                        <span class="heroes-pc-cta-icon"><i class="fas fa-star"></i></span>
+                                    </div>
+                                    <h3 class="heroes-pc-cta-title">فاعلو الخير.. الأبطال الحقيقيون</h3>
+                                    <p class="heroes-pc-cta-sub">هؤلاء هم من أعطوا دون مقابل.. وجعلوا من المستحيل ممكناً</p>
+                                    <div class="heroes-pc-cta-badges">
+                                        <span class="heroes-pc-cta-badge">عائلة سعيدة +800</span>
+                                        <span class="heroes-pc-cta-badge">فاعل خير +350</span>
+                                    </div>
+                                    <a href="#" class="heroes-pc-cta-btn" onclick="showPage('heroesGallery', null); return false;">
+                                        <i class="fas fa-images" aria-hidden="true"></i> تعرّف على أبطالنا لفعل الخير
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="heroes-pc-slide heroes-pc-slide--cta" data-index="1" aria-hidden="true">
+                            <div class="heroes-pc-bg" style="background-image:url('https://images.unsplash.com/photo-1593113598332-c28872aa4cd7?q=90&amp;w=2400&amp;auto=format&amp;fit=crop');"></div>
+                            <div class="heroes-pc-vignette" aria-hidden="true"></div>
+                            <div class="heroes-pc-overlay heroes-pc-overlay--cta"></div>
+                            <div class="heroes-pc-grain" aria-hidden="true"></div>
+                            <div class="heroes-pc-content heroes-pc-content--cta">
+                                <div class="heroes-pc-content-inner">
+                                    <div class="heroes-pc-cta-icons" aria-hidden="true">
+                                        <span class="heroes-pc-cta-icon"><i class="fas fa-hand-holding-heart"></i></span>
+                                        <span class="heroes-pc-cta-icon"><i class="fas fa-droplet"></i></span>
+                                    </div>
+                                    <h3 class="heroes-pc-cta-title">كل يدٍ تمتد.. قصة نجاة</h3>
+                                    <p class="heroes-pc-cta-sub">تبرعٌ بالدم، ورسالةُ أمل، وتأكيدٌ مزدوج — هكذا يصنع فاعلو الخير الفرق دون ضجيج.</p>
+                                    <div class="heroes-pc-cta-badges">
+                                        <span class="heroes-pc-cta-badge">تأكيد مزدوج</span>
+                                        <span class="heroes-pc-cta-badge">إسناد حقيقي</span>
+                                    </div>
+                                    <a href="#" class="heroes-pc-cta-btn" onclick="showPage('heroesGallery', null); return false;">
+                                        <i class="fas fa-images" aria-hidden="true"></i> تعرّف على أبطالنا لفعل الخير
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="heroes-pc-slide heroes-pc-slide--photo" data-index="2" aria-hidden="true">
                             <div class="heroes-pc-bg" style="background-image:url('https://images.unsplash.com/photo-1615461066841-6116e61058f6?q=90&amp;w=2400&amp;auto=format&amp;fit=crop');"></div>
                             <div class="heroes-pc-vignette" aria-hidden="true"></div>
                             <div class="heroes-pc-overlay"></div>
@@ -647,21 +686,21 @@
                                 </div>
                             </div>
                         </article>
-                        <article class="heroes-pc-slide heroes-pc-slide--photo heroes-pc-slide--ken-alt" data-index="1" aria-hidden="true">
-                            <div class="heroes-pc-bg" style="background-image:url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=90&amp;w=2400&amp;auto=format&amp;fit=crop');"></div>
+                        <article class="heroes-pc-slide heroes-pc-slide--photo heroes-pc-slide--ken-alt" data-index="3" aria-hidden="true">
+                            <div class="heroes-pc-bg" style="background-image:url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=90&amp;w=2400&amp;auto=format&amp;fit=crop');"></div>
                             <div class="heroes-pc-vignette" aria-hidden="true"></div>
                             <div class="heroes-pc-overlay"></div>
                             <div class="heroes-pc-grain" aria-hidden="true"></div>
                             <div class="heroes-pc-content">
                                 <div class="heroes-pc-content-inner">
-                                    <div class="heroes-pc-slide-icon-wrap"><i class="fas fa-user-nurse" aria-hidden="true"></i></div>
-                                    <p class="heroes-pc-kicker"><i class="fas fa-heart-pulse" aria-hidden="true"></i> رعايةٌ وإنسانية</p>
+                                    <div class="heroes-pc-slide-icon-wrap"><i class="fas fa-hands-helping" aria-hidden="true"></i></div>
+                                    <p class="heroes-pc-kicker"><i class="fas fa-users" aria-hidden="true"></i> تضامنٌ وإسناد</p>
                                     <h3 class="heroes-pc-title">إسنادٌ يُشبه الدفء</h3>
                                     <p class="heroes-pc-text">في لحظة ضعفٍ، يكفي أن يمدّ أحدهم يده — فتستقيم الأيام.</p>
                                 </div>
                             </div>
                         </article>
-                        <article class="heroes-pc-slide heroes-pc-slide--photo" data-index="2" aria-hidden="true">
+                        <article class="heroes-pc-slide heroes-pc-slide--photo" data-index="4" aria-hidden="true">
                             <div class="heroes-pc-bg" style="background-image:url('https://images.unsplash.com/photo-1596707172051-7008104526d1?q=90&amp;w=2400&amp;auto=format&amp;fit=crop');"></div>
                             <div class="heroes-pc-vignette" aria-hidden="true"></div>
                             <div class="heroes-pc-overlay"></div>
@@ -675,7 +714,7 @@
                                 </div>
                             </div>
                         </article>
-                        <article class="heroes-pc-slide heroes-pc-slide--photo heroes-pc-slide--ken-alt" data-index="3" aria-hidden="true">
+                        <article class="heroes-pc-slide heroes-pc-slide--photo heroes-pc-slide--ken-alt" data-index="5" aria-hidden="true">
                             <div class="heroes-pc-bg" style="background-image:url('https://images.unsplash.com/photo-1470252648427-bf0a59bae9b2?q=90&amp;w=2400&amp;auto=format&amp;fit=crop');"></div>
                             <div class="heroes-pc-vignette" aria-hidden="true"></div>
                             <div class="heroes-pc-overlay"></div>
@@ -689,7 +728,7 @@
                                 </div>
                             </div>
                         </article>
-                        <article class="heroes-pc-slide heroes-pc-slide--verse" data-index="4" aria-hidden="true">
+                        <article class="heroes-pc-slide heroes-pc-slide--verse" data-index="6" aria-hidden="true">
                             <div class="heroes-pc-bg heroes-pc-bg--verse"></div>
                             <div class="heroes-pc-overlay heroes-pc-overlay--verse"></div>
                             <div class="heroes-pc-content heroes-pc-content--verse">
@@ -703,11 +742,13 @@
                         </article>
                     </div>
                     <div class="heroes-pc-dots" role="tablist" aria-label="اختيار الشريحة">
-                        <button type="button" class="heroes-pc-dot active" onclick="heroesCarouselGoTo(0); return false;" role="tab" aria-selected="true" aria-label="شريحة 1"></button>
-                        <button type="button" class="heroes-pc-dot" onclick="heroesCarouselGoTo(1); return false;" role="tab" aria-selected="false" aria-label="شريحة 2"></button>
-                        <button type="button" class="heroes-pc-dot" onclick="heroesCarouselGoTo(2); return false;" role="tab" aria-selected="false" aria-label="شريحة 3"></button>
-                        <button type="button" class="heroes-pc-dot" onclick="heroesCarouselGoTo(3); return false;" role="tab" aria-selected="false" aria-label="شريحة 4"></button>
-                        <button type="button" class="heroes-pc-dot" onclick="heroesCarouselGoTo(4); return false;" role="tab" aria-selected="false" aria-label="شريحة الآية"></button>
+                        <button type="button" class="heroes-pc-dot active" onclick="heroesCarouselGoTo(0); return false;" role="tab" aria-selected="true" aria-label="أبطال فاعلي الخير"></button>
+                        <button type="button" class="heroes-pc-dot" onclick="heroesCarouselGoTo(1); return false;" role="tab" aria-selected="false" aria-label="كل يد تمتد"></button>
+                        <button type="button" class="heroes-pc-dot" onclick="heroesCarouselGoTo(2); return false;" role="tab" aria-selected="false" aria-label="شريحة الدم"></button>
+                        <button type="button" class="heroes-pc-dot" onclick="heroesCarouselGoTo(3); return false;" role="tab" aria-selected="false" aria-label="شريحة الإسناد"></button>
+                        <button type="button" class="heroes-pc-dot" onclick="heroesCarouselGoTo(4); return false;" role="tab" aria-selected="false" aria-label="شريحة القلوب"></button>
+                        <button type="button" class="heroes-pc-dot" onclick="heroesCarouselGoTo(5); return false;" role="tab" aria-selected="false" aria-label="شريحة النور"></button>
+                        <button type="button" class="heroes-pc-dot" onclick="heroesCarouselGoTo(6); return false;" role="tab" aria-selected="false" aria-label="شريحة الآية"></button>
                     </div>
                     <button type="button" class="heroes-pc-arrow heroes-pc-arrow--next" onclick="heroesCarouselStep(1); return false;" aria-label="الشريحة التالية">
                         <i class="fas fa-chevron-left" aria-hidden="true"></i>
