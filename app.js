@@ -1512,7 +1512,8 @@ function renderHelpConfirmationBlock(msg, currentUserId) {
     const n = !!(msg.needyConfirmedAt);
     const d = !!(msg.donorConfirmedAt);
     const complete = msg.helpComplete || (n && d);
-    const midJs = JSON.stringify(String(msg.id));
+    /** للـ onclick: لا نستخدم JSON.stringify لأن " يكسر خاصية HTML المحددة بـ " */
+    const midSafe = String(msg.id).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
     if (complete) {
         let block = `
@@ -1546,7 +1547,7 @@ function renderHelpConfirmationBlock(msg, currentUserId) {
                     <i class="fas fa-hand-holding-heart"></i>
                     يُفضّل الضغط <strong>بعد</strong> أن يتم التبرع فعلياً أو بعد أن تتحقق أن المساعدة المتفق عليها تمت.
                 </p>
-                <button type="button" class="btn btn-confirm-needy" onclick="confirmHelpAsNeedy(${midJs})">
+                <button type="button" class="btn btn-confirm-needy" onclick="confirmHelpAsNeedy('${midSafe}')">
                     <i class="fas fa-check"></i> أؤكد أنني تلقيتُ المساعدة المتفق عليها
                 </button>`;
         } else {
@@ -1565,7 +1566,7 @@ function renderHelpConfirmationBlock(msg, currentUserId) {
                     <i class="fas fa-hand-holding-medical"></i>
                     اضغط بعد أن تكون قد نفّذت ما تعهدت به في هذا الطلب (مثلاً التبرع أو التنسيق كما اتفقتما).
                 </p>
-                <button type="button" class="btn btn-confirm-donor" onclick="confirmHelpAsDonor(${midJs})">
+                <button type="button" class="btn btn-confirm-donor" onclick="confirmHelpAsDonor('${midSafe}')">
                     <i class="fas fa-check"></i> أؤكد أنني نفّذتُ ما تعهدتُ به في هذا الطلب
                 </button>`;
         } else {
