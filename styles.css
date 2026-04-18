@@ -2761,6 +2761,45 @@ body {
     margin-right: auto;
 }
 
+/**
+ * تدرج لوني على النص — اتجاه الشاشة من اليسار إلى اليمين (90deg)
+ * مع حركة خفيفة للتدرج (يمكن إيقافها عند prefers-reduced-motion)
+ */
+.heroes-pc-gradient-ltr {
+    background-image: linear-gradient(
+        90deg,
+        #fffbeb 0%,
+        #ffffff 14%,
+        #fecdd3 38%,
+        #fb7185 55%,
+        #fda4af 72%,
+        #fff1f2 88%,
+        #fef3c7 100%
+    );
+    background-size: 240% 100%;
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    animation: heroesPcGradientSweep 16s ease-in-out infinite alternate;
+}
+
+.heroes-pc-gradient-ltr--body {
+    opacity: 1;
+    font-weight: 600;
+}
+
+@keyframes heroesPcGradientSweep {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
 /* شرائح «أبطال فاعلي الخير» — مثل البطاقة المرجعية + زر المعرض */
 .heroes-pc-overlay.heroes-pc-overlay--cta {
     background: linear-gradient(
@@ -3107,6 +3146,12 @@ a.heroes-pc-cta-btn:active {
 
     .heroes-pc-cta-icon {
         animation: none !important;
+    }
+
+    .heroes-pc-gradient-ltr {
+        animation: none !important;
+        background-size: 100% auto;
+        background-position: center;
     }
 
     .heroes-pc-content-inner {
