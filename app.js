@@ -456,7 +456,6 @@ function formatArNumber(n) {
 const MS_ANNOUNCEMENT_CAROUSEL = 6000;
 const MS_AWARENESS_CARD_TAGLINE = 6000;
 const MS_HERO_MAIN_SLIDER = 8000;
-const MS_HERO_IMAGES_SLIDER = 6500;
 const MS_GO_TO_SLIDE_RESUME = 5000;
 const MS_REGISTER_SUCCESS_QUOTE = 5500;
 /** فحص صندوق الرسائل + الشارة + إشعارات المتصفح — طلب واحد كل فترة (لا تكرار كل ثانيتين) */
@@ -816,10 +815,15 @@ function giveHeroGoTo(index) {
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         stopGiveHeroAutoplay();
+        stopHeroesCarouselAutoplay();
     } else {
         const home = document.getElementById('home');
         if (home && home.classList.contains('active')) {
             restartGiveHeroAutoplay();
+        }
+        const heroesPage = document.getElementById('heroes');
+        if (heroesPage && heroesPage.classList.contains('active')) {
+            restartHeroesCarouselAutoplay();
         }
     }
 });
@@ -2513,25 +2517,110 @@ function stopHeroesEncouragementRotation() {
     }
 }
 
-// إدارة سلايدر صور فاعلي الخير
-let heroImageSlide = 0;
-let heroImageInterval;
+// سلايدر صفحة فاعلو الخير — صور + آية + تلقائي ولمس
+const MS_HEROES_PAGE_CAROUSEL = 7200;
+let heroesCarouselIdx = 0;
+let heroesCarouselTimer = null;
+
+function heroesCarouselApplySlide(index) {
+    const root = document.getElementById('heroesPageCarousel');
+    if (!root) return;
+    const slides = root.querySelectorAll('.heroes-pc-slide');
+    const dots = root.querySelectorAll('.heroes-pc-dot');
+    if (slides.length === 0) return;
+    const n = slides.length;
+    const i = ((index % n) + n) % n;
+    slides.forEach((s, j) => {
+        const on = j === i;
+        s.classList.toggle('active', on);
+        s.setAttribute('aria-hidden', on ? 'false' : 'true');
+        const bg = s.querySelector('.heroes-pc-bg');
+        if (bg) {
+            bg.classList.toggle('heroes-pc-bg--animating', on && s.classList.contains('heroes-pc-slide--photo'));
+        }
+    });
+    dots.forEach((d, j) => {
+        d.classList.toggle('active', j === i);
+        d.setAttribute('aria-selected', j === i ? 'true' : 'false');
+    });
+    const cur = slides[i];
+    root.classList.toggle(
+        'heroes-page-carousel--verse',
+        !!(cur && cur.classList.contains('heroes-pc-slide--verse'))
+    );
+    heroesCarouselIdx = i;
+}
+
+function restartHeroesCarouselAutoplay() {
+    stopHeroesCarouselAutoplay();
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+    }
+    heroesCarouselTimer = setInterval(() => {
+        heroesCarouselApplySlide(heroesCarouselIdx + 1);
+    }, MS_HEROES_PAGE_CAROUSEL);
+}
+
+function stopHeroesCarouselAutoplay() {
+    if (heroesCarouselTimer) {
+        clearInterval(heroesCarouselTimer);
+        heroesCarouselTimer = null;
+    }
+}
+
+function heroesCarouselStep(delta) {
+    heroesCarouselApplySlide(heroesCarouselIdx + delta);
+    restartHeroesCarouselAutoplay();
+}
+
+function heroesCarouselGoTo(index) {
+    heroesCarouselApplySlide(index);
+    restartHeroesCarouselAutoplay();
+}
+
+function initHeroesCarouselTouchOnce() {
+    const root = document.getElementById('heroesPageCarousel');
+    if (!root || root.dataset.heroesTouchBound === '1') return;
+    root.dataset.heroesTouchBound = '1';
+    let startX = 0;
+    const threshold = 56;
+    root.addEventListener(
+        'touchstart',
+        (e) => {
+            if (e.changedTouches && e.changedTouches[0]) {
+                startX = e.changedTouches[0].screenX;
+            }
+        },
+        { passive: true }
+    );
+    root.addEventListener(
+        'touchend',
+        (e) => {
+            if (!e.changedTouches || !e.changedTouches[0]) return;
+            const endX = e.changedTouches[0].screenX;
+            const dx = endX - startX;
+            if (Math.abs(dx) < threshold) return;
+            if (dx < 0) {
+                heroesCarouselStep(1);
+            } else {
+                heroesCarouselStep(-1);
+            }
+        },
+        { passive: true }
+    );
+}
 
 function initHeroImagesSlider() {
-    const slides = document.querySelectorAll('.image-slide');
-    if (slides.length === 0) return;
-
-    heroImageInterval = setInterval(() => {
-        slides[heroImageSlide].classList.remove('active');
-        heroImageSlide = (heroImageSlide + 1) % slides.length;
-        slides[heroImageSlide].classList.add('active');
-    }, MS_HERO_IMAGES_SLIDER);
+    const root = document.getElementById('heroesPageCarousel');
+    if (!root) return;
+    stopHeroesCarouselAutoplay();
+    initHeroesCarouselTouchOnce();
+    heroesCarouselApplySlide(0);
+    restartHeroesCarouselAutoplay();
 }
 
 function stopHeroImagesSlider() {
-    if (heroImageInterval) {
-        clearInterval(heroImageInterval);
-    }
+    stopHeroesCarouselAutoplay();
 }
 
 function heroPhotoFallbackDataUrl(name) {

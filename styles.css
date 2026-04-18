@@ -2523,68 +2523,356 @@ body {
     z-index: 1;
 }
 
-/* سلايدر الصور */
-.heroes-images-slider {
+/* سلايدر صفحة فاعلو الخير — صور + نصوص + Ken Burns */
+.heroes-page-carousel {
+    --heroes-pc-overlay: rgba(115, 24, 38, 0.58);
     position: relative;
-    height: 300px;
-    margin: 2rem 0;
-    border-radius: 15px;
+    width: 100%;
+    margin: 2rem 0 0;
+    min-height: min(42vh, 400px);
+    max-height: 440px;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.12),
+        0 0 0 1px rgba(220, 53, 69, 0.1);
+    font-family: 'Tajawal', sans-serif;
+    touch-action: pan-y pinch-zoom;
+    isolation: isolate;
+}
+
+.heroes-pc-floats {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 4;
     overflow: hidden;
 }
 
-.image-slide {
+.heroes-pc-float {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
+    border-radius: 50%;
+    filter: blur(42px);
+    opacity: 0.28;
+    animation: heroesPcFloat 18s ease-in-out infinite;
 }
 
-.image-slide.active {
+.heroes-pc-float--1 {
+    width: 140px;
+    height: 140px;
+    background: rgba(255, 255, 255, 0.5);
+    top: 10%;
+    right: 6%;
+}
+
+.heroes-pc-float--2 {
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 180, 190, 0.45);
+    bottom: 12%;
+    left: 4%;
+    animation-delay: -5s;
+}
+
+.heroes-pc-float--3 {
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.4);
+    top: 52%;
+    right: 20%;
+    animation-delay: -10s;
+}
+
+@keyframes heroesPcFloat {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+    40% {
+        transform: translate(-14px, 12px) scale(1.04);
+    }
+    70% {
+        transform: translate(10px, -8px) scale(0.97);
+    }
+}
+
+.heroes-pc-slides {
+    position: relative;
+    width: 100%;
+    height: min(42vh, 400px);
+    min-height: 260px;
+}
+
+.heroes-pc-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    transition: opacity 0.88s cubic-bezier(0.33, 1, 0.68, 1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.heroes-pc-slide.active {
     opacity: 1;
     z-index: 2;
+    pointer-events: auto;
 }
 
-.hero-image-placeholder {
-    width: 100%;
-    height: 100%;
+.heroes-pc-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transform: translateZ(0) scale(1);
+    backface-visibility: hidden;
+}
+
+.heroes-pc-slide--photo.active .heroes-pc-bg.heroes-pc-bg--animating {
+    will-change: transform;
+    animation: heroesPcKenBurns 16s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+@keyframes heroesPcKenBurns {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+.heroes-pc-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, var(--heroes-pc-overlay) 0%, rgba(40, 10, 18, 0.35) 100%);
+    z-index: 1;
+}
+
+.heroes-pc-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #fff;
+    padding: clamp(1rem, 4vw, 2rem);
+    max-width: 38rem;
+    text-shadow: 0 2px 22px rgba(0, 0, 0, 0.45);
+}
+
+.heroes-pc-title {
+    font-size: clamp(1.45rem, 4.5vw, 2.35rem);
+    font-weight: 800;
+    margin: 0 0 0.75rem;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+}
+
+.heroes-pc-text {
+    font-size: clamp(0.98rem, 2.6vw, 1.28rem);
+    font-weight: 400;
+    line-height: 1.85;
+    margin: 0;
+    opacity: 0.97;
+}
+
+/* شريحة الآية */
+.heroes-pc-slide--verse .heroes-pc-bg--verse {
+    background: linear-gradient(148deg, #fff8f8 0%, #fff2f4 45%, #ffeef2 100%);
+    background-size: 200% 200%;
+    animation: heroesPcVerseBg 14s ease-in-out infinite;
+}
+
+@keyframes heroesPcVerseBg {
+    0%,
+    100% {
+        background-position: 0% 45%;
+    }
+    50% {
+        background-position: 100% 55%;
+    }
+}
+
+.heroes-pc-overlay--verse {
+    background: linear-gradient(180deg, rgba(255, 248, 249, 0.2) 0%, rgba(255, 228, 234, 0.5) 100%);
+}
+
+.heroes-pc-content--verse {
+    color: var(--primary-red-dark);
+    text-shadow: none;
+}
+
+.heroes-pc-verse-icon {
+    margin: 0 auto 1rem;
+    font-size: 2.75rem;
+    color: #c41e3a;
+    animation: heroesPcVerseIcon 2.6s ease-in-out infinite;
+}
+
+@keyframes heroesPcVerseIcon {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.06);
+        opacity: 0.92;
+    }
+}
+
+.heroes-pc-verse-quote {
+    margin: 0 0 0.85rem;
+    font-size: clamp(1.15rem, 3.6vw, 1.75rem);
+    font-weight: 800;
+    line-height: 1.9;
+    color: var(--primary-red);
+}
+
+.heroes-pc-verse-ref {
+    margin: 0;
+    font-size: clamp(0.88rem, 2.2vw, 1.05rem);
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.heroes-pc-dots {
+    position: absolute;
+    bottom: 0.55rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    gap: 0.2rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: calc(100% - 5rem);
+}
+
+.heroes-pc-dot {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.heroes-pc-dot::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    box-sizing: border-box;
+    background: transparent;
+    transition:
+        transform 0.22s cubic-bezier(0.33, 1, 0.68, 1),
+        background 0.22s ease;
+}
+
+.heroes-pc-dot.active::before {
+    background: #fff;
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+.heroes-page-carousel.heroes-page-carousel--verse .heroes-pc-dot::before {
+    border-color: rgba(220, 53, 69, 0.45);
+}
+
+.heroes-page-carousel.heroes-page-carousel--verse .heroes-pc-dot.active::before {
+    background: var(--primary-red);
+    border-color: var(--primary-red);
+}
+
+.heroes-pc-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    min-width: 44px;
+    min-height: 44px;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
-    border-radius: 15px;
-    position: relative;
-    overflow: hidden;
+    transition:
+        background 0.22s ease,
+        transform 0.2s ease;
+    backdrop-filter: blur(8px);
 }
 
-.hero-image-placeholder::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="%23dc3545" stroke-width="2" opacity="0.3"/></svg>');
-    background-size: 200px 200px;
-    animation: float 6s ease-in-out infinite;
+.heroes-pc-arrow:hover {
+    background: rgba(255, 255, 255, 0.38);
 }
 
-.hero-image-placeholder i {
-    font-size: 8rem;
-    color: var(--primary-red);
-    opacity: 0.3;
-    z-index: 1;
-    animation: iconPulse 3s ease-in-out infinite;
+.heroes-pc-arrow:active {
+    transform: translateY(-50%) scale(0.96);
 }
 
-@keyframes iconPulse {
-    0%, 100% { transform: scale(1); opacity: 0.3; }
-    50% { transform: scale(1.1); opacity: 0.5; }
+.heroes-pc-arrow--next {
+    left: 0.55rem;
 }
 
-.image-1 { background: linear-gradient(135deg, rgba(255, 182, 193, 0.3) 0%, rgba(255, 192, 203, 0.1) 100%); }
-.image-2 { background: linear-gradient(135deg, rgba(255, 160, 122, 0.3) 0%, rgba(255, 182, 193, 0.1) 100%); }
-.image-3 { background: linear-gradient(135deg, rgba(255, 105, 180, 0.3) 0%, rgba(255, 182, 193, 0.1) 100%); }
-.image-4 { background: linear-gradient(135deg, rgba(255, 20, 147, 0.3) 0%, rgba(255, 182, 193, 0.1) 100%); }
-.image-5 { background: linear-gradient(135deg, rgba(220, 53, 69, 0.3) 0%, rgba(255, 182, 193, 0.1) 100%); }
+.heroes-pc-arrow--prev {
+    right: 0.55rem;
+}
+
+.heroes-page-carousel.heroes-page-carousel--verse .heroes-pc-arrow {
+    background: rgba(220, 53, 69, 0.14);
+    color: var(--primary-red-dark);
+}
+
+.heroes-page-carousel.heroes-page-carousel--verse .heroes-pc-arrow:hover {
+    background: rgba(220, 53, 69, 0.28);
+}
+
+@media (max-width: 768px) {
+    .heroes-pc-arrow {
+        background: rgba(0, 0, 0, 0.28);
+    }
+
+    .heroes-page-carousel.heroes-page-carousel--verse .heroes-pc-arrow {
+        background: rgba(220, 53, 69, 0.22);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .heroes-pc-slide {
+        transition: opacity 0.25s ease;
+    }
+
+    .heroes-pc-slide--photo.active .heroes-pc-bg {
+        animation: none !important;
+    }
+
+    .heroes-pc-slide--verse .heroes-pc-bg--verse {
+        animation: none;
+    }
+
+    .heroes-pc-float {
+        animation: none;
+        opacity: 0.15;
+    }
+
+    .heroes-pc-verse-icon {
+        animation: none;
+    }
+}
 
 /* دعاء للمتبرعين */
 .prayer-section {
@@ -2854,18 +3142,12 @@ body {
     margin-bottom: 0.75rem;
 }
 
-.heroes-gallery-lead,
-.heroes-gallery-photo-hint {
+.heroes-gallery-lead {
     max-width: 44rem;
     margin: 0.5rem auto 0;
     font-size: 0.98rem;
     line-height: 1.75;
     color: #4a4d5c;
-}
-
-.heroes-gallery-photo-hint {
-    font-size: 0.9rem;
-    color: var(--gray);
 }
 
 .heroes-grid--gallery {
