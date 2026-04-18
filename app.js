@@ -733,7 +733,10 @@ function giveHeroApplySlide(index) {
         s.setAttribute('aria-hidden', on ? 'false' : 'true');
         const bg = s.querySelector('.give-slide-bg');
         if (bg) {
-            bg.classList.toggle('give-slide-bg--animating', on && s.classList.contains('give-slide--photo'));
+            bg.classList.toggle(
+                'give-slide-bg--animating',
+                on && s.classList.contains('give-slide--photo') && !s.classList.contains('give-slide--full-banner')
+            );
         }
     });
     dots.forEach((d, j) => {
