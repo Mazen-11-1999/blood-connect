@@ -24,6 +24,27 @@ const uploadAvatar = multer({
     }
 });
 
+function normalizePhone(raw) {
+    const input = String(raw || '').trim();
+    if (!input) return '';
+
+    // إزالة أي محارف غير رقمية مع الإبقاء على + في البداية إن وُجد.
+    let s = input.replace(/[^\d+]/g, '');
+    if (s.startsWith('00')) s = `+${s.slice(2)}`;
+
+    // استخراج الأرقام فقط لبقية حالات التطبيع.
+    const digits = s.replace(/\D/g, '');
+    if (!digits) return '';
+
+    // تطبيع شائع لليمن: 7XXXXXXXX -> +9677XXXXXXXX أو 0XXXXXXXXX -> +967XXXXXXXXX
+    if (digits.startsWith('967')) return `+${digits}`;
+    if (digits.startsWith('0')) return `+967${digits.slice(1)}`;
+    if (digits.startsWith('7') && digits.length === 9) return `+967${digits}`;
+
+    // احتياطي عام: رقم دولي مع +
+    return `+${digits}`;
+}
+
 function publicUser(user) {
     return {
         id: user.id,
@@ -93,6 +114,15 @@ router.post('/register', [
             return res.status(400).json({ error: 'User already exists' });
         }
 
+        const normalizedPhone = normalizePhone(phone);
+        if (normalizedPhone) {
+            const users = await dataAccess.findAllUsers();
+            const phoneTaken = users.some(u => normalizePhone(u.phone) === normalizedPhone);
+            if (phoneTaken) {
+                return res.status(400).json({ error: 'رقم الهاتف مستخدم بالفعل بحساب آخر' });
+            }
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = {
@@ -103,7 +133,7 @@ router.post('/register', [
             bloodType,
             governorate,
             region,
-            phone: phone || '',
+            phone: normalizedPhone,
             showPhone: !!showPhone,
             age: age != null ? parseInt(age, 10) : null,
             hasHealthCondition: !!hasHealthCondition,
@@ -212,6 +242,20 @@ router.put('/profile', authenticateToken, [
         allowed.forEach(key => {
             if (req.body[key] !== undefined) updates[key] = req.body[key];
         });
+
+        if (updates.phone !== undefined) {
+            const normalizedPhone = normalizePhone(updates.phone);
+            updates.phone = normalizedPhone;
+            if (normalizedPhone) {
+                const users = await dataAccess.findAllUsers();
+                const phoneTaken = users.some(
+                    u => u.id !== req.userId && normalizePhone(u.phone) === normalizedPhone
+                );
+                if (phoneTaken) {
+                    return res.status(400).json({ error: 'رقم الهاتف مستخدم بالفعل بحساب آخر' });
+                }
+            }
+        }
 
         const updated = await dataAccess.updateUser(req.userId, updates);
         res.json({
