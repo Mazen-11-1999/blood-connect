@@ -2057,7 +2057,7 @@ async function deleteAccount() {
 
     try {
         await dataManager.deleteAccount();
-        alert('✅ تم حذف الحساب وجميع الرسائل المرتبطة به من الخادم.');
+        alert('✅ تم تأكيد حذف حسابك وجميع الرسائل بنجاح.');
         showPage('home', null);
         await updateHomeStats();
         dataManager.updateMessageCount();
