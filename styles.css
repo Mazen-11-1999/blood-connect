@@ -220,19 +220,27 @@ body {
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
 }
 
 .nav-link {
     color: var(--white);
     text-decoration: none;
-    padding: 8px 15px;
+    padding: 8px 12px;
     border-radius: 5px;
-    transition: background 0.3s;
+    transition:
+        background 0.28s ease,
+        transform 0.24s ease;
     position: relative;
+    font-size: 0.97rem;
+    font-weight: 600;
+    line-height: 1.2;
 }
 
 .nav-link:hover {
     background: rgba(255,255,255,0.2);
+    transform: translateY(-1px);
 }
 
 .nav-link.active {
@@ -250,6 +258,14 @@ body {
 
 /* سطح المكتب: كل الروابط في صف واحد — المزيد داخل غلاف شفاف */
 @media (min-width: 769px) {
+    .navbar .container.navbar-container {
+        gap: 0.65rem 1.2rem;
+    }
+
+    .nav-links {
+        gap: 8px 6px;
+    }
+
     .nav-links-rest {
         display: contents;
     }
@@ -412,7 +428,7 @@ body {
 }
 
 .give-slide--full-banner.active .give-slide-bg {
-    transform: scale(1.01);
+    transform: translateY(var(--give-scroll-shift, 0px)) scale(1.012);
     filter: saturate(1.08) contrast(1.03);
 }
 

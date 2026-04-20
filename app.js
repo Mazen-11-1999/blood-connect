@@ -718,6 +718,8 @@ function stopHomeSpiritQuoteRotation() {
 /** سلايدر العطاء — أعلى الصفحة الرئيسية */
 let giveHeroSlideIdx = 0;
 let giveHeroTimer = null;
+let giveHeroScrollBound = false;
+let giveHeroScrollRaf = 0;
 
 function giveHeroApplySlide(index) {
     const root = document.getElementById('giveHeroSlider');
@@ -797,10 +799,36 @@ function initGiveHeroTouchOnce() {
     );
 }
 
+function bindGiveHeroScrollEffect() {
+    const root = document.getElementById('giveHeroSlider');
+    if (!root || giveHeroScrollBound) return;
+    giveHeroScrollBound = true;
+
+    const updateShift = () => {
+        giveHeroScrollRaf = 0;
+        const rect = root.getBoundingClientRect();
+        const viewportH = window.innerHeight || document.documentElement.clientHeight || 1;
+        const centerDelta = rect.top + rect.height / 2 - viewportH / 2;
+        const maxShift = 16;
+        const shift = Math.max(-maxShift, Math.min(maxShift, (-centerDelta / viewportH) * 22));
+        root.style.setProperty('--give-scroll-shift', `${shift.toFixed(2)}px`);
+    };
+
+    const onScrollLike = () => {
+        if (giveHeroScrollRaf) return;
+        giveHeroScrollRaf = requestAnimationFrame(updateShift);
+    };
+
+    window.addEventListener('scroll', onScrollLike, { passive: true });
+    window.addEventListener('resize', onScrollLike);
+    updateShift();
+}
+
 function initGiveHeroSlider() {
     const root = document.getElementById('giveHeroSlider');
     if (!root) return;
     initGiveHeroTouchOnce();
+    bindGiveHeroScrollEffect();
     if (root.dataset.giveNavBound !== '1') {
         root.dataset.giveNavBound = '1';
         root.addEventListener('mouseenter', stopGiveHeroAutoplay);
