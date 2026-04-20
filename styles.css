@@ -376,7 +376,10 @@ body {
     z-index: 0;
     pointer-events: none;
     contain: layout style;
-    transition: opacity 0.85s cubic-bezier(0.33, 1, 0.68, 1);
+    transform: translateX(14px) scale(0.992);
+    transition:
+        opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -386,6 +389,7 @@ body {
     opacity: 1;
     z-index: 2;
     pointer-events: auto;
+    transform: translateX(0) scale(1);
 }
 
 .give-slide-bg {
@@ -403,6 +407,13 @@ body {
     background-position: center center;
     background-repeat: no-repeat;
     background-color: #fdf2f4;
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), filter 0.9s ease;
+    filter: saturate(1.03) contrast(1.01);
+}
+
+.give-slide--full-banner.active .give-slide-bg {
+    transform: scale(1.01);
+    filter: saturate(1.08) contrast(1.03);
 }
 
 .give-slide--photo.active .give-slide-bg.give-slide-bg--animating {
@@ -586,13 +597,13 @@ body {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 10px;
+    width: 9px;
     height: 10px;
     transform: translate(-50%, -50%);
     border-radius: 50%;
     border: 2px solid rgba(255, 255, 255, 0.88);
     box-sizing: border-box;
-    background: transparent;
+    background: rgba(255, 255, 255, 0.08);
     transition:
         transform 0.22s cubic-bezier(0.33, 1, 0.68, 1),
         background 0.22s ease,
@@ -600,8 +611,10 @@ body {
 }
 
 .give-hero-dot.active::before {
+    width: 22px;
+    border-radius: 999px;
     background: #fff;
-    transform: translate(-50%, -50%) scale(1.18);
+    transform: translate(-50%, -50%) scale(1);
 }
 
 .give-hero-slider--verse .give-hero-dot::before {

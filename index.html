@@ -64,7 +64,7 @@
     <!-- الصفحة الرئيسية -->
     <div id="home" class="page active">
         <!-- سلايدر العطاء — خلفيات صور + حركة + آية -->
-        <section class="give-hero-slider" id="giveHeroSlider" aria-roledescription="carousel" aria-label="سلايدر العطاء والتشجيع">
+        <section class="give-hero-slider" id="giveHeroSlider" aria-roledescription="carousel" aria-label="سلايدر العطاء والتشجيع" tabindex="0">
             <div class="give-hero-float" aria-hidden="true">
                 <span class="give-float give-float--1"></span>
                 <span class="give-float give-float--2"></span>
@@ -120,25 +120,11 @@
                     </div>
                 </article>
                 <article class="give-slide give-slide--photo give-slide--full-banner" data-index="6" aria-hidden="true">
-                    <div class="give-slide-bg" style="background-image:url('images/slaydertta.png');"></div>
+                    <div class="give-slide-bg" style="background-image:url('images/slaydertta.jfif');"></div>
                     <div class="give-slide-overlay"></div>
                     <div class="give-slide-content">
                         <h2 class="give-slide-title">شراكةُ الأمل</h2>
                         <p class="give-slide-text">فاعلو الخير هم عنوانُ الكرم، وعمادُ الإنسانية. نصوصنا تُكتب بأثر أفعالكم، وتأكيدنا المزدوج هو نبض يجمعنا.</p>
-                    </div>
-                </article>
-                <article class="give-slide give-slide--verse" data-index="7" aria-hidden="true">
-                    <div class="give-slide-bg give-slide-bg--verse"></div>
-                    <div class="give-slide-overlay give-slide-overlay--verse"></div>
-                    <div class="give-slide-content give-slide-content--verse">
-                        <div class="give-verse-icon" aria-hidden="true">
-                            <i class="fas fa-gift"></i>
-                            <i class="fas fa-heart give-verse-heart"></i>
-                        </div>
-                        <blockquote class="give-verse-quote" cite="القرآن الكريم">
-                            <span class="give-verse-mark">«</span>وَمَنْ أَحْيَاهَا فَكَأَنَّمَا أَحْيَا النَّاسَ جَمِيعًا<span class="give-verse-mark">»</span>
-                        </blockquote>
-                        <p class="give-verse-ref">القرآن الكريم — سورة المائدة</p>
                     </div>
                 </article>
             </div>
@@ -150,7 +136,6 @@
                 <button type="button" class="give-hero-dot" onclick="giveHeroGoTo(4); return false;" role="tab" aria-selected="false" aria-label="شريحة 5"></button>
                 <button type="button" class="give-hero-dot" onclick="giveHeroGoTo(5); return false;" role="tab" aria-selected="false" aria-label="شريحة 6"></button>
                 <button type="button" class="give-hero-dot" onclick="giveHeroGoTo(6); return false;" role="tab" aria-selected="false" aria-label="شريحة 7"></button>
-                <button type="button" class="give-hero-dot" onclick="giveHeroGoTo(7); return false;" role="tab" aria-selected="false" aria-label="شريحة الآية"></button>
             </div>
             <button type="button" class="give-hero-arrow give-hero-arrow--next" onclick="giveHeroStep(1); return false;" aria-label="الشريحة التالية">
                 <i class="fas fa-chevron-left" aria-hidden="true"></i>

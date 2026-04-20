@@ -801,6 +801,37 @@ function initGiveHeroSlider() {
     const root = document.getElementById('giveHeroSlider');
     if (!root) return;
     initGiveHeroTouchOnce();
+    if (root.dataset.giveNavBound !== '1') {
+        root.dataset.giveNavBound = '1';
+        root.addEventListener('mouseenter', stopGiveHeroAutoplay);
+        root.addEventListener('mouseleave', restartGiveHeroAutoplay);
+        root.addEventListener('focusin', stopGiveHeroAutoplay);
+        root.addEventListener('focusout', restartGiveHeroAutoplay);
+        root.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                giveHeroStep(1);
+                return;
+            }
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                giveHeroStep(-1);
+                return;
+            }
+            if (e.key === 'Home') {
+                e.preventDefault();
+                giveHeroGoTo(0);
+                return;
+            }
+            if (e.key === 'End') {
+                e.preventDefault();
+                const slides = root.querySelectorAll('.give-slide');
+                if (slides.length > 0) {
+                    giveHeroGoTo(slides.length - 1);
+                }
+            }
+        });
+    }
     giveHeroApplySlide(0);
     restartGiveHeroAutoplay();
 }
