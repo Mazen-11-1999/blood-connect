@@ -383,12 +383,13 @@
             <form id="loginForm" class="form-container">
                 <div class="form-group">
                     <label for="loginEmail"><i class="fas fa-envelope"></i> البريد الإلكتروني *</label>
-                    <input type="email" id="loginEmail" required autocomplete="username" dir="ltr"
+                    <input type="email" id="loginEmail" name="email" required autocomplete="email" dir="ltr"
                         style="text-align:left">
                 </div>
                 <div class="form-group">
                     <label for="loginPassword"><i class="fas fa-lock"></i> كلمة المرور *</label>
-                    <input type="password" id="loginPassword" required autocomplete="current-password">
+                    <input type="password" id="loginPassword" name="password" required
+                        autocomplete="current-password">
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">
                     <i class="fas fa-sign-in-alt"></i> دخول
@@ -412,23 +413,25 @@
             <form id="registerForm" class="form-container">
                 <div class="form-group">
                     <label for="fullName"><i class="fas fa-user"></i> الاسم الكامل *</label>
-                    <input type="text" id="fullName" required>
+                    <input type="text" id="fullName" name="name" required autocomplete="name">
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="email"><i class="fas fa-envelope"></i> البريد الإلكتروني *</label>
-                        <input type="email" id="email" required autocomplete="email" dir="ltr" style="text-align:left">
+                        <input type="email" id="email" name="email" required autocomplete="email" dir="ltr"
+                            style="text-align:left">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="password"><i class="fas fa-lock"></i> كلمة المرور *</label>
-                        <input type="password" id="password" minlength="6" required autocomplete="new-password">
+                        <input type="password" id="password" name="password" minlength="6" required
+                            autocomplete="new-password">
                     </div>
                     <div class="form-group">
                         <label for="confirmPassword"><i class="fas fa-lock"></i> تأكيد كلمة المرور *</label>
-                        <input type="password" id="confirmPassword" minlength="6" required
+                        <input type="password" id="confirmPassword" name="confirmPassword" minlength="6" required
                             autocomplete="new-password">
                     </div>
                 </div>
@@ -436,11 +439,11 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="age"><i class="fas fa-birthday-cake"></i> العمر *</label>
-                        <input type="number" id="age" min="18" max="65" required>
+                        <input type="number" id="age" name="age" min="18" max="65" required autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label for="bloodType"><i class="fas fa-tint"></i> فصيلة الدم *</label>
-                        <select id="bloodType" required>
+                        <select id="bloodType" name="bloodType" required autocomplete="off">
                             <option value="">اختر فصيلة الدم</option>
                             <option value="A+">A+</option>
                             <option value="A-">A-</option>
@@ -457,36 +460,37 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="governorate"><i class="fas fa-map"></i> المحافظة *</label>
-                        <select id="governorate" required>
+                        <select id="governorate" name="governorate" required autocomplete="address-level1">
                             <option value="">جاري التحميل…</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="region"><i class="fas fa-map-marker-alt"></i> المنطقة *</label>
-                        <input type="text" id="region" required autocomplete="off">
+                        <input type="text" id="region" name="region" required autocomplete="address-level2">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="phone"><i class="fas fa-phone"></i> رقم الهاتف (اختياري)</label>
-                    <input type="tel" id="phone" placeholder="سيتم استخدامه للتواصل عند الحاجة">
+                    <input type="tel" id="phone" name="phone" placeholder="سيتم استخدامه للتواصل عند الحاجة"
+                        autocomplete="tel">
                     <small class="form-hint">يمكنك إخفاء رقمك في الإعدادات</small>
                 </div>
 
                 <div class="form-group">
                     <label for="avatarUrl"><i class="fas fa-image"></i> رابط صورة العرض (اختياري)</label>
-                    <input type="url" id="avatarUrl" dir="ltr" style="text-align:left" maxlength="2000"
-                        placeholder="https://… صورة تظهر في «فاعلو الخير» بعد التأكيد المزدوج">
+                    <input type="url" id="avatarUrl" name="avatarUrl" dir="ltr" style="text-align:left" maxlength="2000"
+                        placeholder="https://… صورة تظهر في «فاعلو الخير» بعد التأكيد المزدوج" autocomplete="url">
                     <small class="form-hint">رابط صورة عامة (مثلاً من موقع صور). تُعرض فقط لمن اكتمل تأكيد المحتاج والمتبرع في الرسائل.</small>
                 </div>
 
                 <!-- الحالة الصحية -->
                 <div class="form-group health-section"
                     style="border-top: 3px solid #dc3545; padding-top: 1.5rem; margin-top: 1.5rem; background: #fff5f5; padding: 1.5rem; border-radius: 8px; border-right: 4px solid #dc3545;">
-                    <label
-                        style="font-weight: bold; color: var(--primary-red); margin-bottom: 1rem; display: block; font-size: 1.2rem;">
-                        <i class="fas fa-heartbeat" style="margin-left: 8px;"></i> الحالة الصحية
-                    </label>
+                    <div class="health-section-heading"
+                        style="display: block; font-weight: bold; color: var(--primary-red); margin-bottom: 1rem; font-size: 1.2rem;">
+                        <i class="fas fa-heartbeat" style="margin-left: 8px;" aria-hidden="true"></i> الحالة الصحية
+                    </div>
 
                     <div class="form-group" style="margin-bottom: 1rem;">
                         <label for="hasHealthCondition"
@@ -494,8 +498,10 @@
                             <i class="fas fa-question-circle" style="color: var(--primary-red); margin-left: 5px;"></i>
                             هل تعاني من أي أمراض مزمنة أو حالات صحية؟ *
                         </label>
-                        <select id="hasHealthCondition" required onchange="toggleHealthDetails()"
-                            style="margin-top: 0.5rem; width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                        <select id="hasHealthCondition" name="hasHealthCondition" required
+                            onchange="toggleHealthDetails()"
+                            style="margin-top: 0.5rem; width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1rem;"
+                            autocomplete="off">
                             <option value="">اختر الإجابة</option>
                             <option value="no">لا، أنا بصحة جيدة</option>
                             <option value="yes">نعم، لدي حالة صحية</option>
@@ -504,10 +510,11 @@
 
                     <div id="healthDetailsSection" style="display: none;">
                         <div class="form-group">
-                            <label style="font-weight: bold; margin-bottom: 0.8rem; display: block;">
-                                <i class="fas fa-stethoscope" style="color: var(--primary-red); margin-left: 5px;"></i>
+                            <p class="health-conditions-lead" style="font-weight: bold; margin-bottom: 0.8rem;">
+                                <i class="fas fa-stethoscope" style="color: var(--primary-red); margin-left: 5px;"
+                                    aria-hidden="true"></i>
                                 اختر الأمراض التي تعاني منها (يمكن اختيار أكثر من مرض):
-                            </label>
+                            </p>
                             <div class="health-conditions-grid">
                                 <label class="checkbox-label">
                                     <input type="checkbox" name="healthConditions" value="diabetes">
@@ -561,7 +568,7 @@
                                 <i class="fas fa-comment-medical"></i> رسالة اختيارية: إذا تريد أن تتحدث عن مرض تعانيه
                                 أو أي معلومات صحية إضافية
                             </label>
-                            <textarea id="healthNotes" rows="4"
+                            <textarea id="healthNotes" name="healthNotes" rows="4" autocomplete="off"
                                 placeholder="اكتب هنا أي معلومات صحية تريد مشاركتها، مثل: تفاصيل عن حالتك الصحية، الأدوية التي تتناولها، تاريخ المرض، أو أي معلومات مهمة أخرى..."></textarea>
                             <small class="form-hint">هذه المعلومات اختيارية وستساعد في تحديد مدى أهليتك للتبرع
                                 بالدم</small>
@@ -569,18 +576,14 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="privacySettings" checked>
-                        <span>إظهار رقمي للمستخدمين الآخرين (يمكن تغييره لاحقاً)</span>
-                    </label>
+                <div class="form-group form-group--checkbox-inline">
+                    <input type="checkbox" id="privacySettings" name="privacySettings" checked>
+                    <label for="privacySettings">إظهار رقمي للمستخدمين الآخرين (يمكن تغييره لاحقاً)</label>
                 </div>
 
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="agreeTerms" required>
-                        <span>أوافق على الشروط والأحكام *</span>
-                    </label>
+                <div class="form-group form-group--checkbox-inline">
+                    <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
+                    <label for="agreeTerms">أوافق على الشروط والأحكام *</label>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block">
@@ -602,7 +605,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="searchBloodType"><i class="fas fa-tint"></i> فصيلة الدم المطلوبة</label>
-                        <select id="searchBloodType">
+                        <select id="searchBloodType" name="searchBloodType" autocomplete="off">
                             <option value="">جميع الفصائل</option>
                             <option value="A+">A+</option>
                             <option value="A-">A-</option>
@@ -616,19 +619,20 @@
                     </div>
                     <div class="form-group">
                         <label for="searchGovernorate"><i class="fas fa-map"></i> المحافظة</label>
-                        <select id="searchGovernorate">
+                        <select id="searchGovernorate" name="searchGovernorate" autocomplete="address-level1">
                             <option value="">جميع المحافظات</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="searchAge"><i class="fas fa-birthday-cake"></i> العمر</label>
-                        <input type="number" id="searchAge" min="18" max="65" placeholder="جميع الأعمار">
+                        <input type="number" id="searchAge" name="searchAge" min="18" max="65"
+                            placeholder="جميع الأعمار" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="searchRegion"><i class="fas fa-map-marker-alt"></i> المنطقة</label>
-                        <input type="text" id="searchRegion">
+                        <input type="text" id="searchRegion" name="searchRegion" autocomplete="address-level2">
                     </div>
                 </div>
                 <button onclick="searchDonors()" class="btn btn-primary">
@@ -897,16 +901,15 @@
             <form id="messageForm">
                 <input type="hidden" id="recipientId">
                 <div class="form-group">
-                    <label>إلى: <span id="recipientName"></span></label>
+                    <p class="message-recipient-line" id="messageRecipientLine"><strong>إلى:</strong> <span
+                            id="recipientName"></span></p>
                 </div>
 
                 <!-- حالة الطوارئ -->
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="isUrgent">
-                        <span style="color: var(--primary-red); font-weight: bold;">
-                            <i class="fas fa-exclamation-triangle"></i> حالة طارئة - أحتاج التواصل فوراً
-                        </span>
+                <div class="form-group form-group--checkbox-inline">
+                    <input type="checkbox" id="isUrgent" name="isUrgent">
+                    <label for="isUrgent" style="color: var(--primary-red); font-weight: bold;">
+                        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> حالة طارئة - أحتاج التواصل فوراً
                     </label>
                 </div>
 
@@ -915,13 +918,13 @@
                     <label for="neededDateTime">
                         <i class="fas fa-clock"></i> وقت الحاجة (اختياري)
                     </label>
-                    <input type="datetime-local" id="neededDateTime">
+                    <input type="datetime-local" id="neededDateTime" name="neededDateTime" autocomplete="off">
                     <small class="form-hint">حدد التاريخ والوقت الذي تحتاج فيه الدم</small>
                 </div>
 
                 <div class="form-group">
                     <label for="messageText">الرسالة *</label>
-                    <textarea id="messageText" rows="5" required
+                    <textarea id="messageText" name="messageText" rows="5" required autocomplete="off"
                         placeholder="اكتب رسالتك هنا... مثال: أحتاج فصيلة دم O+ في أقرب وقت ممكن"></textarea>
                 </div>
 
@@ -932,7 +935,8 @@
                         <i class="fas fa-phone"></i> رقم هاتفي للتواصل
                         <span id="phoneRequired" style="color: var(--primary-red); display: none;">*</span>
                     </label>
-                    <input type="tel" id="messagePhone" placeholder="مهم: ضع رقمك للتواصل الفوري">
+                    <input type="tel" id="messagePhone" name="messagePhone"
+                        placeholder="مهم: ضع رقمك للتواصل الفوري" autocomplete="tel">
                     <small class="form-hint" id="phoneHint">
                         يرجى وضع رقمك للسماح للمتبرع بالتواصل معك مباشرة
                     </small>

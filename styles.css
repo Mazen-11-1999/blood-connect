@@ -2237,6 +2237,35 @@ body {
     margin-left: 10px;
 }
 
+/* checkbox ثم label (for) — إتاحة + تنسيق */
+.form-group--checkbox-inline {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.form-group--checkbox-inline input[type="checkbox"] {
+    width: auto;
+    min-width: 1.15rem;
+    min-height: 1.15rem;
+    margin: 0.2rem 0 0;
+    flex-shrink: 0;
+    accent-color: var(--primary-red);
+}
+
+.form-group--checkbox-inline > label {
+    display: block;
+    margin-bottom: 0;
+    font-weight: 600;
+    flex: 1;
+}
+
+.message-recipient-line {
+    margin: 0;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
 .health-conditions-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
