@@ -463,25 +463,35 @@ body {
 .give-slide-bg {
     position: absolute;
     inset: 0;
-    background-size: cover;
-    background-position: center;
-    transform: translateZ(0) scale(1);
     backface-visibility: hidden;
 }
 
-/* بانرات كاملة: إظهار الصورة دون قصّ — يُفضّل تصدير الصور بـ 3000×600 لملء الإطار بدون هامش */
-.give-slide--full-banner .give-slide-bg {
-    background-size: contain;
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-color: #fdf2f4;
-    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), filter 0.9s ease;
-    filter: saturate(1.03) contrast(1.01);
+/* خلفية قديمة (صورة غير مضمّنة كـ img) */
+.give-slide-bg:not(.give-slide-bg--img) {
+    background-size: cover;
+    background-position: center;
+    transform: translateZ(0) scale(1);
 }
 
-.give-slide--full-banner.active .give-slide-bg {
-    transform: translateY(var(--give-scroll-shift, 0px)) scale(1.012);
-    filter: saturate(1.08) contrast(1.03);
+/* بانر كامل: <img> + object-fit — أدق من background على الشاشات عالية الكثافة؛ صدّر 3000×600 أو 6000×1200 */
+.give-slide--full-banner .give-slide-bg--img {
+    background-color: #fdf2f4;
+    overflow: hidden;
+}
+
+.give-slide--full-banner .give-slide-bg-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    transform: translateZ(0);
+    transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    image-rendering: auto;
+}
+
+.give-slide--full-banner.active .give-slide-bg-img {
+    transform: translate3d(0, var(--give-scroll-shift, 0px), 0);
 }
 
 .give-slide--photo.active .give-slide-bg.give-slide-bg--animating {
