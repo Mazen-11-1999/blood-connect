@@ -720,8 +720,9 @@ let giveHeroSlideIdx = 0;
 let giveHeroTimer = null;
 let giveHeroScrollBound = false;
 let giveHeroScrollRaf = 0;
+let giveHeroHasPainted = false;
 
-function giveHeroApplySlide(index) {
+function giveHeroApplySlide(index, direction) {
     const root = document.getElementById('giveHeroSlider');
     if (!root) return;
     const slides = root.querySelectorAll('.give-slide');
@@ -729,10 +730,13 @@ function giveHeroApplySlide(index) {
     if (slides.length === 0) return;
     const n = slides.length;
     const i = ((index % n) + n) % n;
+    const dir =
+        direction === 1 || direction === -1 || direction === 0 ? direction : 0;
     slides.forEach((s, j) => {
         const on = j === i;
         s.classList.toggle('active', on);
         s.setAttribute('aria-hidden', on ? 'false' : 'true');
+        s.classList.remove('give-slide--enter-next', 'give-slide--enter-prev');
         const bg = s.querySelector('.give-slide-bg');
         if (bg) {
             bg.classList.toggle(
@@ -741,10 +745,41 @@ function giveHeroApplySlide(index) {
             );
         }
     });
+    const allowEnter =
+        giveHeroHasPainted &&
+        dir !== 0 &&
+        typeof window.matchMedia === 'function' &&
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (allowEnter) {
+        const el = slides[i];
+        if (dir === 1) {
+            el.classList.add('give-slide--enter-next');
+        } else {
+            el.classList.add('give-slide--enter-prev');
+        }
+        window.setTimeout(() => {
+            el.classList.remove('give-slide--enter-next', 'give-slide--enter-prev');
+        }, 700);
+    }
     dots.forEach((d, j) => {
         d.classList.toggle('active', j === i);
         d.setAttribute('aria-selected', j === i ? 'true' : 'false');
     });
+    const activeDot = dots[i];
+    if (activeDot && typeof activeDot.scrollIntoView === 'function') {
+        const reduceMot =
+            window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        try {
+            activeDot.scrollIntoView({
+                block: 'nearest',
+                inline: 'center',
+                behavior: reduceMot ? 'auto' : 'smooth'
+            });
+        } catch {
+            activeDot.scrollIntoView(reduceMot);
+        }
+    }
     const cur = slides[i];
     root.classList.toggle('give-hero-slider--verse', !!(cur && cur.classList.contains('give-slide--verse')));
     giveHeroSlideIdx = i;
@@ -756,7 +791,7 @@ function restartGiveHeroAutoplay() {
         return;
     }
     giveHeroTimer = setInterval(() => {
-        giveHeroApplySlide(giveHeroSlideIdx + 1);
+        giveHeroApplySlide(giveHeroSlideIdx + 1, 1);
     }, 7000);
 }
 
@@ -772,22 +807,64 @@ function initGiveHeroTouchOnce() {
     if (!root || root.dataset.giveTouchBound === '1') return;
     root.dataset.giveTouchBound = '1';
     let startX = 0;
-    const threshold = 56;
+    let startY = 0;
+    let tracking = false;
+    const threshold = 52;
+
+    const endSwipeVisual = () => {
+        root.classList.remove('give-hero-slider--touch-active', 'give-hero-slider--swiping');
+        root.style.removeProperty('--give-swipe-px');
+    };
+
     root.addEventListener(
         'touchstart',
         (e) => {
-            if (e.changedTouches && e.changedTouches[0]) {
-                startX = e.changedTouches[0].screenX;
-            }
+            const t = e.touches && e.touches[0];
+            if (!t) return;
+            startX = t.screenX;
+            startY = t.screenY;
+            tracking = true;
+            root.classList.add('give-hero-slider--touch-active');
+        },
+        { passive: true }
+    );
+    root.addEventListener(
+        'touchmove',
+        (e) => {
+            if (!tracking) return;
+            const t = e.touches && e.touches[0];
+            if (!t) return;
+            const dx = t.screenX - startX;
+            const dy = t.screenY - startY;
+            if (Math.abs(dx) < 12 || Math.abs(dx) < Math.abs(dy) * 1.15) return;
+            root.classList.add('give-hero-slider--swiping');
+            const max = 88;
+            const damp = 0.42;
+            const clamped = Math.max(-max, Math.min(max, dx * damp));
+            root.style.setProperty('--give-swipe-px', `${clamped}px`);
+        },
+        { passive: true }
+    );
+    root.addEventListener(
+        'touchcancel',
+        () => {
+            tracking = false;
+            endSwipeVisual();
         },
         { passive: true }
     );
     root.addEventListener(
         'touchend',
         (e) => {
-            if (!e.changedTouches || !e.changedTouches[0]) return;
-            const endX = e.changedTouches[0].screenX;
+            tracking = false;
+            const ct = e.changedTouches && e.changedTouches[0];
+            if (!ct) {
+                endSwipeVisual();
+                return;
+            }
+            const endX = ct.screenX;
             const dx = endX - startX;
+            endSwipeVisual();
             if (Math.abs(dx) < threshold) return;
             if (dx < 0) {
                 giveHeroStep(1);
@@ -860,17 +937,34 @@ function initGiveHeroSlider() {
             }
         });
     }
-    giveHeroApplySlide(0);
+    giveHeroApplySlide(0, 0);
+    requestAnimationFrame(() => {
+        giveHeroHasPainted = true;
+    });
     restartGiveHeroAutoplay();
 }
 
 function giveHeroStep(delta) {
-    giveHeroApplySlide(giveHeroSlideIdx + delta);
+    const d = delta > 0 ? 1 : -1;
+    giveHeroApplySlide(giveHeroSlideIdx + delta, d);
     restartGiveHeroAutoplay();
 }
 
 function giveHeroGoTo(index) {
-    giveHeroApplySlide(index);
+    const root = document.getElementById('giveHeroSlider');
+    if (!root) return;
+    const slides = root.querySelectorAll('.give-slide');
+    const n = slides.length;
+    if (n === 0) return;
+    const t = ((index % n) + n) % n;
+    if (t === giveHeroSlideIdx) {
+        restartGiveHeroAutoplay();
+        return;
+    }
+    const forward = (t - giveHeroSlideIdx + n) % n;
+    const backward = (giveHeroSlideIdx - t + n) % n;
+    const dir = forward <= backward ? 1 : -1;
+    giveHeroApplySlide(t, dir);
     restartGiveHeroAutoplay();
 }
 
