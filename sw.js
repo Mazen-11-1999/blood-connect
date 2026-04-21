@@ -1,5 +1,5 @@
 // Service Worker لإشعارات إنـقـاذ حــيـاة
-const CACHE_NAME = 'inqadh-hayah-v57';
+const CACHE_NAME = 'inqadh-hayah-v59';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -14,6 +14,7 @@ const urlsToCache = [
 
 // تثبيت Service Worker (ملف واحد فاشل لا يمنع الباقي)
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('تم تثبيت Service Worker');
@@ -24,7 +25,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// تفعيل Service Worker
+// تفعيل Service Worker — السيطرة على النوافذ فوراً بعد التحديث
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -36,11 +37,11 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-// اعتراض الطلبات — واجهة API دائماً من الشبكة (بيانات حية)
+// اعتراض الطلبات — API من الشبكة؛ صفحات HTML من الشبكة أولاً ثم الكاش
 self.addEventListener('fetch', (event) => {
   const url = event.request.url;
   if (url.includes('/api/')) {
@@ -56,6 +57,42 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
+
+  // صفحات HTML: شبكة أولاً ليصل المستخدم أحدث نشر عند الاتصال
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.ok && response.type === 'basic') {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  try {
+    const path = new URL(url).pathname;
+    if (path.endsWith('.html') || path === '/') {
+      event.respondWith(
+        fetch(event.request)
+          .then((response) => {
+            if (response && response.ok && response.type === 'basic') {
+              const copy = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+            }
+            return response;
+          })
+          .catch(() => caches.match(event.request))
+      );
+      return;
+    }
+  } catch (_) { /* ignore */ }
+
+  // CSS/JS وغيرها: كاش أولاً ثم الشبكة (دعم عدم الاتصال)
   event.respondWith(
     caches.match(event.request).then((response) => {
       return response || fetch(event.request);
@@ -156,7 +193,12 @@ self.addEventListener('notificationclick', (event) => {
 // استقبال رسائل من الصفحة الرئيسية
 self.addEventListener('message', (event) => {
   console.log('رسالة من الصفحة الرئيسية:', event.data);
-  
+
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+    return;
+  }
+
   if (event.data && event.data.type === 'SEND_NOTIFICATION') {
     const { title, options } = event.data;
     event.waitUntil(

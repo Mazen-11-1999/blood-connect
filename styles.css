@@ -312,6 +312,9 @@ body {
     overflow: hidden;
     border-radius: 0 0 28px 28px;
     box-shadow: 0 18px 45px rgba(0, 0, 0, 0.14);
+    /* مساحة تحت الصورة لشريط النقاط — لا تُكدّس صفّين فوق البانر */
+    padding-bottom: 2.5rem;
+    background-color: #fdf2f4;
     font-family: 'Tajawal', sans-serif;
     touch-action: pan-y pinch-zoom;
     -webkit-tap-highlight-color: transparent;
@@ -646,16 +649,32 @@ body {
 
 .give-hero-dots {
     position: absolute;
-    bottom: 0.5rem;
+    bottom: 0.45rem;
     left: 50%;
     transform: translateX(-50%);
     z-index: 5;
     display: flex;
-    gap: 0.15rem;
+    gap: 0.08rem;
     align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    max-width: calc(100% - 5rem);
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    width: min(calc(100vw - 2.5rem), calc(100% - 2.5rem));
+    max-width: calc(100% - 2rem);
+    padding: 0.32rem 0.55rem;
+    box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    background: rgba(253, 242, 244, 0.96);
+    border-radius: 999px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.give-hero-dots::-webkit-scrollbar {
+    display: none;
 }
 
 /* منطقة لمس ≥ 44×44 للهاتف — المظهر يبقى نقطة صغيرة */
@@ -710,38 +729,19 @@ body {
     border-color: var(--primary-red);
 }
 
-/* موبايل/تابليت: نقاط السلايدر لا تغطي النص — شريط تحت الصورة + تمرير أفقي عند كثرة الشرائح */
+/* موبايل/تابليت: نفس سلوك صف واحد؛ أحجام أصغر قليلاً */
 @media (max-width: 768px) {
     .give-hero-slider {
         margin-top: 0;
-        background-color: #fdf2f4;
-        padding-bottom: 2.65rem;
+        padding-bottom: 2.55rem;
     }
 
     .give-hero-dots {
-        bottom: 0.4rem;
-        left: 50%;
-        transform: translateX(-50%);
-        max-width: min(100%, calc(100vw - 1.25rem));
-        width: auto;
-        padding: 0.35rem 0.5rem;
-        gap: 0.06rem;
-        justify-content: flex-start;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        overflow-y: hidden;
-        -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x proximity;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        box-sizing: border-box;
-        background: rgba(253, 242, 244, 0.92);
-        border-radius: 999px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
-    }
-
-    .give-hero-dots::-webkit-scrollbar {
-        display: none;
+        bottom: 0.38rem;
+        width: min(100%, calc(100vw - 1.1rem));
+        max-width: calc(100% - 0.75rem);
+        padding: 0.3rem 0.45rem;
+        gap: 0.05rem;
     }
 
     .give-hero-dot {
@@ -765,14 +765,14 @@ body {
 
 @media (max-width: 480px) {
     .give-hero-slider {
-        padding-bottom: 2.45rem;
+        padding-bottom: 2.4rem;
         border-radius: 0 0 18px 18px;
     }
 
     .give-hero-dots {
-        max-width: calc(100vw - 0.9rem);
-        bottom: 0.35rem;
-        padding: 0.3rem 0.4rem;
+        width: min(100%, calc(100vw - 0.85rem));
+        bottom: 0.32rem;
+        padding: 0.28rem 0.38rem;
     }
 
     .give-hero-dot {
@@ -4528,6 +4528,39 @@ a.heroes-pc-cta-btn:active {
 .help-confirm-complete {
     border-top-style: solid;
     border-color: #badbcc;
+}
+
+/* شريط تحديث PWA — يظهر عند توفر sw.js / كاش جديد */
+.sw-update-banner {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10001;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #b02a37 0%, #dc3545 100%);
+    color: #fff;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+}
+
+.sw-update-banner-text {
+    flex: 1;
+    min-width: 160px;
+    text-align: right;
+}
+
+.sw-update-banner .btn {
+    padding: 0.3rem 0.75rem;
+    font-size: 0.85rem;
+    background: #fff;
+    color: var(--primary-red-dark, #c82333) !important;
+    border-color: #fff;
 }
 
 /* شريط تثبيت PWA */

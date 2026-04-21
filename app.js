@@ -2247,16 +2247,67 @@ function goToSlide(index) {
     }, MS_GO_TO_SLIDE_RESUME);
 }
 
-// تسجيل Service Worker للإشعارات الفورية
+// تسجيل Service Worker + تحديث فوري عند نشر إصدار جديد (PWA)
 if ('serviceWorker' in navigator) {
+    let swReloading = false;
+
+    function showSwUpdateBanner() {
+        const b = document.getElementById('swUpdateBanner');
+        if (b) b.style.display = 'flex';
+    }
+
+    function hideSwUpdateBanner() {
+        const b = document.getElementById('swUpdateBanner');
+        if (b) b.style.display = 'none';
+    }
+
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
+        navigator.serviceWorker
+            .register('/sw.js')
             .then((registration) => {
                 console.log('Service Worker مسجل بنجاح:', registration.scope);
+
+                if (registration.waiting) {
+                    showSwUpdateBanner();
+                }
+
+                registration.addEventListener('updatefound', () => {
+                    const nw = registration.installing;
+                    if (!nw) return;
+                    nw.addEventListener('statechange', () => {
+                        if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                            showSwUpdateBanner();
+                        }
+                    });
+                });
+
+                setInterval(
+                    () => {
+                        registration.update().catch(() => {});
+                    },
+                    5 * 60 * 1000
+                );
             })
             .catch((error) => {
                 console.log('فشل تسجيل Service Worker:', error);
             });
+
+        // عند تفعيل SW جديد بعد نشر تحديث — إعادة تحميل لتحميل الأصول الجديدة
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (swReloading) return;
+            swReloading = true;
+            hideSwUpdateBanner();
+            window.location.reload();
+        });
+    });
+
+    document.getElementById('swUpdateNowBtn')?.addEventListener('click', () => {
+        navigator.serviceWorker.getRegistration().then((r) => {
+            if (r && r.waiting) {
+                r.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+            window.location.reload();
+        });
     });
 }
 
