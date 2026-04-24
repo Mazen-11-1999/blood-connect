@@ -1,5 +1,5 @@
 // Service Worker لإشعارات إنـقـاذ حــيـاة
-const CACHE_NAME = 'inqadh-hayah-v59';
+const CACHE_NAME = 'inqadh-hayah-v60';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -49,7 +49,7 @@ self.addEventListener('fetch', (event) => {
       fetch(event.request).catch(() =>
         new Response(
           JSON.stringify({
-            error: 'تعذر الاتصال بالخادم (شبكة أو الخادم غير جاهز).'
+            error: 'تعذر الاتصال. تحقق من الإنترنت.'
           }),
           { status: 503, headers: { 'Content-Type': 'application/json; charset=utf-8' } }
         )

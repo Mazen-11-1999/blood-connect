@@ -1,4 +1,4 @@
-// ——— واجهة الخادم (منصة كاملة) ———
+// ——— واجهة المنصة ———
 const API_BASE = '/api';
 
 async function apiFetch(path, options = {}) {
@@ -10,8 +10,8 @@ async function apiFetch(path, options = {}) {
         res = await fetch(API_BASE + path, { ...options, headers });
     } catch (e) {
         const m = e && e.message === 'Failed to fetch'
-            ? 'تعذر الاتصال بالخادم. تحقق من الإنترنت، أو أن الخادم غير جاهز (جرّب بعد قليل على Render).'
-            : (e && e.message) || 'تعذر الاتصال بالخادم';
+            ? 'تعذر الاتصال. تحقق من الإنترنت ثم جرّب مرة أخرى بعد لحظات.'
+            : (e && e.message) || 'تعذر الاتصال';
         throw new Error(m);
     }
     const text = await res.text();
@@ -23,14 +23,10 @@ async function apiFetch(path, options = {}) {
     }
     if (!res.ok) {
         if (res.status === 429) {
-            throw new Error(
-                'طلبات كثيرة للخادم. انتظر دقيقة ثم حدّث الصفحة. (تم تخفيف التكرار في التحديث الأخير.)'
-            );
+            throw new Error('طلبات كثيرة. انتظر دقيقة ثم حدّث الصفحة.');
         }
         if (res.status >= 502 && res.status <= 504) {
-            throw new Error(
-                `الخادم غير متاح مؤقتاً (${res.status}). جرّب بعد قليل — غالباً بسبب ضغط الطلبات أو إعادة التشغيل.`
-            );
+            throw new Error(`الخدمة غير متاحة مؤقتاً (${res.status}). جرّب بعد قليل.`);
         }
         const ct = res.headers && res.headers.get && res.headers.get('content-type');
         const looksJson = ct && ct.includes('application/json');
@@ -38,9 +34,9 @@ async function apiFetch(path, options = {}) {
             || (Array.isArray(data.errors) && data.errors[0] && (data.errors[0].msg || data.errors[0].message));
         if (!msg && text && looksJson) {
             const snippet = text.replace(/\s+/g, ' ').trim().slice(0, 160);
-            msg = snippet ? `خطأ ${res.status}: ${snippet}` : `خطأ ${res.status} من الخادم`;
+            msg = snippet ? `خطأ ${res.status}: ${snippet}` : `تعذر إكمال الطلب (${res.status})`;
         } else if (!msg) {
-            msg = `خطأ ${res.status} من الخادم`;
+            msg = `تعذر إكمال الطلب (${res.status})`;
         }
         if (!msg) msg = `خطأ ${res.status}`;
         throw new Error(msg);
@@ -57,7 +53,7 @@ function urlBase64ToUint8Array(base64String) {
     return outputArray;
 }
 
-/** اشتراك Web Push لإظهار إشعار على الهاتف حتى مع إغلاق التبويب (يتطلب بيانات/واي فاي وإعداد VAPID على الخادم) */
+/** Web Push — إشعار حتى مع إغلاق التبويب (يتطلب إعداد مفاتيح في بيئة التشغيل) */
 async function tryRegisterWebPush() {
     const user = dataManager.getCurrentUser();
     if (!user || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
@@ -1100,7 +1096,7 @@ window.addEventListener('pagehide', () => {
     }
 });
 
-/** بطاقة الهدف — نصوص إنسانية بلا أسلوب تقني؛ أرقام واضحة من الخادم */
+/** بطاقة الهدف — نصوص بشرية وأرقام واضحة من الاستجابة */
 function updateAwarenessFromStats(stats) {
     const a = stats && stats.awareness;
     const subtitleEl = document.getElementById('awarenessGoalSubtitle');
@@ -1196,7 +1192,7 @@ async function updateHomeStats() {
         updateAwarenessFromStats(stats);
         updateMotivationalStrip(stats);
     } catch (e) {
-        console.warn('تعذر تحميل الإحصائيات (شغّل الخادم: npm start)', e);
+        console.warn('تعذر تحميل الإحصائيات. تحقق من الاتصال.', e);
     }
 }
 
@@ -1258,7 +1254,7 @@ async function populateSearchGovernorates() {
     }
 }
 
-// تسجيل متبرع جديد (حساب على الخادم)
+// تسجيل متبرع جديد
 document.getElementById('registerForm')?.addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -1639,7 +1635,7 @@ document.getElementById('messageForm')?.addEventListener('submit', async functio
         } else if (u && u.queued) {
             alert(
                 '✅ تم إرسال الطلب الطارئ.\n\n' +
-                    'يُشعَر المتبرع عبر المنصة، ويُرسل له SMS تلقائياً من الخادم إن وُجد رقم مسجّل في حسابه (حتى لو كان الرقم مخفياً للعامة).'
+                    'يُشعَر المتبرع عبر المنصة، ويُرسل له تلقائياً رسالة نصية إن وُجد رقم مسجّل في حسابه (حتى لو كان الرقم مخفياً للعامة).'
             );
         } else {
             alert('✅ تم إرسال رسالة طارئة! (إشعارات المتصفح)');
@@ -1786,7 +1782,7 @@ async function loadMessages() {
         messages = await dataManager.getMessagesForUser(currentUser.id);
     } catch (e) {
         document.getElementById('messagesList').innerHTML =
-            '<p class="no-results">تعذر تحميل الرسائل. تأكد من تشغيل الخادم.</p>';
+            '<p class="no-results">تعذر تحميل الرسائل. جرّب تحديث الصفحة.</p>';
         return;
     }
 
@@ -1989,8 +1985,8 @@ async function loadProfile() {
             ` : ''}
         </div>
         <div class="form-group profile-avatar-field">
-            <label><i class="fas fa-camera"></i> صورة العرض (من الهاتف أو المعرض)</label>
-            <p class="form-hint" style="margin-bottom:0.65rem">تُحفظ على الخادم بشكل دائم وتُعرض في «فاعلو الخير» بعد التأكيد المزدوج. الحد الأقصى ٢ ميجابايت — JPEG أو PNG أو WebP.</p>
+            <label><i class="fas fa-camera"></i> صورة العرض</label>
+            <p class="form-hint" style="margin-bottom:0.65rem">الحد الأقصى ٢ ميجا — صيغة JPEG أو PNG أو WebP.</p>
             <input type="file" id="profileAvatarFile" accept="image/jpeg,image/png,image/webp" class="profile-avatar-file-input">
             <button type="button" class="btn btn-primary btn-block" id="profileAvatarUploadBtn" style="margin-top:0.65rem" onclick="uploadProfileAvatarFile()">
                 <i class="fas fa-cloud-upload-alt"></i> رفع الصورة وحفظها
@@ -2032,7 +2028,7 @@ async function saveProfileAvatarUrl() {
     const prev = currentUser.avatarUrl ? String(currentUser.avatarUrl) : '';
     if (!raw) {
         if (prev.startsWith('/uploads/') || prev.startsWith('/api/auth/avatar/')) {
-            alert('صورتك محفوظة على الخادم. لاستبدالها ارفع صورة جديدة من الأعلى.');
+            alert('لاستبدال صورتك الحالية ارفع صورة جديدة من الأعلى.');
             return;
         }
     }
@@ -2054,7 +2050,7 @@ async function uploadProfileAvatarFile() {
     const input = document.getElementById('profileAvatarFile');
     const btn = document.getElementById('profileAvatarUploadBtn');
     if (!input || !input.files || !input.files[0]) {
-        alert('يرجى اختيار صورة من المعرض أو الكاميرا أولاً');
+        alert('يرجى اختيار صورة أولاً');
         return;
     }
     const file = input.files[0];
@@ -2090,10 +2086,10 @@ async function uploadProfileAvatarFile() {
             dataManager.setSession(data.user, token);
         }
         input.value = '';
-        alert('تم حفظ الصورة على الخادم بنجاح');
+        alert('تم حفظ الصورة بنجاح');
         await loadProfile();
     } catch (e) {
-        alert(e.message || 'تعذر رفع الصورة. تحقق من الاتصال بالخادم.');
+        alert(e.message || 'تعذر رفع الصورة. تحقق من الاتصال.');
     } finally {
         if (btn) {
             btn.disabled = false;
@@ -2443,7 +2439,7 @@ class SMSNotificationService {
     static lastShownMessageId = null;
     static checkInterval = null;
 
-    /** الفحص الدوري أصبح موحّداً في pollInboxAndNotifications (كل 30ث) لتجنّب 429 من الخادم */
+    /** فحص دوري موحّد كل 30ث لتفادي 429 */
     static init() {
         this.checkInterval = null;
 
@@ -2909,7 +2905,7 @@ async function loadHeroesGallery() {
         renderConfirmedHeroesInto(grid, heroes);
     } catch (e) {
         grid.innerHTML =
-            '<p class="no-results" style="grid-column:1/-1">تعذر تحميل المعرض. شغّل الخادم (npm start).</p>';
+            '<p class="no-results" style="grid-column:1/-1">تعذر تحميل المعرض. جرّب تحديث الصفحة.</p>';
     }
 }
 
