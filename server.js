@@ -119,7 +119,7 @@ async function start() {
         }
         if (process.env.DATABASE_URL && String(e.message || '').includes('terminated')) {
             console.error(
-                'تلميح: تأكد من Internal Database URL على Render، وأن قاعدة Postgres نشطة. جرّب PG_FORCE_IPV4=0 إن كان المضيف IPv4-only.'
+                'تلميح: تأكد من Internal Database URL ونشاط قاعدة Postgres. للاتصال من Node مع شهادات Render يُضاف uselibpqcompat تلقائياً في الرابط؛ جرّب PG_FORCE_IPV4=1 إن لزم.'
             );
         }
         process.exit(1);
