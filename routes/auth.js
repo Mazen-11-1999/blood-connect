@@ -19,7 +19,7 @@ const uploadAvatar = multer({
         if (avatarStorage.ALLOWED_MIMES.has(file.mimetype)) {
             cb(null, true);
         } else {
-            cb(new Error('نوع الملف غير مدعوم. استخدم JPEG أو PNG أو WebP'));
+            cb(new Error('نوع الملف غير مدعوم'));
         }
     }
 });

@@ -590,7 +590,7 @@ function stopAnnouncementCarousel() {
 const AWARENESS_CARD_TAGLINES = [
     'صدقة جارية بضغطة زر — أجرٌ قد يستمر بما دامت أرواحٌ تُنقذ.',
     'قطرة دم تروي أملاً — كن سبباً فيها.',
-    'تفريج كربة مريض بحث عن حياة — أجرٌ عظيم عند الله.',
+    'تفريج كربة مريض يبحث عن حياة — أجرٌ عظيم عند الله.',
     'معاً نبلغ أبعد — كل اسم جديد يحمل أملاً لغيره.'
 ];
 
@@ -1986,7 +1986,7 @@ async function loadProfile() {
         </div>
         <div class="form-group profile-avatar-field">
             <label><i class="fas fa-camera"></i> صورة العرض</label>
-            <p class="form-hint" style="margin-bottom:0.65rem">الحد الأقصى ٢ ميجا — صيغة JPEG أو PNG أو WebP.</p>
+            <p class="form-hint" style="margin-bottom:0.65rem">صورة بحد أقصى ٢ ميجا.</p>
             <input type="file" id="profileAvatarFile" accept="image/jpeg,image/png,image/webp" class="profile-avatar-file-input">
             <button type="button" class="btn btn-primary btn-block" id="profileAvatarUploadBtn" style="margin-top:0.65rem" onclick="uploadProfileAvatarFile()">
                 <i class="fas fa-cloud-upload-alt"></i> رفع الصورة وحفظها
@@ -2059,15 +2059,14 @@ async function uploadProfileAvatarFile() {
         return;
     }
     if (!PROFILE_AVATAR_TYPES.includes(file.type)) {
-        alert('يُسمح بصيغ JPEG أو PNG أو WebP فقط');
+        alert('نوع الملف غير مدعوم.');
         return;
     }
     const token = localStorage.getItem('bloodConnect_token');
     if (!token) {
         alert('انتهت الجلسة. سجّل الدخول مجدداً');
         return;
-    }
-    const fd = new FormData();
+                                                                                                                                                                                                                                                                                           const fd = new FormData();
     fd.append('avatar', file);
     if (btn) {
         btn.disabled = true;

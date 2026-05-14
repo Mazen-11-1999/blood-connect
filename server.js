@@ -9,8 +9,9 @@ const { ensureAvatarDir } = require('./lib/avatarStorage');
 const cloudinaryAvatar = require('./lib/cloudinaryAvatar');
 const { getJwtSecret } = require('./lib/jwtSecret');
 
-// Load environment variables (.env يتجاوز متغيرات النظام حتى يُلغى DATABASE_URL عند التعليق)
-dotenv.config({ override: true });
+// على Render لا نستبدل متغيرات المنصة بملف .env (يمنع DATABASE_URL خاطئ يكسر الاتصال).
+// محلياً: بدون RENDER نسمح لـ .env أن يحدّث القيم (مثل تعطيل DATABASE_URL للتجربة).
+dotenv.config({ override: !process.env.RENDER });
 
 const app = express();
 /** مطلوب خلف Render/nginx حتى يعمل rate limit وIP بشكل صحيح */
