@@ -2066,7 +2066,8 @@ async function uploadProfileAvatarFile() {
     if (!token) {
         alert('انتهت الجلسة. سجّل الدخول مجدداً');
         return;
-                                                                                                                                                                                                                                                                                           const fd = new FormData();
+    }
+    const fd = new FormData();
     fd.append('avatar', file);
     if (btn) {
         btn.disabled = true;
