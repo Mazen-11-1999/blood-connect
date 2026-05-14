@@ -117,6 +117,11 @@ async function start() {
         if (process.env.DATABASE_URL && String(e.message || '').toLowerCase().includes('ssl')) {
             console.error('تلميح: جرّب إضافة PGSSLMODE=require في متغيرات البيئة على Render.');
         }
+        if (process.env.DATABASE_URL && String(e.message || '').includes('terminated')) {
+            console.error(
+                'تلميح: تأكد من Internal Database URL على Render، وأن قاعدة Postgres نشطة. جرّب PG_FORCE_IPV4=0 إن كان المضيف IPv4-only.'
+            );
+        }
         process.exit(1);
     }
     app.listen(PORT, '0.0.0.0', () => {
