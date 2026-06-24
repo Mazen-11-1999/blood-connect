@@ -5,7 +5,7 @@ const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const path = require('path');
 const { initDataLayer } = require('./lib/dataAccess');
-const { getDatabaseUrl, resetPool } = require('./lib/pg');
+const { getDatabaseUrl, resetPool, pingDatabase, startPgKeepAlive, isProductionDb } = require('./lib/pg');
 const { ensureAvatarDir } = require('./lib/avatarStorage');
 const cloudinaryAvatar = require('./lib/cloudinaryAvatar');
 const { getJwtSecret } = require('./lib/jwtSecret');
@@ -67,13 +67,31 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/sms', smsRoutes);
 app.use('/api/push', pushRoutes);
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: 'OK', 
+// Health check — يتحقق من القاعدة في الإنتاج
+app.get('/api/health', async (req, res) => {
+    const payload = {
+        status: 'OK',
         message: 'Blood Connect API is running',
-        timestamp: new Date().toISOString()
-    });
+        timestamp: new Date().toISOString(),
+        storage: getDatabaseUrl() ? 'postgresql' : 'json'
+    };
+    if (getDatabaseUrl()) {
+        try {
+            const dbOk = await pingDatabase();
+            if (!dbOk) {
+                return res.status(503).json({ ...payload, status: 'DEGRADED', db: 'unreachable' });
+            }
+            payload.db = 'connected';
+        } catch (e) {
+            return res.status(503).json({
+                ...payload,
+                status: 'DEGRADED',
+                db: 'error',
+                message: isProductionDb() ? 'Database unreachable' : (e.message || 'db error')
+            });
+        }
+    }
+    res.json(payload);
 });
 
 // Serve frontend for all other routes
@@ -91,6 +109,10 @@ app.use((err, req, res, next) => {
 });
 
 async function start() {
+    if (isProductionDb() && !getDatabaseUrl()) {
+        console.error('❌ الإنتاج يتطلب DATABASE_URL (PostgreSQL). اربط قاعدة البيانات من Render.');
+        process.exit(1);
+    }
     try {
         getJwtSecret();
     } catch (e) {
@@ -115,7 +137,7 @@ async function start() {
         }
     } catch (e) {
         const canFallbackJson =
-            process.env.NODE_ENV !== 'production' &&
+            !isProductionDb() &&
             process.env.PG_REQUIRED !== '1' &&
             (process.env.DATABASE_URL || process.env.DATABASE_EXTERNAL_URL);
 
@@ -145,6 +167,7 @@ async function start() {
             process.exit(1);
         }
     }
+    startPgKeepAlive();
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`🚀 Blood Connect API server running on port ${PORT} (جميع الواجهات — للوصول من الهاتف على نفس الشبكة استخدم IP جهازك)`);
         console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
