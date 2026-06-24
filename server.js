@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const path = require('path');
 const { initDataLayer } = require('./lib/dataAccess');
+const { getDatabaseUrl, resetPool } = require('./lib/pg');
 const { ensureAvatarDir } = require('./lib/avatarStorage');
 const cloudinaryAvatar = require('./lib/cloudinaryAvatar');
 const { getJwtSecret } = require('./lib/jwtSecret');
@@ -103,7 +104,7 @@ async function start() {
             console.log('📷 مجلد صور الملف الشخصي (محلي):', path.join(__dirname, 'uploads', 'avatars'));
             if (cloudinaryAvatar.isEnabled()) {
                 console.log('☁️ صور المستخدمين: Cloudinary (تخزين دائم)');
-            } else if (process.env.DATABASE_URL) {
+            } else if (getDatabaseUrl()) {
                 console.log('🗄️ صور الملف الشخصي: PostgreSQL BYTEA (تخزين دائم مع قاعدة البيانات — مناسب لـ Render)');
             } else {
                 console.log('📁 Cloudinary غير مضبوط ولا يوجد DATABASE_URL — الصور في مجلد uploads محلياً (غير دائم على Render).');
@@ -113,22 +114,42 @@ async function start() {
             process.exit(1);
         }
     } catch (e) {
-        console.error('فشل تهيئة قاعدة البيانات:', e.message || e);
-        if (process.env.DATABASE_URL && String(e.message || '').toLowerCase().includes('ssl')) {
-            console.error('تلميح: جرّب إضافة PGSSLMODE=require في متغيرات البيئة على Render.');
+        const canFallbackJson =
+            process.env.NODE_ENV !== 'production' &&
+            process.env.PG_REQUIRED !== '1' &&
+            (process.env.DATABASE_URL || process.env.DATABASE_EXTERNAL_URL);
+
+        if (canFallbackJson) {
+            console.warn('⚠️ تعذر الاتصال بـ PostgreSQL:', e.message || e);
+            console.warn('⚠️ التطوير المحلي: سيتم استخدام data/app-data.json (علّق DATABASE_URL في .env أو أصلح الرابط من Render)');
+            delete process.env.DATABASE_URL;
+            delete process.env.DATABASE_EXTERNAL_URL;
+            await resetPool();
+            try {
+                await initDataLayer();
+            } catch (fallbackErr) {
+                console.error('فشل التخزين البديل:', fallbackErr.message || fallbackErr);
+                process.exit(1);
+            }
+        } else {
+            console.error('فشل تهيئة قاعدة البيانات:', e.message || e);
+            if (process.env.DATABASE_URL && String(e.message || '').toLowerCase().includes('ssl')) {
+                console.error('تلميح: جرّب PGSSLMODE=disable محلياً فقط إن كانت قاعدتك بدون SSL.');
+            }
+            if (process.env.DATABASE_URL && String(e.message || '').includes('terminated')) {
+                console.error(
+                    'تلميح: من Render → Postgres تأكد أن القاعدة «Available» وليست معلّقة. ' +
+                        'انسخ External URL للتطوير المحلي و Internal URL لخدمة الويب. جرّب: npm run db:test'
+                );
+            }
+            process.exit(1);
         }
-        if (process.env.DATABASE_URL && String(e.message || '').includes('terminated')) {
-            console.error(
-                'تلميح: تأكد من Internal Database URL ونشاط قاعدة Postgres. للاتصال من Node مع شهادات Render يُضاف uselibpqcompat تلقائياً في الرابط؛ جرّب PG_FORCE_IPV4=1 إن لزم.'
-            );
-        }
-        process.exit(1);
     }
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`🚀 Blood Connect API server running on port ${PORT} (جميع الواجهات — للوصول من الهاتف على نفس الشبكة استخدم IP جهازك)`);
         console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
         console.log(`📱 Twilio configured: ${process.env.TWILIO_ACCOUNT_SID ? 'Yes' : 'No'}`);
-        console.log(`🗄️ Storage: ${process.env.DATABASE_URL ? 'PostgreSQL' : 'JSON file'}`);
+        console.log(`🗄️ Storage: ${getDatabaseUrl() ? 'PostgreSQL' : 'JSON file'}`);
         console.log(`🔔 Web Push: ${process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY ? 'configured' : 'not configured (set VAPID_* in .env)'}`);
     });
 }

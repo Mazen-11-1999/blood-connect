@@ -11,6 +11,7 @@
     "start": "node server.js",
     "dev": "node ./node_modules/nodemon/bin/nodemon.js server.js",
     "test": "node ./node_modules/jest/bin/jest.js",
+    "db:test": "node scripts/test-db.js",
     "vapid:keys": "node scripts/gen-vapid-pure.js"
   },
   "dependencies": {
