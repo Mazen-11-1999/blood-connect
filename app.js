@@ -26,7 +26,7 @@ async function apiFetch(path, options = {}) {
             throw new Error('طلبات كثيرة. انتظر دقيقة ثم حدّث الصفحة.');
         }
         if (res.status >= 502 && res.status <= 504) {
-            throw new Error(`الخدمة غير متاحة مؤقتاً (${res.status}). جرّب بعد قليل.`);
+            throw new Error('الخدمة غير متاحة الآن. حاول بعد قليل.');
         }
         const ct = res.headers && res.headers.get && res.headers.get('content-type');
         const looksJson = ct && ct.includes('application/json');
@@ -34,9 +34,9 @@ async function apiFetch(path, options = {}) {
             || (Array.isArray(data.errors) && data.errors[0] && (data.errors[0].msg || data.errors[0].message));
         if (!msg && text && looksJson) {
             const snippet = text.replace(/\s+/g, ' ').trim().slice(0, 160);
-            msg = snippet ? `خطأ ${res.status}: ${snippet}` : `تعذر إكمال الطلب (${res.status})`;
+            msg = 'تعذر إكمال الطلب. حاول مرة أخرى.';
         } else if (!msg) {
-            msg = `تعذر إكمال الطلب (${res.status})`;
+            msg = 'تعذر إكمال الطلب. حاول مرة أخرى.';
         }
         if (!msg) msg = `خطأ ${res.status}`;
         throw new Error(msg);
@@ -501,24 +501,24 @@ let motivationalVisitDeltaShown = false;
 /** شرائح الإعلان التوعوي (مدة البقاء: `MS_ANNOUNCEMENT_CAROUSEL`) */
 const ANNOUNCEMENT_SLIDES = [
     {
-        tag: 'صدقة جارية بضغطة زر',
-        body: 'تسجيلك وتطوعك قد يكتب لك به أجرٌ مستمر ما دامت هذه المنصة تنقذ الأرواح.'
+        tag: 'صدقة جارية',
+        body: 'تسجيلك قد يكون أجراً مستمراً ما دام يساعد الآخرين.'
     },
     {
         tag: 'وَمَنْ تَطَوَّعَ خَيْرًا فَإِنَّ اللَّهَ شَاكِرٌ عَلِيمٌ',
-        body: 'استشعر شكر الله لك على هذه الخطوة البسيطة.'
+        body: 'شكراً لهذه الخطوة البسيطة.'
     },
     {
-        tag: 'خبيئة صالحة',
-        body: 'اجعل تسجيلك في هذا الموقع عملاً بينك وبين الله، تدخره ليوم لا ينفع فيه مال ولا بنون.'
+        tag: 'عمل بينك وبين الله',
+        body: 'اجعل تسجيلك عملاً خالصاً لله.'
     },
     {
         tag: 'تفريج كربة',
-        body: 'قال ﷺ: (مَن فرَّج عن مسلمٍ كُربةً، فرَّج اللهُ عنه كُربةً من كُربِ يومِ القيامة)؛ تخيّل عظم الأجر عندما تفرّج كربة مريض يبحث عن حياة.'
+        body: 'فرّج كربة مريض — وأجرك عند الله عظيم.'
     },
     {
-        tag: 'كل ٣ ثوانٍ يحتاج شخص لنقل دم',
-        body: 'تبرعك يصنع الفارق — سجّل وكن جزءاً من شبكة الأمل.'
+        tag: 'كثيرون يحتاجون الدم كل يوم',
+        body: 'تبرعك يفرق — سجّل الآن.'
     }
 ];
 
@@ -588,10 +588,10 @@ function stopAnnouncementCarousel() {
 
 /** عبارات قصيرة دوّارة داخل بطاقة الهدف (`MS_AWARENESS_CARD_TAGLINE`) */
 const AWARENESS_CARD_TAGLINES = [
-    'صدقة جارية بضغطة زر — أجرٌ قد يستمر بما دامت أرواحٌ تُنقذ.',
-    'قطرة دم تروي أملاً — كن سبباً فيها.',
-    'تفريج كربة مريض يبحث عن حياة — أجرٌ عظيم عند الله.',
-    'معاً نبلغ أبعد — كل اسم جديد يحمل أملاً لغيره.'
+    'صدقة جارية — أجر يستمر مع كل حياة تُنقذ.',
+    'كن سبباً في إنقاذ حياة.',
+    'فرّج كربة مريض — أجرك عند الله.',
+    'كل متبرع جديد أمل لغيره.'
 ];
 
 let awarenessCardQuoteInterval = null;
@@ -638,15 +638,15 @@ function stopAwarenessCardQuotes() {
 
 /** جمل تشجيعية — الصفحة الرئيسية + نافذة نجاح التسجيل */
 const SPIRIT_ENCOURAGEMENT_QUOTES = [
-    'كن واحداً من صناع الحياة',
-    'ومن أحياها فكأنما أحيا الناس جميعاً.. أجرك عند الله لا يضيع.',
-    'صدقةٌ جارية، ونبضٌ يبقى.. هنيئاً لقلوبٍ اختارها الله لتكون سبباً في حياة الآخرين.',
-    'في كل قطرةٍ بذلتها، أجرٌ يسبقك إلى جنات النعيم.',
-    'عطاءٌ يُرى أثره في الدنيا، ويُجنى ثوابه في الآخرة.. جزاكم الله خيراً.',
-    'ما نقص مالٌ من صدقة، وما نقص جسدٌ من بذل.. فكيف إذا كان البذلُ حياة؟',
-    'يوم القيامة.. ستجدون عطاءكم نوراً يسعى بين أيديكم.',
-    'تبرعكم للدم هو تجارةٌ رابحة مع الله.. والله لا يخلف الميعاد.',
-    'جعلكم الله مفاتيح للخير، مغاليق للشر.. وأثابكم خير الجزاء.'
+    'كن سبباً في إنقاذ حياة',
+    'ومن أحياها فكأنما أحيا الناس جميعاً — أجرك عند الله لا يضيع.',
+    'صدقة جارية — هنيئاً لمن اختار العطاء.',
+    'في كل تبرع أجر عند الله.',
+    'جزاكم الله خيراً على عطائكم.',
+    'ما نقص مال من صدقة — فكيف ببذل ينقذ حياة؟',
+    'نسأل الله أن يجعل عطاءكم نوراً لكم.',
+    'تبرعكم صدقة يخلفها الله عليكم.',
+    'جعلكم الله مفاتيح للخير.'
 ];
 
 const REGISTER_SUCCESS_QUOTES = SPIRIT_ENCOURAGEMENT_QUOTES;
@@ -995,7 +995,7 @@ function updateMotivationalStrip(stats) {
     const totalMsg = Number(stats.totalMessages) || 0;
     const matches = Number(stats.successfulMatches) || 0;
 
-    const platformLine = `إجمالي المنصة: ${arTotalDonorsLabel(totalDonors)} · ${formatArNumber(totalMsg)} طلب مساعدة · ${formatArNumber(matches)} تأكيد مزدوج ناجح.`;
+    const platformLine = `المجموع: ${arTotalDonorsLabel(totalDonors)} · ${formatArNumber(totalMsg)} طلب مساعدة · ${formatArNumber(matches)} مساعدة مكتملة.`;
     platformEl.textContent = platformLine;
 
     const subParts = [];
@@ -1010,7 +1010,7 @@ function updateMotivationalStrip(stats) {
                     const bits = [];
                     if (dD > 0) {
                         bits.push(
-                            `+<strong>${formatArNumber(dD)}</strong> ${dD === 1 ? 'متبرعاً' : 'متبرعين'} على المنصة`
+                            `+<strong>${formatArNumber(dD)}</strong> ${dD === 1 ? 'متبرعاً' : 'متبرعين'}`
                         );
                     }
                     if (dM > 0) {
@@ -1034,7 +1034,7 @@ function updateMotivationalStrip(stats) {
                 const bits = [];
                 if (dD > 0) {
                     bits.push(
-                        `+<strong>${formatArNumber(dD)}</strong> ${dD === 1 ? 'متبرعاً' : 'متبرعين'} على المنصة`
+                        `+<strong>${formatArNumber(dD)}</strong> ${dD === 1 ? 'متبرعاً' : 'متبرعين'}`
                     );
                 }
                 if (dMonth > 0) {
@@ -1120,21 +1120,21 @@ function updateAwarenessFromStats(stats) {
 
     if (goalMet) {
         subtitleEl.innerHTML =
-            `هذا الشهر: سجّل معنا <strong>${m}</strong> ${arDonorWordForCount(monthCount)} — بفضل الله ثم بكم تحقّق هدفنا البالغ <strong>${g}</strong> متبرعاً جديداً.`;
+            `هذا الشهر سجّل معنا <strong>${m}</strong> ${arDonorWordForCount(monthCount)} — وحقّقنا هدف <strong>${g}</strong> متبرعاً.`;
         if (tipEl) {
-            tipEl.textContent = 'بارك الله فيكم — شاركوا الرابط مع من تحبون ليوسّع الخير أثره.';
+            tipEl.textContent = 'بارك الله فيكم — شاركوا الرابط مع من تحبون.';
         }
     } else if (monthCount === 0) {
         subtitleEl.innerHTML =
-            `نسعى معاً إلى <strong>${g}</strong> متبرعاً جديداً هذا الشهر. كن أول من يترك بصمة خير معنا.`;
+            `نسعى معاً إلى <strong>${g}</strong> متبرعاً جديداً هذا الشهر. كن أولهم.`;
         if (tipEl) {
-            tipEl.textContent = 'ادعُ أهلك وأصدقاءك — الخير يكبر حين يتعدّد.';
+            tipEl.textContent = 'ادعُ أهلك وأصدقاءك للتسجيل.';
         }
     } else {
         subtitleEl.innerHTML =
             `هدفنا هذا الشهر: <strong>${g}</strong> متبرعاً جديداً — وسجّل معنا حتى الآن <strong>${m}</strong> ${arDonorWordForCount(monthCount)}.`;
         if (tipEl) {
-            tipEl.textContent = 'شارك الرابط مع من تحب — معاً نكمل الطريق إلى الهدف.';
+            tipEl.textContent = 'شارك الرابط — نصل للهدف معاً.';
         }
     }
 
@@ -1174,7 +1174,7 @@ function updateAwarenessFromStats(stats) {
                   )}</strong> ${arDonorWordForCount(weekCount)} منهم.</span>`
                 : '');
     } else if (weekCount === 0) {
-        footerEl.textContent = 'هذا الأسبوع: كن أول من يضيف بصمة خير جديدة.';
+        footerEl.textContent = 'هذا الأسبوع: كن أول من ينضم.';
     } else {
         footerEl.innerHTML = `هذا الأسبوع انضمّ <strong>${formatArNumber(
             weekCount
@@ -1629,16 +1629,16 @@ document.getElementById('messageForm')?.addEventListener('submit', async functio
         const u = sendResult.urgentSms;
         if (u && u.skipped) {
             alert(
-                '✅ تم إرسال الطلب الطارئ.\n\n' +
-                    'تنبيه: لا يوجد رقم هاتف محفوظ في حساب المتبرع، لذلك لم يُرسل SMS. يمكنه الاطلاع من التطبيق.'
+                'تم إرسال الطلب الطارئ.\n\n' +
+                    'لا يوجد رقم للمتبرع — سيراه في التطبيق.'
             );
         } else if (u && u.queued) {
             alert(
-                '✅ تم إرسال الطلب الطارئ.\n\n' +
-                    'يُشعَر المتبرع عبر المنصة، ويُرسل له تلقائياً رسالة نصية إن وُجد رقم مسجّل في حسابه (حتى لو كان الرقم مخفياً للعامة).'
+                'تم إرسال الطلب الطارئ.\n\n' +
+                    'سيصله تنبيه وربما رسالة نصية.'
             );
         } else {
-            alert('✅ تم إرسال رسالة طارئة! (إشعارات المتصفح)');
+            alert('تم إرسال الطلب الطارئ');
         }
     } else {
         await NotificationManager.sendNormalNotification(newMessage);
@@ -1672,13 +1672,13 @@ function renderHelpConfirmationBlock(msg, currentUserId) {
             <div class="help-confirm-section help-confirm-complete">
                 <div class="help-complete-banner">
                     <i class="fas fa-check-double"></i>
-                    اكتمل التأكيد المزدوج — شكراً لكما على إتمام الخير في هذا الطلب.
+                    اكتملت المساعدة — شكراً لكما.
                 </div>`;
         if (isNeedy) {
             block += `
                 <p class="help-thanks-hint">
                     <i class="fas fa-heart"></i>
-                    يمكنك أن تشكر المتبرع بأنه سهّل عليك الخير بإذن الله — يظهر ذلك في سجل المنصة لفاعلي الخير المؤكَّدين.
+                    يمكنك شكر المتبرع — سيظهر في قائمة فاعلي الخير.
                 </p>`;
         }
         block += '</div>';
@@ -1689,7 +1689,7 @@ function renderHelpConfirmationBlock(msg, currentUserId) {
         <div class="help-confirm-section">
             <p class="help-disclaimer">
                 <i class="fas fa-info-circle"></i>
-                التأكيدان إقراران شخصيان في المنصة؛ المنصّة لا تتحقق طبياً من وقوع التبرع في المستشفى.
+                هذا إقرار منكما فقط — الموقع لا يتحقق طبياً من التبرع.
             </p>`;
 
     if (isNeedy) {
@@ -1697,16 +1697,16 @@ function renderHelpConfirmationBlock(msg, currentUserId) {
             html += `
                 <p class="help-hint help-hint-needy">
                     <i class="fas fa-hand-holding-heart"></i>
-                    يُفضّل الضغط <strong>بعد</strong> أن يتم التبرع فعلياً أو بعد أن تتحقق أن المساعدة المتفق عليها تمت.
+                    يُفضّل التأكيد بعد اكتمال المساعدة فعلياً.
                 </p>
                 <button type="button" class="btn btn-confirm-needy" onclick="confirmHelpAsNeedy('${midSafe}')">
-                    <i class="fas fa-check"></i> أؤكد أنني تلقيتُ المساعدة المتفق عليها
+                    <i class="fas fa-check"></i> أؤكد أنني تلقيت المساعدة
                 </button>`;
         } else {
             html += `
                 <p class="help-status-line"><i class="fas fa-check-circle"></i> سجّلتَ تأكيد استلام المساعدة.</p>`;
             if (!d) {
-                html += `<p class="help-wait"><i class="fas fa-hourglass-half"></i> بانتظار تأكيد المتبرع لإكمال السجل.</p>`;
+                html += `<p class="help-wait"><i class="fas fa-hourglass-half"></i> بانتظار تأكيد المتبرع.</p>`;
             }
         }
     }
@@ -1716,10 +1716,10 @@ function renderHelpConfirmationBlock(msg, currentUserId) {
             html += `
                 <p class="help-hint help-hint-donor">
                     <i class="fas fa-hand-holding-medical"></i>
-                    اضغط بعد أن تكون قد نفّذت ما تعهدت به في هذا الطلب (مثلاً التبرع أو التنسيق كما اتفقتما).
+                    اضغط بعد أن تنفّذ ما اتفقتما عليه.
                 </p>
                 <button type="button" class="btn btn-confirm-donor" onclick="confirmHelpAsDonor('${midSafe}')">
-                    <i class="fas fa-check"></i> أؤكد أنني نفّذتُ ما تعهدتُ به في هذا الطلب
+                    <i class="fas fa-check"></i> أؤكد أنني نفّذت ما اتفقنا عليه
                 </button>`;
         } else {
             html += `
@@ -1736,9 +1736,7 @@ function renderHelpConfirmationBlock(msg, currentUserId) {
 
 async function confirmHelpAsNeedy(messageId) {
     const ok = confirm(
-        'هل أنت متأكد؟\n\n' +
-        'يُفضّل التأكيد بعد أن تتحقق من إتمام التبرع أو المساعدة المتفق عليها.\n' +
-        'بالتأكيد تُشكر المتبرع وتُسجّل في المنصة أن الطلب انتهى بما يرضيك — دون أن تكون المنصة شاهدة طبية على التبرع.'
+        'هل أنت متأكد أن المساعدة تمت؟'
     );
     if (!ok) return;
     try {
@@ -1752,10 +1750,7 @@ async function confirmHelpAsNeedy(messageId) {
 }
 
 async function confirmHelpAsDonor(messageId) {
-    const ok = confirm(
-        'هل أنت متأكد أنك نفّذت ما تعهدت به في هذا الطلب؟\n\n' +
-        'إقرارك يساعد مُرسِل الطلب على إغلاق الطلب بشكر صادق.'
-    );
+    const ok = confirm('هل نفّذت ما اتفقتما عليه؟');
     if (!ok) return;
     try {
         await dataManager.confirmHelpAsDonor(messageId);
@@ -1937,7 +1932,7 @@ async function loadProfile() {
         </div>
         <div class="profile-spirit-card" aria-labelledby="profileSpiritTitle">
             <h3 id="profileSpiritTitle" class="profile-spirit-title">تقبل الله منك</h3>
-            <p class="profile-spirit-body">أخي الكريم/ أختي الكريمة، اعلم أن الله اطلع على صنيعك، وقد أثمر عطاؤك في ميزان حسناتك. إن إحياءك لنفسٍ بشرية هو أمانةٌ عظيمة، وقد أديتها بفضل الله. نسأل الله أن يبارك في صحتك، وأن يجعل عملك هذا سبباً في دخولك الفردوس الأعلى.</p>
+            <p class="profile-spirit-body">بارك الله فيك. نسأل الله أن يتقبل عطاءك ويحفظ صحتك.</p>
         </div>
         <div class="profile-info">
             <h3><i class="fas fa-info-circle"></i> المعلومات الشخصية</h3>
@@ -2673,23 +2668,21 @@ function checkNewMessages() {
 
 /** شريط تشجيع صفحة فاعلو الخير */
 const HEROES_ENCOURAGEMENT_LINES = [
-    'هنا يُذكر من ثبّت إسناده.. جزاهم الله خيراً.',
-    'شكراً لكل من بادر.. عطاؤكم يمنح الحياة أملاً جديداً.',
-    "بصمتك اليوم في 'فاعلو الخير' هي نبضٌ لمريضٍ ينتظر.",
-    'تتبرع بدمك اليوم، لتكتب قصة حياةٍ لغيرك غداً.',
-    'بأيديكم أعدتم نبضاً كاد أن يتوقف.. شكراً لعطائكم النبيل.',
-    'فاعلو الخير.. هم النور الذي يضيء دروب المرضى في أشد لحظاتهم.',
-    'في ميزان حسناتكم ما قدمتم، وفي قلوب المرضى دعواتٌ لكم بالخير.'
+    'شكراً لمن ثبّت مساعدته. جزاهم الله خيراً.',
+    'شكراً لكل من بادر وساعد.',
+    'عطاؤكم يمنح أملاً لمريض ينتظر.',
+    'تبرعك اليوم قد يكتب حياة لغيرك.',
+    'شكراً لعطائكم.',
+    'فاعلو الخير أمل للمرضى.',
+    'في ميزان حسناتكم ما قدّمتم.'
 ];
 
 const HERO_CARD_SNIPPETS = [
-    'جزاكم الله خيراً على العطاء.',
-    'عطاؤكم يمنح الحياة أملاً جديداً.',
-    'في ميزان حسناتكم ما قدمتم.',
-    'بصمتكم نبضٌ لمريضٍ ينتظر.',
+    'جزاكم الله خيراً.',
+    'عطاؤكم يمنح أملاً.',
+    'في ميزان حسناتكم ما قدّمتم.',
     'شكراً لكل من بادر.',
-    'اللهم تقبل من فاعلي الخير.',
-    'أثرٌ يُذكر عند الله أولاً.'
+    'اللهم تقبل من فاعلي الخير.'
 ];
 
 let heroesEncouragementTimer = null;
@@ -2860,7 +2853,7 @@ function buildConfirmedHeroCardHtml(hero, index) {
     return `
         <div class="hero-card hero-card--confirmed-only" style="animation-delay: ${index * 0.05}s;">
             ${buildHeroAvatarHtml(hero)}
-            <span class="hero-role-badge hero-role-badge--confirmed">أثبت إسناده</span>
+            <span class="hero-role-badge hero-role-badge--confirmed">مساعدة مؤكَّدة</span>
             <h3 class="hero-name">${escapeHtml(safeName)}</h3>
             <span class="hero-blood-type">${blood}</span>
             <div class="hero-location">
@@ -2870,7 +2863,7 @@ function buildConfirmedHeroCardHtml(hero, index) {
             <div class="hero-stats">
                 <div class="hero-stat">
                     <span class="hero-stat-number">${matchesN}</span>
-                    <span class="hero-stat-label">تأكيد مزدوج</span>
+                    <span class="hero-stat-label">مساعدة مكتملة</span>
                 </div>
                 <div class="hero-stat">
                     <span class="hero-stat-number">${msgsN}</span>
@@ -2886,8 +2879,8 @@ function renderConfirmedHeroesInto(containerEl, heroes) {
         containerEl.innerHTML = `
             <div class="heroes-empty-confirmed" style="text-align: center; padding: 2.5rem; color: var(--gray); grid-column: 1 / -1;">
                 <i class="fas fa-user-check" style="font-size: 3rem; margin-bottom: 0.75rem; opacity: 0.35;"></i>
-                <p style="font-size: 1.1rem;">لا يوجد أحد بعد ضمن <strong>فاعلي الخير المؤكدين</strong>.</p>
-                <p class="form-hint">يُدرَج المتبرع هنا عندما يكون هو مستقبل الطلب ويُكمّل الطرفان (محتاج + متبرع) تأكيد الإسناد في الرسائل.</p>
+                <p style="font-size: 1.1rem;">لا يوجد أحد بعد في فاعلي الخير المؤكدين.</p>
+                <p class="form-hint">يُضاف من أكّد الطرفان اكتمال المساعدة.</p>
             </div>`;
         return;
     }

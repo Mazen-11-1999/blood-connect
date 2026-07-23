@@ -111,7 +111,7 @@ router.post('/register', [
 
         const existing = await dataAccess.findUserByEmail(email);
         if (existing) {
-            return res.status(400).json({ error: 'User already exists' });
+            return res.status(400).json({ error: 'الحساب موجود مسبقاً' });
         }
 
         const normalizedPhone = normalizePhone(phone);
@@ -160,7 +160,7 @@ router.post('/register', [
         });
     } catch (error) {
         console.error('Registration error:', error);
-        res.status(500).json({ error: 'Registration failed' });
+        res.status(500).json({ error: 'فشل التسجيل. حاول مرة أخرى.' });
     }
 });
 
@@ -177,12 +177,12 @@ router.post('/login', [
         const { email, password } = req.body;
         const user = await dataAccess.findUserByEmail(email);
         if (!user) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ error: 'بيانات الدخول غير صحيحة' });
         }
 
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ error: 'بيانات الدخول غير صحيحة' });
         }
 
         const token = jwt.sign(
@@ -192,13 +192,13 @@ router.post('/login', [
         );
 
         res.json({
-            message: 'Login successful',
+            message: 'تم تسجيل الدخول',
             token,
             user: publicUser(user)
         });
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ error: 'Login failed' });
+        res.status(500).json({ error: 'فشل تسجيل الدخول. حاول مرة أخرى.' });
     }
 });
 
@@ -206,12 +206,12 @@ router.get('/profile', authenticateToken, async (req, res) => {
     try {
         const user = await dataAccess.findUserById(req.userId);
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'المستخدم غير موجود' });
         }
         res.json(publicUser(user));
     } catch (error) {
         console.error('Profile error:', error);
-        res.status(500).json({ error: 'Failed to load profile' });
+        res.status(500).json({ error: 'تعذر تحميل الملف الشخصي' });
     }
 });
 
@@ -230,7 +230,7 @@ router.put('/profile', authenticateToken, [
 
         const user = await dataAccess.findUserById(req.userId);
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'المستخدم غير موجود' });
         }
 
         const allowed = [
@@ -259,12 +259,12 @@ router.put('/profile', authenticateToken, [
 
         const updated = await dataAccess.updateUser(req.userId, updates);
         res.json({
-            message: 'Profile updated successfully',
+            message: 'تم تحديث الملف',
             user: publicUser(updated)
         });
     } catch (error) {
         console.error('Profile update error:', error);
-        res.status(500).json({ error: 'Profile update failed' });
+        res.status(500).json({ error: 'تعذر تحديث الملف' });
     }
 });
 
@@ -302,11 +302,11 @@ router.post(
                 const updated = await dataAccess.updateUser(req.userId, { avatarUrl: secureUrl });
                 if (!updated) {
                     await cloudinaryAvatar.destroyByUserId(req.userId);
-                    return res.status(404).json({ error: 'User not found' });
+                    return res.status(404).json({ error: 'المستخدم غير موجود' });
                 }
                 await avatarStorage.removeStoredAvatarFiles(req.userId);
                 return res.json({
-                    message: 'تم حفظ الصورة بنجاح (تخزين سحابي دائم)',
+                    message: 'تم حفظ الصورة بنجاح',
                     user: publicUser(updated)
                 });
             }
@@ -318,11 +318,11 @@ router.post(
                     req.file.mimetype
                 );
                 if (!updated) {
-                    return res.status(404).json({ error: 'User not found' });
+                    return res.status(404).json({ error: 'المستخدم غير موجود' });
                 }
                 await avatarStorage.removeStoredAvatarFiles(req.userId);
                 return res.json({
-                    message: 'تم حفظ الصورة في قاعدة البيانات (تخزين دائم)',
+                    message: 'تم حفظ الصورة بنجاح',
                     user: publicUser(updated)
                 });
             }
@@ -337,7 +337,7 @@ router.post(
             const updated = await dataAccess.updateUser(req.userId, { avatarUrl: publicPath });
             if (!updated) {
                 await fs.unlink(localFilePath).catch(() => {});
-                return res.status(404).json({ error: 'User not found' });
+                return res.status(404).json({ error: 'المستخدم غير موجود' });
             }
             await avatarStorage.removeOtherAvatarFiles(req.userId, filename);
             res.json({
@@ -361,7 +361,7 @@ router.delete('/account', authenticateToken, async (req, res) => {
     try {
         const user = await dataAccess.findUserById(req.userId);
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'المستخدم غير موجود' });
         }
         const av = user.avatarUrl ? String(user.avatarUrl) : '';
         if (av.includes('res.cloudinary.com') || cloudinaryAvatar.isEnabled()) {
@@ -372,7 +372,7 @@ router.delete('/account', authenticateToken, async (req, res) => {
         res.json({ message: 'Account deleted successfully' });
     } catch (error) {
         console.error('Delete account error:', error);
-        res.status(500).json({ error: 'Failed to delete account' });
+        res.status(500).json({ error: 'تعذر حذف الحساب' });
     }
 });
 
